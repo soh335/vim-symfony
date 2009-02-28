@@ -62,6 +62,7 @@ function! s:SymfonyAction()
 endfunction
 
 "find model class
+"word under cursor is required
 function! s:SymfonyModel(word)
     if findfile(a:word.".php", g:sf_root_dir."lib/model") != ""
         silent execute ':e '.g:sf_root_dir."lib/model/".a:word.".php"
@@ -159,8 +160,8 @@ command! -nargs=0 SymfonyModel :call s:SymfonyModel(expand('<cword>'))
 command! -complete=file -nargs=1 SymfonyProject :call s:SymfonyProject(<f-args>)
 command! -nargs=0 Symfonycc :call s:SymconyCC()
 command! -nargs=1 SymfonyInitApp :call s:SymfonyInitApp(<f-args>)
-command! -nargs=* SymfonyInitModule :call s:SymfonyInitModule(<f-args>)
-command! -nargs=* SymfonyPropelInitAdmin :call s:SymfonyPropelInitAdmin(<f-args>)
+command! -nargs=+ SymfonyInitModule :call s:SymfonyInitModule(<f-args>)
+command! -nargs=+ SymfonyPropelInitAdmin :call s:SymfonyPropelInitAdmin(<f-args>)
 command! -nargs=? -complete=customlist,s:GetSymfonyConfigList SymfonyConfig :call s:SymfonyOpenConfigFile(<f-args>)
 command! -nargs=? -complete=customlist,s:GetSymfonyLibList SymfonyLib :call s:SymfonyOpenLibFile(<f-args>)
 "}}}
