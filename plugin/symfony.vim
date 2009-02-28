@@ -12,7 +12,7 @@ endif
 endfunction
 
 "find and edit view file
-function! FindView(word)
+function! s:FindView(word)
     if a:word =~ 'execute' && strlen(a:word)>7
         let file = tolower(a:word[7:7]).a:word[8:]."Success.php"
         call s:openTemplateFile(file)
@@ -26,10 +26,9 @@ function! FindView(word)
         echo "not execute string"
     endif
 endfunction
-nnoremap <silent><space>sv :call FindView(expand('<cword>'))<CR>
 
 " find and edit action class file
-function! FindAction()
+function! s:FindAction()
     if expand('%:t') =~ 'Success.php'
         let l:view = 'Success.php'
     elseif expand('%:t') =~ 'Error.php'
@@ -48,10 +47,9 @@ function! FindAction()
         echo "not exitst action dir"
     endif
 endfunction
-nnoremap <silent><space>sa :call FindAction()<CR>
 
 "find model class
-function! FindModel(word)
+function! s:FindModel(word)
     if findfile(a:word.".php", g:sf_root_dir."lib/model") != ""
         silent execute ':e '.g:sf_root_dir."lib/model/".a:word.".php"
     else
@@ -62,19 +60,16 @@ function! FindModel(word)
         endif
     endif
 endfunction
-noremap <silent><space>sm :call FindModel(expand('<cword>'))<CR>
 
 "set symfony home project directory
 function! s:SetSymfonyProject(word)
     if finddir('apps', a:word) != "" && finddir('web' , a:word) != "" && finddir('lib', a:word) != ""
         let g:sf_root_dir = finddir('apps',a:word)[:-5]
         echo "set symfony home"
-        "autocmd FileType php let g:AutoComplPop_CompleteOption += ',k~/.vim/dict/symfony10'
     else
         echo "nof find apps, web, lib dir"
     endif
 endfunction
-command! -complete=file -nargs=1 SetSymfonyProject :call s:SetSymfonyProject(<f-args>)
 
 function! s:SymconyCC()
     if exists("g:sf_root_dir")
@@ -84,12 +79,18 @@ function! s:SymconyCC()
         echo "not set symfony root dir"
     endif
 endfunction
-command! -nargs=0 Symfonycc :call s:SymconyCC()
     
 function! s:SymfonyConfig(word)
     echo a:word
-    execute ':e '."/Library/WebServer/Documents/kayac/_shaneil/".<tab>
 endfunction
+"}}}
+
+"{{{
+"map
+nnoremap <silent><space>sv :call s:FindView(expand('<cword>'))<CR>
+nnoremap <silent><space>sa :call s:FindAction()<CR>
+noremap <silent><space>sm :call s:FindModel(expand('<cword>'))<CR>
+command! -complete=file -nargs=1 SetSymfonyProject :call s:SetSymfonyProject(<f-args>)
+command! -nargs=0 Symfonycc :call s:SymconyCC()
 "command! -nargs=1 SymfonyConfig :call s:SymfonyConfig(<f-args>)
-"
 "}}}
