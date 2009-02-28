@@ -107,7 +107,7 @@ endfunction
     
 "open symfonyProject/config/* file
 function! s:GetSymfonyConfigList(A,L,P)
-    return split(substitute(glob(g:sf_root_dir."config/*"),g:sf_root_dir."config/","","g"), "\n")
+    return split(substitute(glob(g:sf_root_dir."config/".a:A."*"),g:sf_root_dir."config/","","g"), "\n")
 endfunction
 
 function! s:SymfonyOpenConfigFile(word)
