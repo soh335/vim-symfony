@@ -105,10 +105,16 @@ function! s:SymfonyInitModule(app, module)
     endif
 endfunction
     
-function! s:SymfonyConfig(word)
-    echo a:word
+"open symfonyProject/config/* file
+function! s:GetSymfonyConfigList(A,L,P)
+    return split(substitute(glob(g:sf_root_dir."config/*"),g:sf_root_dir."config/","","g"), "\n")
+endfunction
+
+function! s:SymfonyOpenConfigFile(word)
+    silent execute ':e '.g:sf_root_dir."config/".a:word
 endfunction
 "}}}
+
 
 "{{{ map
 nnoremap <silent><space>sv :call s:SymfonyView(expand('<cword>'))<CR>
@@ -118,5 +124,5 @@ command! -complete=file -nargs=1 SymfonyProject :call s:SymfonyProject(<f-args>)
 command! -nargs=0 Symfonycc :call s:SymconyCC()
 command! -nargs=1 SymfonyInitApp :call s:SymfonyInitApp(<f-args>)
 command! -nargs=* SymfonyInitModule :call s:SymfonyInitModule(<f-args>)
-"command! -nargs=1 SymfonyConfig :call s:SymfonyConfig(<f-args>)
+command! -nargs=? -complete=customlist,s:GetSymfonyConfigList SymfonyConfig :call s:SymfonyOpenConfigFile(<f-args>)
 "}}}
