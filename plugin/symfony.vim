@@ -16,18 +16,23 @@ else
 endif
 endfunction
 
-"find and edit symfony view file (yet only xxxSuccess.php
+"find and edit symfony view file 
+"find and edit xxxError.php if argument is error
 "find executeXXX or execute in line
-function! s:SymfonyView()
-    let l:word =  matchstr(getline('.'),'execute[0-9a-zA-Z_-]*')
+function! s:SymfonyView(arg)
+    let l:suffix = "Success.php"
+    if a:arg == "error"
+        let l:suffix = "Error.php"
+    endif
+    let l:word = matchstr(getline('.'),'execute[0-9a-zA-Z_-]*')
     if l:word == 'execute'
         "if action file is separeted
-        let l:file = substitute(expand('%:t'),"Action.class.php","","")."Success.php"
+        let l:file = substitute(expand('%:t'),"Action.class.php","","").l:suffix
         call s:openTemplateFile(l:file)
         unlet l:file
         return
     elseif l:word  =~ 'execute' && strlen(l:word)>7
-        let l:file = tolower(l:word[7:7]).l:word[8:]."Success.php"
+        let l:file = tolower(l:word[7:7]).l:word[8:].l:suffix
         call s:openTemplateFile(l:file)
         unlet l:file
         return
@@ -148,7 +153,7 @@ endfunction
 
 
 "{{{ map
-command! -nargs=0 SymfonyView :call s:SymfonyView()
+command! -nargs=? SymfonyView :call s:SymfonyView(<q-args>)
 command! -nargs=0 SymfonyAction :call s:SymfonyAction()
 command! -nargs=0 SymfonyModel :call s:SymfonyModel(expand('<cword>'))
 command! -complete=file -nargs=1 SymfonyProject :call s:SymfonyProject(<f-args>)
