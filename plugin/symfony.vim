@@ -1,18 +1,22 @@
 "{{{
 "for symfony
 " open template file function
+function! s:error(str)
+    echohl ErrorMsg
+    echomsg a:str
+    echohl None
+endfunction
+
 function! s:openTemplateFile(file)
 if finddir("templates","./../") != ""
     silent exec ":e ". finddir("templates", expand('%:p:h')."/../"). "/".a:file
 else
-    echohl ErrorMsg
-    echomsg "error not find  templates directory"
-    echohl None
+    call s:error("error not find  templates directory")
 endif
 endfunction
 
-"find and edit view file
-function! s:FindView(word)
+"find and edit view file (yet only Success file
+function! s:SymfonyView(word)
     if a:word =~ 'execute' && strlen(a:word)>7
         let file = tolower(a:word[7:7]).a:word[8:]."Success.php"
         call s:openTemplateFile(file)
@@ -28,7 +32,7 @@ function! s:FindView(word)
 endfunction
 
 " find and edit action class file
-function! s:FindAction()
+function! s:SymfonyAction()
     if expand('%:t') =~ 'Success.php'
         let l:view = 'Success.php'
     elseif expand('%:t') =~ 'Error.php'
@@ -49,7 +53,7 @@ function! s:FindAction()
 endfunction
 
 "find model class
-function! s:FindModel(word)
+function! s:SymfonyModel(word)
     if findfile(a:word.".php", g:sf_root_dir."lib/model") != ""
         silent execute ':e '.g:sf_root_dir."lib/model/".a:word.".php"
     else
@@ -62,7 +66,7 @@ function! s:FindModel(word)
 endfunction
 
 "set symfony home project directory
-function! s:SetSymfonyProject(word)
+function! s:SymfonyProject(word)
     if finddir('apps', a:word) != "" && finddir('web' , a:word) != "" && finddir('lib', a:word) != ""
         let g:sf_root_dir = finddir('apps',a:word)[:-5]
         echo "set symfony home"
@@ -71,12 +75,33 @@ function! s:SetSymfonyProject(word)
     endif
 endfunction
 
+"execute symfony clear cache
 function! s:SymconyCC()
     if exists("g:sf_root_dir")
         silent execute '!'.g:sf_root_dir."symfony cc"
         echo "cache clear"
     else
-        echo "not set symfony root dir"
+        call s:error("not set symfony root dir")
+    endif
+endfunction
+
+"execute symfony init-app 
+function! s:SymfonyInitApp(app)
+    if exists("g:sf_root_dir")
+        silent execute '!'.g:sf_root_dir."symfony init-app ".a:app
+        echo "init app ".a:app
+    else
+        call s:error("not set symfony root dir")
+    endif
+endfunction
+
+"execute symfony init-module
+function! s:SymfonyInitModule(app, module)
+    if exists("g:sf_root_dir")
+        silent execute '!'.g:sf_root_dir."symfony init-module ".a:app." ".a:module
+        echo "init module ".a:app." ".a:module
+    else
+        call s:error("not set symfony root dir")
     endif
 endfunction
     
@@ -85,12 +110,13 @@ function! s:SymfonyConfig(word)
 endfunction
 "}}}
 
-"{{{
-"map
-nnoremap <silent><space>sv :call s:FindView(expand('<cword>'))<CR>
-nnoremap <silent><space>sa :call s:FindAction()<CR>
-noremap <silent><space>sm :call s:FindModel(expand('<cword>'))<CR>
-command! -complete=file -nargs=1 SetSymfonyProject :call s:SetSymfonyProject(<f-args>)
+"{{{ map
+nnoremap <silent><space>sv :call s:SymfonyView(expand('<cword>'))<CR>
+nnoremap <silent><space>sa :call s:SymfonyAction()<CR>
+noremap <silent><space>sm :call s:SymfonyModel(expand('<cword>'))<CR>
+command! -complete=file -nargs=1 SymfonyProject :call s:SymfonyProject(<f-args>)
 command! -nargs=0 Symfonycc :call s:SymconyCC()
+command! -nargs=1 SymfonyInitApp :call s:SymfonyInitApp(<f-args>)
+command! -nargs=* SymfonyInitModule :call s:SymfonyInitModule(<f-args>)
 "command! -nargs=1 SymfonyConfig :call s:SymfonyConfig(<f-args>)
 "}}}
