@@ -1,5 +1,5 @@
 "{{{ for symfony 
-"File:vim-symfony
+"Name:vim-symfony
 "Author: soh kitahara <sugarbabe335@gmail.com>
 "URL: http://github.com/soh335/vim-symfony/tree/master
 "Description:
@@ -20,6 +20,7 @@
 "   :SymfonyAction
 "       move to actions/xxxAction.class.php or actions.class.php from
 "       templates/xxxSuccess.php or templates/xxxError.php.
+"       Find executeXXX or execute line and move this line number
 "
 "   :SymfonyProject
 "       set symfony project directory. it is necessary to still teach clearly.
@@ -96,6 +97,7 @@ function! s:SymfonyView(arg)
 endfunction
 
 " find and edit action class file
+" adn find exexuteXXX by xxxSuccess.php or xxxError.php
 function! s:SymfonyAction()
     if expand('%:t') =~ 'Success.php'
         let l:view = 'Success.php'
@@ -103,11 +105,14 @@ function! s:SymfonyAction()
         let l:view = 'Error.php'
     endif
     if finddir("actions","./../") != "" && substitute(expand('%:p:h'),'.*/','','') == "templates"
-        let file = substitute(expand('%:t'),l:view,"","")."Action.class.php"
-        if findfile(file,"./../actions/") != ""
-            silent execute ':e ./../actions/'.file
+        let l:prefix = substitute(expand('%:t'),l:view,"","") 
+        let l:file = l:prefix."Action.class.php"
+        if findfile(l:file,"./../actions/") != ""
+            silent execute ':e ./../actions/'.l:file
+            call s:searchWordInFileAndMove('execute')
         elseif findfile("actions.class.php", "./../actions") != ""
             silent execute ':e ./../actions/actions.class.php'
+            call s:searchWordInFileAndMove('execute'.toupper(l:prefix[0:0]).l:prefix[1:])
         else
             call s:error("not exist action class file")
         endif
@@ -204,6 +209,22 @@ endfunction
 
 function! s:SymfonyOpenLibFile(word)
     silent execute ':e '.g:sf_root_dir."lib/".a:word
+endfunction
+
+"search argument word in current buffer and move this line
+function! s:searchWordInFileAndMove(str)
+    let l:num = 0
+    while l:num <= line('$')
+        let l:line = getline(l:num)
+        let l:word = matchstr(l:line, a:str)
+        if l:word == a:str
+            break
+        endif
+        let l:num = l:num + 1
+    endwhile
+    if l:num != -1
+        silent execute l:num
+    endif
 endfunction
 "}}}
 
