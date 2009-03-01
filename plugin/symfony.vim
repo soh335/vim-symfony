@@ -1,4 +1,59 @@
 "{{{ for symfony 
+"File:vim-symfony
+"Author: soh kitahara <sugarbabe335@gmail.com>
+"URL: http://github.com/soh335/vim-symfony/tree/master
+"Description:
+"   vim-symfony offers some convenient methods when you develp symfony project
+"   in vim
+"
+"   :SymfonyView
+"       move to template/xxxSuccess.php from action file.
+"       Even if Action file name is not actions.class.php but
+"       xxxAction.class.php, it can move to xxxSuccess.php.
+"       In case of actions.class.php it judges from the line of the cursor
+"       position, in case of xxxAction.class.php it judges from filename.
+"
+"   :SymfonyView error
+"       If argument nameed error is passed to SymfonyView, move to
+"       template/xxxError.php.
+"
+"   :SymfonyAction
+"       move to actions/xxxAction.class.php or actions.class.php from
+"       templates/xxxSuccess.php or templates/xxxError.php.
+"
+"   :SymfonyProject
+"       set symfony project directory. it is necessary to still teach clearly.
+"       like this, :SymfonyProject ../../../../
+"       In the future, it it due to set up automatically.
+"
+"   :SymfonyModel
+"       move to lib/model/xxx.php or lib/model/xxxPeer.php from anywhere.
+"       Also in lib/model/---/xxx.php or xxxPeer.php, it corrensponds.
+"       It judges from word under cursor.
+"       It it necessary to do :SymfonyProject first.
+"
+"   :SymconyCC
+"       execute symfony clear cache
+"       It it necessary to do :SymfonyProject first.
+"
+"   :SymfonyInitApp
+"       execute symfony init-app xxx
+"       It it necessary to do :SymfonyProject first.
+"
+"   :SymfonyInitModule
+"       execute symfony init-module xxx xxx
+"       It it necessary to do :SymfonyProject first.
+"
+"   :SymfonyPropelInitAdmin
+"       execyte symfony prople-init-admin xxx xxx xxx
+"       It it necessary to do :SymfonyProject first.
+"
+"   :SymfonyConfig
+"       It is shortcut to config/* files.
+"
+"   :SymfonyLib
+"       It is shortcut to lib/* files.
+
 
 "echo errormsg func
 function! s:error(str)
