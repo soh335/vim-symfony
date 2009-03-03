@@ -178,7 +178,7 @@ endfunction
 "execute symfony propel-init-admin    
 function! s:SymfonyPropelInitAdmin(app, module, model)
     if exists("g:sf_root_dir")
-        silent execute '!'.g:sf_root_dir."symfony propel-init-admin ".a:app." ".a:module." ".model
+        silent execute '!'.g:sf_root_dir."symfony propel-init-admin ".a:app." ".a:module." ".a:model
         echo "propel-init-admin ".a:app." ".a:module." ".a:model
     else
         call s:error("not set symfony root dir")
