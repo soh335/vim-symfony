@@ -135,6 +135,23 @@ function! s:SymfonyModel(word)
     endif
 endfunction
 
+"find and edit partial template
+function! s:SymfonyPartial()
+    let l:word = matchstr(getline('.'), 'include_partial(".\{-}"')
+    echo l:word
+    let l:tmp =  l:word[17:-2]
+    if l:tmp[0:5] == "global"
+        silent execute ':e ../../../templates/_'.l:tmp[7:].'.php'
+    elseif l:tmp =~ "/"
+        echo l:tmp
+        let l:list = matchlist(l:tmp, '\(.*\)/\(.*\)')
+        silent execute ':e ../../'.l:list[1].'/templates/_'.l:list[2].'.php'
+    else
+        silent execute ':e _'.l:tmp.'.php'
+    endif
+endfunction
+
+
 "set symfony home project directory
 function! s:SymfonyProject(word)
     if finddir('apps', a:word) != "" && finddir('web' , a:word) != "" && finddir('lib', a:word) != ""
@@ -233,6 +250,7 @@ endfunction
 command! -nargs=? SymfonyView :call s:SymfonyView(<q-args>)
 command! -nargs=0 SymfonyAction :call s:SymfonyAction()
 command! -nargs=0 SymfonyModel :call s:SymfonyModel(expand('<cword>'))
+command! -nargs=0 SymfonyPartial :call s:SymfonyPartial()
 command! -complete=file -nargs=1 SymfonyProject :call s:SymfonyProject(<f-args>)
 command! -nargs=0 Symfonycc :call s:SymconyCC()
 command! -nargs=1 SymfonyInitApp :call s:SymfonyInitApp(<f-args>)
