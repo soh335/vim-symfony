@@ -33,6 +33,10 @@
 "       It judges from word under cursor.
 "       It it necessary to do :SymfonyProject first.
 "
+"   :SymfonyPartial
+"       move to partial template file. It judges from line.
+"       Also in global/xxx, it corresponds.
+"
 "   :SymconyCC
 "       execute symfony clear cache
 "       It it necessary to do :SymfonyProject first.
