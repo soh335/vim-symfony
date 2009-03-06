@@ -102,27 +102,60 @@ endfunction
 
 " find and edit action class file
 " adn find exexuteXXX by xxxSuccess.php or xxxError.php
-function! s:SymfonyAction()
-    if expand('%:t') =~ 'Success.php'
-        let l:view = 'Success.php'
-    elseif expand('%:t') =~ 'Error.php'
-        let l:view = 'Error.php'
-    endif
-    if finddir("actions","./../") != "" && substitute(expand('%:p:h'),'.*/','','') == "templates"
-        let l:prefix = substitute(expand('%:t'),l:view,"","") 
-        let l:file = l:prefix."Action.class.php"
-        if findfile(l:file,"./../actions/") != ""
-            silent execute ':e ./../actions/'.l:file
-            call s:searchWordInFileAndMove('execute')
-        elseif findfile("actions.class.php", "./../actions") != ""
-            silent execute ':e ./../actions/actions.class.php'
-            call s:searchWordInFileAndMove('execute'.toupper(l:prefix[0:0]).l:prefix[1:])
-        else
-            call s:error("not exist action class file")
+function! s:SymfonyAction(...)
+    if a:0 < 1
+        if expand('%:t') =~ 'Success.php'
+            let l:view = 'Success.php'
+        elseif expand('%:t') =~ 'Error.php'
+            let l:view = 'Error.php'
         endif
-    else
-        call s:error("not exitst action dir")
+        if finddir("actions","./../") != "" && substitute(expand('%:p:h'),'.*/','','') == "templates"
+            let l:prefix = substitute(expand('%:t'),l:view,"","") 
+            let l:file = l:prefix."Action.class.php"
+            if findfile(l:file,"./../actions/") != ""
+                silent execute ':e ./../actions/'.l:file
+                call s:searchWordInFileAndMove('execute')
+            elseif findfile("actions.class.php", "./../actions") != ""
+                silent execute ':e ./../actions/actions.class.php'
+                call s:searchWordInFileAndMove('execute'.toupper(l:prefix[0:0]).l:prefix[1:])
+            else
+                call s:error("not exist action class file")
+            endif
+        else
+            call s:error("not exitst action dir")
+        endif
+    elseif a:0 == 1
+        let l:list = split(a:1)
+        if len(l:list) == 1
+            if !exists("g:sf_root_dir")
+                call s:error("not set root dir")
+            endif
+            if s:OpenExistFile(l:list[0]."Action.class.php", "./") != 0
+            elseif s:OpenExistFile("actions.class.php", "../../".l:list[0]."/actions/")
+            else
+                call s:error("Not find")
+            endif
+        elseif len(l:list) == 2
+            if s:OpenExistFile(l:list[1]."Action.class.php", "../../".l:list[0]."/actions/") != 0
+            elseif s:OpenExistFile("actions.class.php", g:sf_root_dir."apps/".l:list[0]."/modules/".l:list[1]."/actions/") != 0
+            else
+                call s:error("Not find")
+            endif
+        elseif len(l:list) == 3
+            if s:OpenExistFile(l:list[2]."Action.class.php", g:sf_root_dir."apps/".l:list[0]."/modules/".l:list[1]."/actions/") != 0
+            else
+                call s:error("Not find")
+            endif
+        endif
     endif
+endfunction
+
+function! s:OpenExistFile(file, path)
+    if findfile(a:file, a:path) != ""
+        silent execute ':e '.a:path.a:file
+        return 1
+    endif
+    return 0
 endfunction
 
 "find model class
@@ -252,7 +285,7 @@ endfunction
 
 "{{{ map
 command! -nargs=? SymfonyView :call s:SymfonyView(<q-args>)
-command! -nargs=0 SymfonyAction :call s:SymfonyAction()
+command! -nargs=* SymfonyAction :call s:SymfonyAction(<q-args>)
 command! -nargs=0 SymfonyModel :call s:SymfonyModel(expand('<cword>'))
 command! -nargs=0 SymfonyPartial :call s:SymfonyPartial()
 command! -complete=file -nargs=1 SymfonyProject :call s:SymfonyProject(<f-args>)
