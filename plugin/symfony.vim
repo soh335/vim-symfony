@@ -22,6 +22,19 @@
 "       templates/xxxSuccess.php or templates/xxxError.php.
 "       Find executeXXX or execute line and move this line number
 "
+"   :SymfonyAction ...
+"       If argument is passed to SymfonyAction, can open file directly.
+"       Ex:
+"           :SymfonyAction foo   => open fooAction.class.php or
+"           ../../foo/actions/actions.class.php
+"
+"           :SymfonyAction foo bar  => open
+"           ../../foo/actions/barAction.class.php or
+"           apps/foo/modules/bar/actions/actions.class.php
+"
+"           :SymfonyAction foo bar baz  => open
+"           apps/foo/modules/bar/actions/bazAction.class.php
+"
 "   :SymfonyProject
 "       set symfony project directory. it is necessary to still teach clearly.
 "       like this, :SymfonyProject ../../../../
