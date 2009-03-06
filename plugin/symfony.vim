@@ -114,7 +114,8 @@ function! s:SymfonyView(arg)
 endfunction
 
 " find and edit action class file
-" adn find exexuteXXX by xxxSuccess.php or xxxError.php
+" and find exexuteXXX by xxxSuccess.php or xxxError.php
+" or if passed argument, open action file directory
 function! s:SymfonyAction(...)
     if a:0 < 1
         if expand('%:t') =~ 'Success.php'
