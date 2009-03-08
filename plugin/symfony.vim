@@ -296,6 +296,28 @@ function! s:searchWordInFileAndMove(str)
 endfunction
 "}}}
 
+"reference plugin/rails.vim 
+function! s:Detect(filename)
+    if exists("g:sf_root_dir")
+        return 0
+    endif
+    let fn = substitute(fnamemodify(a:filename,":p"),'\c^file://','','')
+    let ofn = ""
+    while fn != ofn
+        if filereadable(fn."/config/databases.yml")
+            return s:SymfonyProject(fn)
+        endif
+        let ofn = fn
+        let fn = fnamemodify(ofn,':s?\(.*\)[\/]\(apps\|config\|data\|doc\|lib\|log\|plugins\|test\|web\)\($\|[\/].*$\)?\1?')
+    endwhile
+endfunction
+
+"{{{ auto
+augroup symfonyPluginDetect
+    autocmd!
+    autocmd BufNewFile,BufRead * call s:Detect(expand("<afile>:p"))
+augroup END
+"}}}
 
 "{{{ map
 command! -nargs=? SymfonyView :call s:SymfonyView(<q-args>)
