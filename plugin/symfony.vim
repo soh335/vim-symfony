@@ -36,9 +36,10 @@
 "           apps/foo/modules/bar/actions/bazAction.class.php
 "
 "   :SymfonyProject
-"       set symfony project directory. it is necessary to still teach clearly.
-"       like this, :SymfonyProject ../../../../
-"       In the future, it it due to set up automatically.
+"       This method is called automatically.
+"       If you want to redefine root dir, use like this.
+"       :SymfonyProject ../../../../../
+"
 "
 "   :SymfonyModel
 "       move to lib/model/xxx.php or lib/model/xxxPeer.php from anywhere.
