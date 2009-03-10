@@ -118,7 +118,7 @@ endfunction
 " and find exexuteXXX by xxxSuccess.php or xxxError.php
 " or if passed argument, open action file directory
 function! s:SymfonyAction(...)
-    if a:0 < 1
+    if a:1 == ""
         if expand('%:t') =~ 'Success.php'
             let l:view = 'Success.php'
         elseif expand('%:t') =~ 'Error.php'
