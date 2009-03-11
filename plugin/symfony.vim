@@ -207,7 +207,12 @@ endfunction
 "set symfony home project directory
 function! s:SymfonyProject(word)
     if finddir('apps', a:word) != "" && finddir('web' , a:word) != "" && finddir('lib', a:word) != ""
-        let g:sf_root_dir = finddir('apps',a:word)[:-5]
+        let l:tmp = finddir('apps', a:word)
+        if l:tmp == "apps"
+            let g:sf_root_dir =substitute(expand('%:p'),"/apps.*","", "") 
+        else
+            let g:sf_root_dir = finddir('apps',a:word)[:-5]
+        endif
         echo "set symfony home"
     else
         call s:error("nof find apps, web, lib dir")
