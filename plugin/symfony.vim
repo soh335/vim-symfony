@@ -189,7 +189,7 @@ endfunction
 
 "find and edit partial template
 function! s:SymfonyPartial()
-    let l:word = matchstr(getline('.'), 'include_partial(".\{-}"')
+    let l:word = matchstr(getline('.'), 'include_partial(["''].\{-}["'']')
     echo l:word
     let l:tmp =  l:word[17:-2]
     if l:tmp[0:5] == "global"
