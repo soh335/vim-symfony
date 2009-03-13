@@ -209,7 +209,7 @@ function! s:SymfonyProject(word)
     if finddir('apps', a:word) != "" && finddir('web' , a:word) != "" && finddir('lib', a:word) != ""
         let l:tmp = finddir('apps', a:word)
         if l:tmp == "apps"
-            let g:sf_root_dir =substitute(expand('%:p'),"/apps.*","", "") 
+            let g:sf_root_dir =substitute(expand('%:p'),"/apps.*","", "")."/"
         else
             let g:sf_root_dir = finddir('apps',a:word)[:-5]
         endif
