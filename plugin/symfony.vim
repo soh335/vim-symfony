@@ -147,6 +147,7 @@ function! s:SymfonyAction(...)
             endif
             if s:OpenExistFile(l:list[0]."Action.class.php", "./") != 0
             elseif s:OpenExistFile("actions.class.php", "../../".l:list[0]."/actions/")
+            elseif s:OpenExistFile("actions.class.php", g:sf_root_dir."apps/".g:sf_default_app."/modules/".l:list[0]."/actions/")
             else
                 call s:error("Not find")
             endif
