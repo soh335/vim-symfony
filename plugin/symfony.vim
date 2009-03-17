@@ -212,9 +212,22 @@ function! s:SymfonyProject(word)
         else
             let g:sf_root_dir = finddir('apps',a:word)[:-5]
         endif
+        call s:SetDefaultApp()
         echon "set symfony home"
     else
         call s:error("nof find apps, web, lib dir")
+    endif
+endfunction
+
+function! s:SetDefaultApp()
+    if exists("g:sf_root_dir") && filereadable(g:sf_root_dir."web/index.php")
+        for l:line in readfile(g:sf_root_dir."web/index.php")
+            if l:line =~ 'define(.*SF_APP.*)'
+                let l:app = substitute(l:line,'define.*SF_APP.*,.\{-}["'']','','')
+                let l:app = substitute(l:app,'["''].*','','')
+                let g:sf_default_app = l:app
+            endif
+        endfor
     endif
 endfunction
 
