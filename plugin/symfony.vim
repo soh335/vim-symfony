@@ -1,5 +1,5 @@
 "{{{ for symfony 
-"Name:vim-symfony
+"Name: vim-symfony
 "Author: soh kitahara <sugarbabe335@gmail.com>
 "URL: http://github.com/soh335/vim-symfony/tree/master
 "Description:
@@ -50,6 +50,11 @@
 "   :SymfonyPartial
 "       move to partial template file. It judges from line.
 "       Also in global/xxx, it corresponds.
+"
+"   :SymfonyComponent
+"       move to component template file or components.class.php.
+"       If you call this in 'include_component...', move to template file.
+"       And when it is other than that, move to components.class.php file
 "
 "   :SymconyCC
 "       execute symfony clear cache
@@ -188,10 +193,25 @@ function! s:SymfonyModel(word)
     endif
 endfunction
 
+function! s:SymfonyComponent()
+    let l:mx = 'include_component(["'']\(.\{-}\)["''].\{-}["'']\(.\{-}\)["'']'
+    let l:l = matchstr(getline('.'), l:mx)
+    if l:l != ""
+        let l:module = substitute(l:l, l:mx, '\1', '')
+        let l:temp = substitute(l:l, l:mx, '\2', '')
+        silent execute ':e ../../'.l:module.'/templates/_'.l:temp.'.php'
+    else
+        let l:file = expand('%:r')
+        let l:file = l:file[1:]
+        silent execute ':e ../actions/components.class.php'
+        call s:searchWordInFileAndMove('execute'.toupper(l:file[0:0]).l:file[1:])
+    endif
+endfunction
+
 "find and edit partial template
 function! s:SymfonyPartial()
     let l:word = matchstr(getline('.'), 'include_partial(["''].\{-}["'']')
-    let l:tmp =  l:word[17:-2]
+    let l:tmp = l:word[17:-2]
     if l:tmp[0:5] == "global"
         silent execute ':e ../../../templates/_'.l:tmp[7:].'.php'
     elseif l:tmp =~ "/"
@@ -343,6 +363,7 @@ command! -nargs=? SymfonyView :call s:SymfonyView(<q-args>)
 command! -nargs=* SymfonyAction :call s:SymfonyAction(<q-args>)
 command! -nargs=0 SymfonyModel :call s:SymfonyModel(expand('<cword>'))
 command! -nargs=0 SymfonyPartial :call s:SymfonyPartial()
+command! -nargs=0 SymfonyComponent :call s:SymfonyComponent()
 command! -complete=file -nargs=1 SymfonyProject :call s:SymfonyProject(<f-args>)
 command! -nargs=0 Symfonycc :call s:SymconyCC()
 command! -nargs=1 SymfonyInitApp :call s:SymfonyInitApp(<f-args>)
