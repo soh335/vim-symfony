@@ -213,7 +213,7 @@ function! s:SymfonyPartial()
     let l:word = matchstr(getline('.'), 'include_partial(["''].\{-}["'']')
     let l:tmp = l:word[17:-2]
     if l:tmp[0:5] == "global"
-        silent execute ':e ../../../templates/_'.l:tmp[7:].'.php'
+        silent execute ':e '.g:sf_root_dir.'apps/'.s:GetNowApp().'/templates/_'.l:tmp[7:].'.php'
     elseif l:tmp =~ "/"
         echo l:tmp
         let l:list = matchlist(l:tmp, '\(.*\)/\(.*\)')
@@ -270,6 +270,16 @@ function! s:SymfonyInitApp(app)
     else
         call s:error("not set symfony root dir")
     endif
+endfunction
+
+"get now app
+function! s:GetNowApp()
+    let l:t = substitute(expand('%:p'), g:sf_root_dir, '', '')
+    if l:t[0:3] == "apps"
+        let l:app = matchstr(l:t[5:], '\(.\{-}\)/')
+        return l:app[:-2]
+    endif
+    return 0
 endfunction
 
 "execute symfony init-module
