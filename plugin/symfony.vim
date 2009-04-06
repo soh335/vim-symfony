@@ -187,11 +187,12 @@ function! s:SymfonyModel(word)
     else
         let l:word = a:word
     endif
-    if findfile(l:word.".php", g:sf_root_dir."lib/model") != ""
-        silent execute ':e '.g:sf_root_dir."lib/model/".l:word.".php"
+    "if findfile(l:word.".php", g:sf_root_dir."lib/model/") != ""
+    if findfile(l:word.".php", b:sf_model_dir) != ""
+        silent execute ':e '.b:sf_model_dir.l:word.".php"
     else
-        if findfile(l:word.".php", g:sf_root_dir."lib/model/*") != ""
-            silent execute ':e '. findfile(l:word.".php", g:sf_root_dir."lib/model/*")
+        if findfile(l:word.".php", b:sf_model_dir) != ""
+            silent execute ':e '. findfile(l:word.".php", b:sf_model_dir)
         else
             call s:error("not find ".l:word.".php")
         endif
@@ -240,6 +241,7 @@ function! s:SymfonyProject(word)
         endif
         call s:SetDefaultApp()
         echon "set symfony home"
+        call s:SetModelPath()
     else
         call s:error("nof find apps, web, lib dir")
     endif
@@ -254,6 +256,16 @@ function! s:SetDefaultApp()
                 let g:sf_default_app = l:app
             endif
         endfor
+    endif
+endfunction
+
+function! s:SetModelPath()
+    if exists("g:sf_root_dir")
+        if glob(g:sf_root_dir."lib/model/*Peer.php") != ""
+            let b:sf_model_dir = g:sf_root_dir."lib/model/"
+        elseif glob(g:sf_root_dir."lib/model/*/*Peer.php") != ""
+            let b:sf_model_dir = g:sf_root_dir."lib/model/*/"
+        endif
     endif
 endfunction
 
@@ -329,6 +341,13 @@ function! s:GetSymfonyLibList(A,L,P)
     endif
 endfunction
 
+function! s:GetSymfonyModelList(A, L, P)
+    if exists("b:sf_model_dir")
+    else
+        call s:error("not set symfony model path")
+    endif
+endfunction
+
 function! s:SymfonyOpenLibFile(word)
     silent execute ':e '.g:sf_root_dir."lib/".a:word
 endfunction
@@ -377,7 +396,7 @@ augroup END
 command! -nargs=? SymfonyView :call s:SymfonyView(<q-args>)
 command! -nargs=* SymfonyAction :call s:SymfonyAction(<q-args>)
 "command! -nargs=0 SymfonyModel :call s:SymfonyModel(expand('<cword>'))
-command! -nargs=? SymfonyModel :call s:SymfonyModel(<q-args>)
+command! -nargs=? -complete=customlist,s:GetSymfonyModelList SymfonyModel :call s:SymfonyModel(<q-args>)
 command! -nargs=0 SymfonyPartial :call s:SymfonyPartial()
 command! -nargs=0 SymfonyComponent :call s:SymfonyComponent()
 command! -complete=file -nargs=1 SymfonyProject :call s:SymfonyProject(<f-args>)
