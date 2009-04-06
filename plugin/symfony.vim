@@ -182,13 +182,18 @@ endfunction
 "find model class
 "word under cursor is required
 function! s:SymfonyModel(word)
-    if findfile(a:word.".php", g:sf_root_dir."lib/model") != ""
-        silent execute ':e '.g:sf_root_dir."lib/model/".a:word.".php"
+    if a:word == ""
+        let l:word = expand('<cword>')
     else
-        if findfile(a:word.".php", g:sf_root_dir."lib/model/*") != ""
-            silent execute ':e '. findfile(a:word.".php", g:sf_root_dir."lib/model/*")
+        let l:word = a:word
+    endif
+    if findfile(l:word.".php", g:sf_root_dir."lib/model") != ""
+        silent execute ':e '.g:sf_root_dir."lib/model/".l:word.".php"
+    else
+        if findfile(l:word.".php", g:sf_root_dir."lib/model/*") != ""
+            silent execute ':e '. findfile(l:word.".php", g:sf_root_dir."lib/model/*")
         else
-            call s:error("not find ".a:word.".php")
+            call s:error("not find ".l:word.".php")
         endif
     endif
 endfunction
@@ -371,7 +376,8 @@ augroup END
 "{{{ map
 command! -nargs=? SymfonyView :call s:SymfonyView(<q-args>)
 command! -nargs=* SymfonyAction :call s:SymfonyAction(<q-args>)
-command! -nargs=0 SymfonyModel :call s:SymfonyModel(expand('<cword>'))
+"command! -nargs=0 SymfonyModel :call s:SymfonyModel(expand('<cword>'))
+command! -nargs=? SymfonyModel :call s:SymfonyModel(<q-args>)
 command! -nargs=0 SymfonyPartial :call s:SymfonyPartial()
 command! -nargs=0 SymfonyComponent :call s:SymfonyComponent()
 command! -complete=file -nargs=1 SymfonyProject :call s:SymfonyProject(<f-args>)
