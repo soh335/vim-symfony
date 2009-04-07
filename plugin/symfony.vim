@@ -187,16 +187,32 @@ function! s:SymfonyModel(word)
     else
         let l:word = a:word
     endif
-    "if findfile(l:word.".php", g:sf_root_dir."lib/model/") != ""
-    if findfile(l:word.".php", b:sf_model_dir) != ""
-        silent execute ':e '.b:sf_model_dir.l:word.".php"
+    if l:word !~ "\.php"
+        let l:word = l:word.".php"
+    endif
+
+    if l:word =~ "/" || b:sf_model_dir !~ "\\*"
+        let l:path = g:sf_root_dir."lib/model/".l:word
+        if filereadable(l:path) == "1"
+            silent execute ':e '. l:path
+        endif
     else
-        if findfile(l:word.".php", b:sf_model_dir) != ""
-            silent execute ':e '. findfile(l:word.".php", b:sf_model_dir)
+        if findfile(l:word, b:sf_model_dir) != ""
+            silent execute ':e '. findfile(l:word, b:sf_model_dir)
         else
-            call s:error("not find ".l:word.".php")
+            call s:error("not find ".l:word)
         endif
     endif
+    "if findfile(l:word.".php", g:sf_root_dir."lib/model/") != ""
+    "if findfile(l:word, b:sf_model_dir) != ""
+    "    silent execute ':e '.b:sf_model_dir.l:word
+    "else
+    "    if findfile(l:word, b:sf_model_dir) != ""
+    "        silent execute ':e '. findfile(l:word, b:sf_model_dir)
+    "    else
+    "        call s:error("not find ".l:word)
+    "    endif
+    "endif
 endfunction
 
 function! s:SymfonyComponent()
@@ -233,12 +249,13 @@ endfunction
 "set symfony home project directory
 function! s:SymfonyProject(word)
     if finddir('apps', a:word) != "" && finddir('web' , a:word) != "" && finddir('lib', a:word) != ""
-        let l:tmp = finddir('apps', a:word)
-        if l:tmp == "apps"
-            let g:sf_root_dir =substitute(expand('%:p'),"/apps.*","", "")."/"
-        else
-            let g:sf_root_dir = finddir('apps',a:word)[:-5]
-        endif
+        "let l:tmp = finddir('apps', a:word)
+        let g:sf_root_dir = a:word."/"
+        "if l:tmp == "apps"
+        "    let g:sf_root_dir =substitute(expand('%:p'),"/apps.*","", "")."/"
+        "else
+        "    let g:sf_root_dir = finddir('apps',a:word)[:-5]
+        "endif
         call s:SetDefaultApp()
         echon "set symfony home"
         call s:SetModelPath()
@@ -343,6 +360,7 @@ endfunction
 
 function! s:GetSymfonyModelList(A, L, P)
     if exists("b:sf_model_dir")
+        return split(substitute(glob(g:sf_root_dir."lib/model/".a:A."*"),g:sf_root_dir."lib/model/","","g"), "\n")
     else
         call s:error("not set symfony model path")
     endif
