@@ -6,23 +6,23 @@
 "   vim-symfony offers some convenient methods when you develp symfony project
 "   in vim
 "
-"   :SymfonyView
+"   :SView
 "       move to template/xxxSuccess.php from action file.
 "       Even if Action file name is not actions.class.php but
 "       xxxAction.class.php, it can move to xxxSuccess.php.
 "       In case of actions.class.php it judges from the line of the cursor
 "       position, in case of xxxAction.class.php it judges from filename.
 "
-"   :SymfonyView error
+"   :SView error
 "       If argument nameed error is passed to SymfonyView, move to
 "       template/xxxError.php.
 "
-"   :SymfonyAction
+"   :SAction
 "       move to actions/xxxAction.class.php or actions.class.php from
 "       templates/xxxSuccess.php or templates/xxxError.php.
 "       Find executeXXX or execute line and move this line number
 "
-"   :SymfonyAction ...
+"   :SAction ...
 "       If argument is passed to SymfonyAction, can open file directly.
 "       Ex:
 "           :SymfonyAction foo   => open fooAction.class.php or
@@ -41,17 +41,18 @@
 "       :SymfonyProject ../../../../../
 "
 "
-"   :SymfonyModel
+"   :SModel
 "       move to lib/model/xxx.php or lib/model/xxxPeer.php from anywhere.
 "       Also in lib/model/---/xxx.php or xxxPeer.php, it corrensponds.
 "       It judges from word under cursor.
 "       It it necessary to do :SymfonyProject first.
+"       now, you can complement model file
 "
-"   :SymfonyPartial
+"   :SPartial
 "       move to partial template file. It judges from line.
 "       Also in global/xxx, it corresponds.
 "
-"   :SymfonyComponent
+"   :SComponent
 "       move to component template file or components.class.php.
 "       If you call this in 'include_component...', move to template file.
 "       And when it is other than that, move to components.class.php file
@@ -72,10 +73,10 @@
 "       execyte symfony prople-init-admin xxx xxx xxx
 "       It it necessary to do :SymfonyProject first.
 "
-"   :SymfonyConfig
+"   :SConfig
 "       It is shortcut to config/* files.
 "
-"   :SymfonyLib
+"   :SLib
 "       It is shortcut to lib/* files.
 
 
@@ -133,10 +134,10 @@ function! s:SymfonyAction(...)
             let l:prefix = substitute(expand('%:t'),l:view,"","") 
             let l:file = l:prefix."Action.class.php"
             if findfile(l:file,"./../actions/") != ""
-                silent execute ':e ./../actions/'.l:file
+                silent execute ':e '.findfile(l:file, "./../actions")
                 call s:searchWordInFileAndMove('execute')
             elseif findfile("actions.class.php", "./../actions") != ""
-                silent execute ':e ./../actions/actions.class.php'
+                silent execute ':e '.findfile("actions.class.php", "./../actions")
                 call s:searchWordInFileAndMove('execute'.toupper(l:prefix[0:0]).l:prefix[1:])
             else
                 call s:error("not exist action class file")
@@ -278,6 +279,7 @@ endfunction
 
 function! s:SetModelPath()
     if exists("g:sf_root_dir")
+        echo "fuga"
         if glob(g:sf_root_dir."lib/model/*Peer.php") != ""
             let b:sf_model_dir = g:sf_root_dir."lib/model/"
         elseif glob(g:sf_root_dir."lib/model/*/*Peer.php") != ""
@@ -411,17 +413,17 @@ augroup END
 "}}}
 
 "{{{ map
-command! -nargs=? SymfonyView :call s:SymfonyView(<q-args>)
-command! -nargs=* SymfonyAction :call s:SymfonyAction(<q-args>)
+command! -nargs=? SView :call s:SymfonyView(<q-args>)
+command! -nargs=* SAction :call s:SymfonyAction(<q-args>)
 "command! -nargs=0 SymfonyModel :call s:SymfonyModel(expand('<cword>'))
-command! -nargs=? -complete=customlist,s:GetSymfonyModelList SymfonyModel :call s:SymfonyModel(<q-args>)
-command! -nargs=0 SymfonyPartial :call s:SymfonyPartial()
-command! -nargs=0 SymfonyComponent :call s:SymfonyComponent()
+command! -nargs=? -complete=customlist,s:GetSymfonyModelList SModel :call s:SymfonyModel(<q-args>)
+command! -nargs=0 SPartial :call s:SymfonyPartial()
+command! -nargs=0 SComponent :call s:SymfonyComponent()
 command! -complete=file -nargs=1 SymfonyProject :call s:SymfonyProject(<f-args>)
-command! -nargs=0 Symfonycc :call s:SymconyCC()
+command! -nargs=0 SymfonyCC :call s:SymconyCC()
 command! -nargs=1 SymfonyInitApp :call s:SymfonyInitApp(<f-args>)
 command! -nargs=+ SymfonyInitModule :call s:SymfonyInitModule(<f-args>)
 command! -nargs=+ SymfonyPropelInitAdmin :call s:SymfonyPropelInitAdmin(<f-args>)
-command! -nargs=? -complete=customlist,s:GetSymfonyConfigList SymfonyConfig :call s:SymfonyOpenConfigFile(<f-args>)
-command! -nargs=? -complete=customlist,s:GetSymfonyLibList SymfonyLib :call s:SymfonyOpenLibFile(<f-args>)
+command! -nargs=? -complete=customlist,s:GetSymfonyConfigList SConfig :call s:SymfonyOpenConfigFile(<f-args>)
+command! -nargs=? -complete=customlist,s:GetSymfonyLibList SLib :call s:SymfonyOpenLibFile(<f-args>)
 "}}}
