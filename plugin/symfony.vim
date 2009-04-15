@@ -192,24 +192,24 @@ function! s:SymfonyModel(word)
         let l:word = l:word.".php"
     endif
 
-    if l:word =~ "/" || b:sf_model_dir !~ "\\*"
+    if l:word =~ "/" || g:sf_model_dir !~ "\\*"
         let l:path = g:sf_root_dir."lib/model/".l:word
         if filereadable(l:path) == "1"
             silent execute ':e '. l:path
         endif
     else
-        if findfile(l:word, b:sf_model_dir) != ""
-            silent execute ':e '. findfile(l:word, b:sf_model_dir)
+        if findfile(l:word, g:sf_model_dir) != ""
+            silent execute ':e '. findfile(l:word, g:sf_model_dir)
         else
             call s:error("not find ".l:word)
         endif
     endif
     "if findfile(l:word.".php", g:sf_root_dir."lib/model/") != ""
-    "if findfile(l:word, b:sf_model_dir) != ""
-    "    silent execute ':e '.b:sf_model_dir.l:word
+    "if findfile(l:word, g:sf_model_dir) != ""
+    "    silent execute ':e '.g:sf_model_dir.l:word
     "else
-    "    if findfile(l:word, b:sf_model_dir) != ""
-    "        silent execute ':e '. findfile(l:word, b:sf_model_dir)
+    "    if findfile(l:word, g:sf_model_dir) != ""
+    "        silent execute ':e '. findfile(l:word, g:sf_model_dir)
     "    else
     "        call s:error("not find ".l:word)
     "    endif
@@ -279,11 +279,10 @@ endfunction
 
 function! s:SetModelPath()
     if exists("g:sf_root_dir")
-        echo "fuga"
         if glob(g:sf_root_dir."lib/model/*Peer.php") != ""
-            let b:sf_model_dir = g:sf_root_dir."lib/model/"
+            let g:sf_model_dir = g:sf_root_dir."lib/model/"
         elseif glob(g:sf_root_dir."lib/model/*/*Peer.php") != ""
-            let b:sf_model_dir = g:sf_root_dir."lib/model/*/"
+            let g:sf_model_dir = g:sf_root_dir."lib/model/*/"
         endif
     endif
 endfunction
@@ -361,7 +360,7 @@ function! s:GetSymfonyLibList(A,L,P)
 endfunction
 
 function! s:GetSymfonyModelList(A, L, P)
-    if exists("b:sf_model_dir")
+    if exists("g:sf_model_dir")
         return split(substitute(glob(g:sf_root_dir."lib/model/".a:A."*"),g:sf_root_dir."lib/model/","","g"), "\n")
     else
         call s:error("not set symfony model path")
