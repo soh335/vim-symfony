@@ -238,9 +238,9 @@ function! s:SymfonyPartial()
     if l:tmp[0:5] == "global"
         silent execute ':e '.g:sf_root_dir.'apps/'.s:GetNowApp().'/templates/_'.l:tmp[7:].'.php'
     elseif l:tmp =~ "/"
-        echo l:tmp
         let l:list = matchlist(l:tmp, '\(.*\)/\(.*\)')
-        silent execute ':e ../../'.l:list[1].'/templates/_'.l:list[2].'.php'
+        "silent execute ':e ../../'.l:list[1].'/templates/_'.l:list[2].'.php'
+        silent execute ':e '.g:sf_root_dir.'apps/'.s:GetNowApp().'/modules/'.l:list[1].'/templates/_'.l:list[2].'.php'
     else
         silent execute ':e _'.l:tmp.'.php'
     endif
