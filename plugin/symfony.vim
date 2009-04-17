@@ -222,11 +222,13 @@ function! s:SymfonyComponent()
     if l:l != ""
         let l:module = substitute(l:l, l:mx, '\1', '')
         let l:temp = substitute(l:l, l:mx, '\2', '')
-        silent execute ':e ../../'.l:module.'/templates/_'.l:temp.'.php'
+        "silent execute ':e ../../'.l:module.'/templates/_'.l:temp.'.php'
+        silent execute ':e '.b:sf_root_dir.'apps/'.s:GetApp().'/'.l:model.'/templates/_'.l:tmp.'.php'
     else
         let l:file = expand('%:r')
         let l:file = l:file[1:]
-        silent execute ':e ../actions/components.class.php'
+        "silent execute ':e ../actions/components.class.php'
+        silent execute ':e '.b:sf_root_dir."apps/".s:GetApp().'/modules/'.s:GetModule().'/actions/components.class.php'
         call s:searchWordInFileAndMove('execute'.toupper(l:file[0:0]).l:file[1:])
     endif
 endfunction
