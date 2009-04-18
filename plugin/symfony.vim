@@ -259,8 +259,8 @@ function! s:SymfonyProject(word)
         "    let b:sf_root_dir = finddir('apps',a:word)[:-5]
         "endif
         call s:SetDefaultApp()
-        "echon "set symfony home"
         call s:SetModelPath()
+        call s:SetSymfonyVersion()
     else
         call s:error("nof find apps, web, lib dir")
     endif
@@ -275,6 +275,18 @@ function! s:SetDefaultApp()
                 let b:sf_default_app = l:app
             endif
         endfor
+    endif
+endfunction
+
+function! s:SetSymfonyVersion()
+    if filereadable("b:sf_root_dir"."config/ProjectConfiguration.class.php")
+        if finddir("sfProtoculousPlugin", b:sf_root_dir."web/") != ""
+            let b:sf_version = 12
+        else
+            let b:sf_version = 11
+        endif
+    else
+        let b:sf_version = 10
     endif
 endfunction
 
