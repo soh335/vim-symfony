@@ -258,9 +258,9 @@ function! s:SymfonyProject(word)
         "else
         "    let b:sf_root_dir = finddir('apps',a:word)[:-5]
         "endif
-        call s:SetDefaultApp()
-        call s:SetModelPath()
         call s:SetSymfonyVersion()
+        call s:SetModelPath()
+        call s:SetDefaultApp()
     else
         call s:error("nof find apps, web, lib dir")
     endif
@@ -269,17 +269,24 @@ endfunction
 function! s:SetDefaultApp()
     if exists("b:sf_root_dir") && filereadable(b:sf_root_dir."web/index.php")
         for l:line in readfile(b:sf_root_dir."web/index.php")
-            if l:line =~ 'define(.*SF_APP.*)'
-                let l:app = substitute(l:line,'define.*SF_APP.*,.\{-}["'']','','')
-                let l:app = substitute(l:app,'["''].*','','')
-                let b:sf_default_app = l:app
+            if b:sf_version == 10
+                if l:line =~ 'define(.*SF_APP.*)'
+                    let l:app = substitute(l:line,'define.*SF_APP.*,.\{-}["'']','','')
+                    let l:app = substitute(l:app,'["''].*','','')
+                    let b:sf_default_app = l:app
+                endif
+            else
+                if l:line =~ 'getApplicationConfiguration'
+                    let l:app = matchstr(l:line, '''\(.\{-}\)''')[1:-2]
+                    let b:sf_default_app = l:app
+                endif
             endif
         endfor
     endif
 endfunction
 
 function! s:SetSymfonyVersion()
-    if filereadable("b:sf_root_dir"."config/ProjectConfiguration.class.php")
+    if filereadable(b:sf_root_dir."config/ProjectConfiguration.class.php")
         if finddir("sfProtoculousPlugin", b:sf_root_dir."web/") != ""
             let b:sf_version = 12
         else
