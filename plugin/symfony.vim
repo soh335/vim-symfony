@@ -6,23 +6,23 @@
 "   vim-symfony offers some convenient methods when you develp symfony project
 "   in vim
 "
-"   :SView
+"   :Sview
 "       move to template/xxxSuccess.php from action file.
 "       Even if Action file name is not actions.class.php but
 "       xxxAction.class.php, it can move to xxxSuccess.php.
 "       In case of actions.class.php it judges from the line of the cursor
 "       position, in case of xxxAction.class.php it judges from filename.
 "
-"   :SView error
+"   :Sview error
 "       If argument nameed error is passed to SymfonyView, move to
 "       template/xxxError.php.
 "
-"   :SAction
+"   :Saction
 "       move to actions/xxxAction.class.php or actions.class.php from
 "       templates/xxxSuccess.php or templates/xxxError.php.
 "       Find executeXXX or execute line and move this line number
 "
-"   :SAction ...
+"   :Saction ...
 "       If argument is passed to SymfonyAction, can open file directly.
 "       Ex:
 "           :SymfonyAction foo   => open fooAction.class.php or
@@ -41,18 +41,22 @@
 "       :SymfonyProject ../../../../../
 "
 "
-"   :SModel
+"   :Smodel
 "       move to lib/model/xxx.php or lib/model/xxxPeer.php from anywhere.
 "       Also in lib/model/---/xxx.php or xxxPeer.php, it corrensponds.
-"       It judges from word under cursor.
-"       It it necessary to do :SymfonyProject first.
-"       now, you can complement model file
+"       if you call this medhot with no argument, judges from word under
+"       cursor.
 "
-"   :SPartial
+"   :Sform
+"       move to lib/form/xxx.class.php.
+"       if you call this medhot with no argument, judges from word under
+"       cursor.
+"
+"   :Spartial
 "       move to partial template file. It judges from line.
 "       Also in global/xxx, it corresponds.
 "
-"   :SComponent
+"   :Scomponent
 "       move to component template file or components.class.php.
 "       If you call this in 'include_component...', move to template file.
 "       And when it is other than that, move to components.class.php file
@@ -181,7 +185,6 @@ function! s:OpenExistFile(file, path)
 endfunction
 
 "find model class
-"word under cursor is required
 function! s:SymfonyModel(word)
     if a:word == ""
         let l:word = expand('<cword>')
@@ -214,6 +217,23 @@ function! s:SymfonyModel(word)
     "        call s:error("not find ".l:word)
     "    endif
     "endif
+endfunction
+
+"find form class
+function! s:SymfonyForm(word)
+    if a:word == ""
+        let l:word = expand('<cword>')
+    else
+        let l:word = a:word
+    endif
+    if l:word !~ "\.class\.php"
+        let l:word = l:word.".class.php"
+    endif
+    if findfile(l:word, b:sf_root_dir."lib/form/") != ""
+        silent execute 'e '.findfile(l:word, b:sf_root_dir."lib/form/")
+    else
+        call s:error("not find ".l:word)
+    endif
 endfunction
 
 function! s:SymfonyComponent()
@@ -400,6 +420,14 @@ function! s:GetSymfonyModelList(A, L, P)
     endif
 endfunction
 
+function! s:GetSymfonyFormList(A, L, P)
+    if exists("b:sf_root_dir")
+        return split(substitute(glob(b:sf_root_dir."lib/form/".a:A."*"),b:sf_root_dir."lib/form/","","g"), "\n")
+    else
+        call s:error("not set symfony root dir")
+    endif
+endfunction
+
 function! s:SymfonyOpenLibFile(word)
     silent execute ':e '.b:sf_root_dir."lib/".a:word
 endfunction
@@ -447,8 +475,8 @@ augroup END
 "{{{ map
 command! -nargs=? Sview :call s:SymfonyView(<q-args>)
 command! -nargs=* Saction :call s:SymfonyAction(<q-args>)
-"command! -nargs=0 SymfonyModel :call s:SymfonyModel(expand('<cword>'))
 command! -nargs=? -complete=customlist,s:GetSymfonyModelList Smodel :call s:SymfonyModel(<q-args>)
+command! -nargs=? -complete=customlist,s:GetSymfonyFormList Sform :call s:SymfonyForm(<q-args>)
 command! -nargs=0 Spartial :call s:SymfonyPartial()
 command! -nargs=0 Scomponent :call s:SymfonyComponent()
 command! -complete=file -nargs=1 SymfonyProject :call s:SymfonyProject(<f-args>)
