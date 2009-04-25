@@ -448,7 +448,7 @@ augroup END
 command! -nargs=? Sview :call s:SymfonyView(<q-args>)
 command! -nargs=* Saction :call s:SymfonyAction(<q-args>)
 "command! -nargs=0 SymfonyModel :call s:SymfonyModel(expand('<cword>'))
-command! -nargs=? -complete=customlist,s:GetSymfonyModelList SModel :call s:SymfonyModel(<q-args>)
+command! -nargs=? -complete=customlist,s:GetSymfonyModelList Smodel :call s:SymfonyModel(<q-args>)
 command! -nargs=0 Spartial :call s:SymfonyPartial()
 command! -nargs=0 Scomponent :call s:SymfonyComponent()
 command! -complete=file -nargs=1 SymfonyProject :call s:SymfonyProject(<f-args>)
