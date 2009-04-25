@@ -445,17 +445,17 @@ augroup END
 "}}}
 
 "{{{ map
-command! -nargs=? SView :call s:SymfonyView(<q-args>)
-command! -nargs=* SAction :call s:SymfonyAction(<q-args>)
+command! -nargs=? Sview :call s:SymfonyView(<q-args>)
+command! -nargs=* Saction :call s:SymfonyAction(<q-args>)
 "command! -nargs=0 SymfonyModel :call s:SymfonyModel(expand('<cword>'))
 command! -nargs=? -complete=customlist,s:GetSymfonyModelList SModel :call s:SymfonyModel(<q-args>)
-command! -nargs=0 SPartial :call s:SymfonyPartial()
-command! -nargs=0 SComponent :call s:SymfonyComponent()
+command! -nargs=0 Spartial :call s:SymfonyPartial()
+command! -nargs=0 Scomponent :call s:SymfonyComponent()
 command! -complete=file -nargs=1 SymfonyProject :call s:SymfonyProject(<f-args>)
 command! -nargs=0 SymfonyCC :call s:SymconyCC()
 command! -nargs=1 SymfonyInitApp :call s:SymfonyInitApp(<f-args>)
 command! -nargs=+ SymfonyInitModule :call s:SymfonyInitModule(<f-args>)
 command! -nargs=+ SymfonyPropelInitAdmin :call s:SymfonyPropelInitAdmin(<f-args>)
-command! -nargs=? -complete=customlist,s:GetSymfonyConfigList SConfig :call s:SymfonyOpenConfigFile(<f-args>)
-command! -nargs=? -complete=customlist,s:GetSymfonyLibList SLib :call s:SymfonyOpenLibFile(<f-args>)
+command! -nargs=? -complete=customlist,s:GetSymfonyConfigList Sconfig :call s:SymfonyOpenConfigFile(<f-args>)
+command! -nargs=? -complete=customlist,s:GetSymfonyLibList Slib :call s:SymfonyOpenLibFile(<f-args>)
 "}}}
