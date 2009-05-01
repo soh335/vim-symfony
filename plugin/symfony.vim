@@ -393,14 +393,24 @@ endfunction
 "open symfonyProject/config/* file
 function! s:GetSymfonyConfigList(A,L,P)
     if exists("b:sf_root_dir")
-        return split(substitute(glob(b:sf_root_dir."config/".a:A."*"),b:sf_root_dir."config/","","g"), "\n")
+        "return split(substitute(glob(b:sf_root_dir."config/".a:A."*"),b:sf_root_dir."config/","","g"), "\n")
+        if exists("s:sf_complete_session")
+            return s:sf_complete_session
+        else
+            let list = substitute(glob(b:sf_root_dir."config/".a:A."*"),b:sf_root_dir,"","g")
+            let list2 = substitute(glob(b:sf_root_dir."apps/*/config/".a:A."*"),b:sf_root_dir."apps/*/","","g")
+            let list3 = substitute(glob(b:sf_root_dir."apps/*/modules/*/config/".a:A."*"),b:sf_root_dir."apps/","","g")
+            let s:sf_complete_session = join(sort(split(list."\n".list2."\n".list3, "\n")), "\n")
+            return s:sf_complete_session
+        endif
     else
         call s:error("not set symfony root dir")
     endif
 endfunction
 
 function! s:SymfonyOpenConfigFile(word)
-    silent execute ':e '.b:sf_root_dir."config/".a:word
+    unlet s:sf_complete_session
+    silent execute 'e '.b:sf_root_dir.a:word
 endfunction
 
 "open symfonyProject/lib* file
@@ -484,6 +494,7 @@ command! -nargs=0 SymfonyCC :call s:SymconyCC()
 command! -nargs=1 SymfonyInitApp :call s:SymfonyInitApp(<f-args>)
 command! -nargs=+ SymfonyInitModule :call s:SymfonyInitModule(<f-args>)
 command! -nargs=+ SymfonyPropelInitAdmin :call s:SymfonyPropelInitAdmin(<f-args>)
-command! -nargs=? -complete=customlist,s:GetSymfonyConfigList Sconfig :call s:SymfonyOpenConfigFile(<f-args>)
+"command! -nargs=? -complete=customlist,s:GetSymfonyConfigList Sconfig :call s:SymfonyOpenConfigFile(<f-args>)
+command! -nargs=? -complete=custom,s:GetSymfonyConfigList Sconfig :call s:SymfonyOpenConfigFile(<f-args>)
 command! -nargs=? -complete=customlist,s:GetSymfonyLibList Slib :call s:SymfonyOpenLibFile(<f-args>)
 "}}}
