@@ -397,9 +397,9 @@ function! s:GetSymfonyConfigList(A,L,P)
         if exists("s:sf_complete_session")
             return s:sf_complete_session
         else
-            let list = substitute(glob(b:sf_root_dir."config/".a:A."*"),b:sf_root_dir,"","g")
-            let list2 = substitute(glob(b:sf_root_dir."apps/*/config/".a:A."*"),b:sf_root_dir."apps/*/","","g")
-            let list3 = substitute(glob(b:sf_root_dir."apps/*/modules/*/config/".a:A."*"),b:sf_root_dir."apps/","","g")
+            let list = substitute(glob(b:sf_root_dir."config/"."**"),b:sf_root_dir,"","g")
+            let list2 = substitute(glob(b:sf_root_dir."apps/*/config/"."**"),b:sf_root_dir."apps/*/","","g")
+            let list3 = substitute(glob(b:sf_root_dir."apps/*/modules/*/config/"."**"),b:sf_root_dir."apps/","","g")
             let s:sf_complete_session = join(sort(split(list."\n".list2."\n".list3, "\n")), "\n")
             return s:sf_complete_session
         endif
