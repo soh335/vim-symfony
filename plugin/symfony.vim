@@ -393,27 +393,21 @@ endfunction
 function! s:GetSymfonyActionList(A,L,P)
   if exists("b:sf_root_dir")
     let words = split(a:L)
-    if a:A == "" && len(words) == 1
+    if len(words) == 4 || (len(words) == 3 && a:A == "")
+      let lists = split(substitute(glob(b:sf_root_dir."apps/".words[1]."/modules/".words[2].'/actions/*Action\.class\.php'), b:sf_root_dir."apps/".words[1]."/modules/".words[2].'/actions/\(.\{-}\)Action\.class\.php', '\1', "g"), "\n")
+      "return filter(list1, 'v:val =~ "^".a:A')
+    elseif len(words) == 3 || (len(words) == 2 && a:A == "")
+      let list1 = split(substitute(glob(b:sf_root_dir."apps/".words[1]."/modules/*"), b:sf_root_dir."apps/".words[1]."/modules/", "", "g"), "\n")
+      let list2 = split(substitute(glob(b:sf_root_dir."apps/*/modules/".words[1].'/actions/*Action\.class\.php'), b:sf_root_dir.'apps/.\{-}/modules/'.words[1].'/actions/\(.\{-}\)Action\.class\.php', '\1', "g"), "\n")
+      let lists = list1 + list2
+      "return filter(lists, 'v:val =~ "^".a:A')
+    elseif len(words) <= 2 
       let list1 = split(substitute(glob(b:sf_root_dir."apps/*"), b:sf_root_dir."apps/", "", "g"), "\n")
       let list2 = split(substitute(glob(b:sf_root_dir."apps/*/modules/*"), b:sf_root_dir.'apps/.\{-}/modules/', "", "g"), "\n")
       let lists = list1 + list2
-      return lists
-    else
-      if len(words) == 4 || (len(words) == 3 && a:A == "")
-        let list1 = split(substitute(glob(b:sf_root_dir."apps/".words[1]."/modules/".words[2].'/actions/*Action\.class\.php'), b:sf_root_dir."apps/".words[1]."/modules/".words[2].'/actions/\(.\{-}\)Action\.class\.php', '\1', "g"), "\n")
-        return filter(list1, 'v:val =~ "^".a:A')
-      elseif len(words) == 3 || (len(words) == 2 && a:A == "")
-        let list1 = split(substitute(glob(b:sf_root_dir."apps/".words[1]."/modules/*"), b:sf_root_dir."apps/".words[1]."/modules/", "", "g"), "\n")
-        let list2 = split(substitute(glob(b:sf_root_dir."apps/*/modules/".words[1].'/actions/*Action\.class\.php'), b:sf_root_dir.'apps/.\{-}/modules/'.words[1].'/actions/\(.\{-}\)Action\.class\.php', '\1', "g"), "\n")
-        let lists = list1 + list2
-        return filter(lists, 'v:val =~ "^".a:A')
-      elseif len(words) == 2 
-        let list1 = split(substitute(glob(b:sf_root_dir."apps/*"), b:sf_root_dir."apps/", "", "g"), "\n")
-        let list2 = split(substitute(glob(b:sf_root_dir."apps/*/modules/*"), b:sf_root_dir.'apps/.\{-}/modules/', "", "g"), "\n")
-        let lists = list1 + list2
-        return filter(lists, 'v:val =~ "^".a:A')
-      endif
+      "return filter(lists, 'v:val =~ "^".a:A')
     endif
+    return filter(lists, 'v:val =~ "^".a:A')
   else
     call s:error("not set symfony root dir")
   endif
