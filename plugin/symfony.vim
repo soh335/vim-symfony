@@ -101,6 +101,9 @@ function! s:finddir_esc(name, path)
   return finddir(escape(a:name, ' '), escape(a:path, ' '))
 endfunction
 
+function! s:escape(word)
+  return escape(a:word, ' ')
+endfunction
 
 " open template file function
 function! s:openTemplateFile(file)
@@ -148,7 +151,7 @@ function! s:SymfonyAction(...)
     if s:finddir_esc("actions","./../") != "" && substitute(expand('%:p:h'),'.*/','','') == "templates"
       let l:prefix = substitute(expand('%:t'),l:view,"","") 
       let l:file = l:prefix."Action.class.php"
-      if s:findfile_esc_esc(l:file,"./../actions/") != ""
+      if s:findfile_esc(l:file,"./../actions/") != ""
         silent execute ':e '.s:findfile_esc(l:file, "./../actions")
         call s:searchWordInFileAndMove('execute')
       elseif s:findfile_esc("actions.class.php", "./../actions") != ""
@@ -209,7 +212,7 @@ function! s:SymfonyModel(word)
   if l:word =~ "/" || b:sf_model_dir !~ "\\*"
     let l:path = b:sf_root_dir."lib/model/".l:word
     if filereadable(l:path) == "1"
-      silent execute ':e '. l:path
+      silent execute ':e '. s:escape(l:path)
     endif
   else
     if s:findfile_esc(l:word, b:sf_model_dir) != ""
@@ -254,12 +257,12 @@ function! s:SymfonyComponent()
     let l:module = substitute(l:l, l:mx, '\1', '')
     let l:temp = substitute(l:l, l:mx, '\2', '')
     "silent execute ':e ../../'.l:module.'/templates/_'.l:temp.'.php'
-    silent execute ':e '.b:sf_root_dir.'apps/'.s:GetApp().'/'.l:model.'/templates/_'.l:tmp.'.php'
+    silent execute ':e '.s:escape(b:sf_root_dir.'apps/'.s:GetApp().'/'.l:model.'/templates/_'.l:tmp.'.php')
   else
     let l:file = expand('%:r')
     let l:file = l:file[1:]
     "silent execute ':e ../actions/components.class.php'
-    silent execute ':e '.b:sf_root_dir."apps/".s:GetApp().'/modules/'.s:GetModule().'/actions/components.class.php'
+    silent execute ':e '.s:escape(b:sf_root_dir."apps/".s:GetApp().'/modules/'.s:GetModule().'/actions/components.class.php')
     call s:searchWordInFileAndMove('execute'.toupper(l:file[0:0]).l:file[1:])
   endif
 endfunction
@@ -272,9 +275,9 @@ function! s:SymfonyPartial()
     silent execute ':e '.b:sf_root_dir.'apps/'.s:GetApp().'/templates/_'.l:tmp[7:].'.php'
   elseif l:tmp =~ "/"
     let l:list = matchlist(l:tmp, '\(.*\)/\(.*\)')
-    silent execute ':e '.b:sf_root_dir.'apps/'.s:GetApp().'/modules/'.l:list[1].'/templates/_'.l:list[2].'.php'
+    silent execute ':e '.s:escape(b:sf_root_dir.'apps/'.s:GetApp().'/modules/'.l:list[1].'/templates/_'.l:list[2].'.php')
   else
-    silent execute ':e '.b:sf_root_dir.'apps/'.s:GetApp().'/modules/'.s:GetModule().'/templates/_'.l:tmp.'.php'
+    silent execute ':e '.s:escape(b:sf_root_dir.'apps/'.s:GetApp().'/modules/'.s:GetModule().'/templates/_'.l:tmp.'.php')
   endif
 endfunction
 
@@ -450,7 +453,7 @@ endfunction
 
 function! s:SymfonyOpenConfigFile(word)
   unlet s:sf_complete_session
-  silent execute 'e '.b:sf_root_dir.a:word
+  silent execute 'e '.s:escape(b:sf_root_dir.a:word)
 endfunction
 
 "open symfonyProject/lib* file
@@ -479,7 +482,7 @@ function! s:GetSymfonyFormList(A, L, P)
 endfunction
 
 function! s:SymfonyOpenLibFile(word)
-  silent execute ':e '.b:sf_root_dir."lib/".a:word
+  silent execute ':e '.s:escape(b:sf_root_dir."lib/".a:word)
 endfunction
 
 "search argument word in current buffer and move this line
