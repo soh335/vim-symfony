@@ -91,10 +91,21 @@ function! s:error(str)
   echohl None
 endfunction
 
+"escape find file
+function! s:findfile_esc(name, path)
+  return findfile(escape(a:name, ' '), escape(a:path, ' '))
+endfunction
+
+"escape find fir
+function! s:finddir_esc(name, path)
+  return finddir(escape(a:name, ' '), escape(a:path, ' '))
+endfunction
+
+
 " open template file function
 function! s:openTemplateFile(file)
-  if finddir("templates","./../") != ""
-    silent exec ":e ". finddir("templates", expand('%:p:h')."/../"). "/".a:file
+  if s:finddir_esc("templates","./../") != ""
+    silent exec ":e ". s:finddir_esc("templates", expand('%:p:h')."/../"). "/".a:file
   else
     call s:error("error not find  templates directory")
   endif
@@ -134,14 +145,14 @@ function! s:SymfonyAction(...)
     elseif expand('%:t') =~ 'Error.php'
       let l:view = 'Error.php'
     endif
-    if finddir("actions","./../") != "" && substitute(expand('%:p:h'),'.*/','','') == "templates"
+    if s:finddir_esc("actions","./../") != "" && substitute(expand('%:p:h'),'.*/','','') == "templates"
       let l:prefix = substitute(expand('%:t'),l:view,"","") 
       let l:file = l:prefix."Action.class.php"
-      if findfile(l:file,"./../actions/") != ""
-        silent execute ':e '.findfile(l:file, "./../actions")
+      if s:findfile_esc_esc(l:file,"./../actions/") != ""
+        silent execute ':e '.s:findfile_esc(l:file, "./../actions")
         call s:searchWordInFileAndMove('execute')
-      elseif findfile("actions.class.php", "./../actions") != ""
-        silent execute ':e '.findfile("actions.class.php", "./../actions")
+      elseif s:findfile_esc("actions.class.php", "./../actions") != ""
+        silent execute ':e '.s:findfile_esc("actions.class.php", "./../actions")
         call s:searchWordInFileAndMove('execute'.toupper(l:prefix[0:0]).l:prefix[1:])
       else
         call s:error("not exist action class file")
@@ -177,7 +188,7 @@ function! s:SymfonyAction(...)
 endfunction
 
 function! s:OpenExistFile(file, path)
-  if findfile(a:file, a:path) != ""
+  if s:findfile_esc(a:file, a:path) != ""
     silent execute ':e '.a:path.a:file
     return 1
   endif
@@ -201,18 +212,18 @@ function! s:SymfonyModel(word)
       silent execute ':e '. l:path
     endif
   else
-    if findfile(l:word, b:sf_model_dir) != ""
-      silent execute ':e '. findfile(l:word, b:sf_model_dir)
+    if s:findfile_esc(l:word, b:sf_model_dir) != ""
+      silent execute ':e '. s:findfile_esc(l:word, b:sf_model_dir)
     else
       call s:error("not find ".l:word)
     endif
   endif
-  "if findfile(l:word.".php", b:sf_root_dir."lib/model/") != ""
-  "if findfile(l:word, b:sf_model_dir) != ""
+  "if s:findfile_esc(l:word.".php", b:sf_root_dir."lib/model/") != ""
+  "if s:findfile_esc(l:word, b:sf_model_dir) != ""
   "    silent execute ':e '.b:sf_model_dir.l:word
   "else
-  "    if findfile(l:word, b:sf_model_dir) != ""
-  "        silent execute ':e '. findfile(l:word, b:sf_model_dir)
+  "    if s:findfile_esc(l:word, b:sf_model_dir) != ""
+  "        silent execute ':e '. s:findfile_esc(l:word, b:sf_model_dir)
   "    else
   "        call s:error("not find ".l:word)
   "    endif
@@ -229,8 +240,8 @@ function! s:SymfonyForm(word)
   if l:word !~ "\.class\.php"
     let l:word = l:word.".class.php"
   endif
-  if findfile(l:word, b:sf_root_dir."lib/form/") != ""
-    silent execute 'e '.findfile(l:word, b:sf_root_dir."lib/form/")
+  if s:findfile_esc(l:word, b:sf_root_dir."lib/form/") != ""
+    silent execute 'e '.s:findfile_esc(l:word, b:sf_root_dir."lib/form/")
   else
     call s:error("not find ".l:word)
   endif
@@ -270,13 +281,13 @@ endfunction
 
 "set symfony home project directory
 function! s:SymfonyProject(word)
-  if finddir('apps', a:word) != "" && finddir('web' , a:word) != "" && finddir('lib', a:word) != ""
-    "let l:tmp = finddir('apps', a:word)
+  if s:finddir_esc('apps', a:word) != "" && s:finddir_esc('web' , a:word) != "" && s:finddir_esc('lib', a:word) != ""
+    "let l:tmp = s:finddir_esc('apps', a:word)
     let b:sf_root_dir = a:word."/"
     "if l:tmp == "apps"
     "    let b:sf_root_dir =substitute(expand('%:p'),"/apps.*","", "")."/"
     "else
-    "    let b:sf_root_dir = finddir('apps',a:word)[:-5]
+    "    let b:sf_root_dir = s:finddir_esc('apps',a:word)[:-5]
     "endif
     call s:SetSymfonyVersion()
     call s:SetModelPath()
@@ -307,7 +318,7 @@ endfunction
 
 function! s:SetSymfonyVersion()
   if filereadable(b:sf_root_dir."config/ProjectConfiguration.class.php")
-    if finddir("sfProtoculousPlugin", b:sf_root_dir."web/") != ""
+    if s:finddir_esc("sfProtoculousPlugin", b:sf_root_dir."web/") != ""
       let b:sf_version = 12
     else
       let b:sf_version = 11
