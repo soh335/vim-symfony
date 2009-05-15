@@ -434,8 +434,14 @@ function! s:GetSymfonyConfigList(A,L,P)
 endfunction
 
 function! s:SymfonyOpenConfigFile(word)
-  unlet s:sf_complete_session
-  silent execute 'e '.b:sf_root_dir.a:word
+  if exists("s:sf_complete_session")
+    unlet s:sf_complete_session
+  endif
+  let path = a:word
+  if a:word[0:5] != "config"
+    let path = "apps/".a:word
+  endif
+  silent execute 'e '.b:sf_root_dir.path
 endfunction
 
 "open symfonyProject/lib* file
