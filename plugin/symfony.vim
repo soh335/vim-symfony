@@ -456,8 +456,6 @@ function! s:SymfonyOpenConfigFile(word)
     let path = "apps/".a:word
   endif
   silent execute 'e '.b:sf_root_dir.path
-  unlet s:sf_complete_session
-  silent execute 'e '.s:escape(b:sf_root_dir.a:word)
 endfunction
 
 "open symfonyProject/lib* file
