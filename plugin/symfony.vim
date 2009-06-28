@@ -103,8 +103,9 @@ endfunction
 
 " open template file function
 function! s:openTemplateFile(file)
-  if isdirectory(b:sf_root_dir."apps/".s:GetApp()."/modules/".s:GetModule()."/templates")
-    silent edit `=b:sf_root_dir."apps/".s:GetApp()."/modules/".s:GetModule()."/templates/".a:file`
+  echo b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/templates"
+  if isdirectory(b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/templates")
+    silent edit `=b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/templates/".a:file`
   else
     call s:error("error not find  templates directory")
   endif
@@ -147,11 +148,11 @@ function! s:SymfonyAction(...)
     if substitute(expand('%:p:h'),'.*/','','') == "templates"
       let l:prefix = substitute(expand('%:t'),l:view,"","") 
       let l:file = l:prefix."Action.class.php"
-      if filereadable(b:sf_root_dir."apps/".s:GetApp()."/modules/".s:GetModule()."/actions/".l:file)
-        silent edit `=b:sf_root_dir."apps/".s:GetApp()."/modules/".s:GetModule()."/actions/".l:file`
+      if filereadable(b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/actions/".l:file)
+        silent edit `=b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/actions/".l:file`
         call s:searchWordInFileAndMove('execute')
-      elseif filereadable(b:sf_root_dir."apps/".s:GetApp()."/modules/".s:GetModule()."/actions/actions.class.php")
-        silent edit `=b:sf_root_dir."apps/".s:GetApp()."/modules/".s:GetModule()."/actions/actions.class.php"`
+      elseif filereadable(b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/actions/actions.class.php")
+        silent edit `=b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/actions/actions.class.php"`
         call s:searchWordInFileAndMove('execute'.toupper(l:prefix[0:0]).l:prefix[1:])
       else
         call s:error("not exist action class file")
@@ -165,19 +166,19 @@ function! s:SymfonyAction(...)
       if !exists("b:sf_root_dir")
         call s:error("not set root dir")
       endif
-      if s:OpenExistFile(b:sf_root_dir."apps/".b:sf_default_app."/modules/".s:GetModule()."/actions/".l:list[0]."Action.class.php") != 0
-      elseif s:OpenExistFile(b:sf_root_dir."apps/".b:sf_default_app."/modules/".l:list[0]."/actions/actions.class.php") != 0
+      if s:OpenExistFile(b:sf_root_dir."/apps/".b:sf_default_app."/modules/".s:GetModule()."/actions/".l:list[0]."Action.class.php") != 0
+      elseif s:OpenExistFile(b:sf_root_dir."/apps/".b:sf_default_app."/modules/".l:list[0]."/actions/actions.class.php") != 0
       else
         call s:error("Not find")
       endif
     elseif len(l:list) == 2
-      if s:OpenExistFile(b:sf_root_dir."apps/".b:sf_default_app."/modules/".l:list[0]."/actions/".l:list[1]."Action.class.php") != 0
-      elseif s:OpenExistFile(b:sf_root_dir."apps/".l:list[0]."/modules/".l:list[1]."/actions/actions.class.php") != 0
+      if s:OpenExistFile(b:sf_root_dir."/apps/".b:sf_default_app."/modules/".l:list[0]."/actions/".l:list[1]."Action.class.php") != 0
+      elseif s:OpenExistFile(b:sf_root_dir."/apps/".l:list[0]."/modules/".l:list[1]."/actions/actions.class.php") != 0
       else
         call s:error("Not find")
       endif
     elseif len(l:list) == 3
-      if s:OpenExistFile(b:sf_root_dir."apps/".l:list[0]."/modules/".l:list[1]."/actions/".l:list[2]."Action.class.php") != 0
+      if s:OpenExistFile(b:sf_root_dir."/apps/".l:list[0]."/modules/".l:list[1]."/actions/".l:list[2]."Action.class.php") != 0
       else
         call s:error("Not find")
       endif
@@ -205,7 +206,7 @@ function! s:SymfonyModel(word)
   endif
 
   if l:word =~ "/" || b:sf_model_dir !~ "\\*"
-    let l:path = b:sf_root_dir."lib/model/".l:word
+    let l:path = b:sf_root_dir."/lib/model/".l:word
     if filereadable(l:path) == "1"
       silent edit `=l:path`
     endif
@@ -228,8 +229,8 @@ function! s:SymfonyForm(word)
   if l:word !~ "\.class\.php"
     let l:word = l:word.".class.php"
   endif
-  if filereadable(b:sf_root_dir."lib/form/".l:word)
-    silent edit `=b:sf_root_dir."lib/form/".l:word`
+  if filereadable(b:sf_root_dir."/lib/form/".l:word)
+    silent edit `=b:sf_root_dir."/lib/form/".l:word`
   else
     call s:error("not find ".l:word)
   endif
@@ -242,11 +243,11 @@ function! s:SymfonyComponent()
     let l:module = substitute(l:l, l:mx, '\1', '')
     let l:temp = substitute(l:l, l:mx, '\2', '')
     "silent execute ':e ../../'.l:module.'/templates/_'.l:temp.'.php'
-    silent edit `=b:sf_root_dir.'apps/'.s:GetApp().'/'.l:module.'templates/_'.l:tmp.'php'`
+    silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/'.l:module.'templates/_'.l:tmp.'php'`
   else
     let l:file = expand('%:r')
     let l:file = l:file[1:]
-    silent edit `=b:sf_root_dir.'apps/'.s:GetApp().'/modules/'.s:GetModule().'/actions/components.class.php'`
+    silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/modules/'.s:GetModule().'/actions/components.class.php'`
     call s:searchWordInFileAndMove('execute'.toupper(l:file[0:0]).l:file[1:])
   endif
 endfunction
@@ -256,12 +257,12 @@ function! s:SymfonyPartial()
   let l:word = matchstr(getline('.'), 'include_partial(["''].\{-}["'']')
   let l:tmp = l:word[17:-2]
   if l:tmp[0:5] == "global"
-    silent edit `=b:sf_root_dir.'apps/'.s:GetApp().'/templates/_'.l:tmp[7:].'.php'`
+    silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/templates/_'.l:tmp[7:].'.php'`
   elseif l:tmp =~ "/"
     let l:list = matchlist(l:tmp, '\(.*\)/\(.*\)')
-    silent edit `=b:sf_root_dir.'apps/'.s:GetApp().'/modules/'.l:list[1].'/templates/_'.l:list[2].'.php'`
+    silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/modules/'.l:list[1].'/templates/_'.l:list[2].'.php'`
   else
-    silent edit `=b:sf_root_dir.'apps/'.s:GetApp().'/modules/'.s:GetModule().'/templates/_'.l:tmp.'.php'`
+    silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/modules/'.s:GetModule().'/templates/_'.l:tmp.'.php'`
   endif
 endfunction
 
@@ -270,7 +271,7 @@ endfunction
 function! s:SymfonyProject(word)
   if isdirectory(a:word.'/apps') && isdirectory(a:word.'/web') && isdirectory(a:word.'/lib')
     "let l:tmp = s:finddir_esc('apps', a:word)
-    let b:sf_root_dir = a:word."/"
+    let b:sf_root_dir = a:word
     "if l:tmp == "apps"
     "    let b:sf_root_dir =substitute(expand('%:p'),"/apps.*","", "")."/"
     "else
@@ -287,8 +288,8 @@ function! s:SymfonyProject(word)
 endfunction
 
 function! s:SetDefaultApp()
-  if exists("b:sf_root_dir") && filereadable(b:sf_root_dir."web/index.php")
-    for l:line in readfile(b:sf_root_dir."web/index.php")
+  if exists("b:sf_root_dir") && filereadable(b:sf_root_dir."/web/index.php")
+    for l:line in readfile(b:sf_root_dir."/web/index.php")
       if b:sf_version == 10
         if l:line =~ 'define(.*SF_APP.*)'
           let l:app = substitute(l:line,'define.*SF_APP.*,.\{-}["'']','','')
@@ -306,8 +307,8 @@ function! s:SetDefaultApp()
 endfunction
 
 function! s:SetSymfonyVersion()
-  if filereadable(b:sf_root_dir."config/ProjectConfiguration.class.php")
-    if s:finddir_esc("sfProtoculousPlugin", b:sf_root_dir."web/") != ""
+  if filereadable(b:sf_root_dir."/config/ProjectConfiguration.class.php")
+    if s:finddir_esc("sfProtoculousPlugin", b:sf_root_dir."/web/") != ""
       let b:sf_version = 12
     else
       let b:sf_version = 11
@@ -319,10 +320,10 @@ endfunction
 
 function! s:SetModelPath()
   if exists("b:sf_root_dir")
-    if glob(b:sf_root_dir."lib/model/*Peer.php") != ""
-      let b:sf_model_dir = b:sf_root_dir."lib/model/"
+    if glob(b:sf_root_dir."/lib/model/*Peer.php") != ""
+      let b:sf_model_dir = b:sf_root_dir."/lib/model/"
     elseif glob(b:sf_root_dir."lib/model/*/*Peer.php") != ""
-      let b:sf_model_dir = b:sf_root_dir."lib/model/*/"
+      let b:sf_model_dir = b:sf_root_dir."/lib/model/*/"
     endif
   endif
 endfunction
@@ -330,7 +331,7 @@ endfunction
 "execute symfony clear cache
 function! s:SymconyCC()
   if exists("b:sf_root_dir")
-    silent execute '!'.b:sf_root_dir."symfony cc"
+    silent execute '!'.b:sf_root_dir."/symfony cc"
     echo "cache clear"
   else
     call s:error("not set symfony root dir")
@@ -340,7 +341,7 @@ endfunction
 "execute symfony init-app 
 function! s:SymfonyInitApp(app)
   if exists("b:sf_root_dir")
-    silent execute '!'.b:sf_root_dir."symfony init-app ".a:app
+    silent execute '!'.b:sf_root_dir."/symfony init-app ".a:app
     echo "init app ".a:app
   else
     call s:error("not set symfony root dir")
@@ -351,12 +352,7 @@ endfunction
 function! s:GetApp()
   if exists("b:sf_app_name") == 0
     let l:t = substitute(expand('%:p'), b:sf_root_dir, '', '')
-    if l:t[0:3] == "apps"
-      let l:app = matchstr(l:t[5:], '\(.\{-}\)/')
-      let b:sf_app_name = l:app[:-2]
-    else
-      return 0
-    endif
+    let b:sf_app_name = substitute(matchstr(l:t, 'apps[/\\]\(.\{-}\)[/\\]')[:-2], 'apps[/\\]', '', '')
   endif
   return b:sf_app_name
 endfunction
@@ -365,7 +361,7 @@ endfunction
 function! s:GetModule()
   if exists("b:sf_module_name") == 0
     let l:t = substitute(expand('%:p'), b:sf_root_dir, '', '')
-    let b:sf_module_name = substitute(matchstr(l:t, 'modules/\(.\{-}\)/')[:-2], "modules/", '', '')
+    let b:sf_module_name = substitute(matchstr(l:t, 'modules[/\\]\(.\{-}\)[/\\]')[:-2], 'modules[/\\]', '', '')
   endif
   return b:sf_module_name
 endfunction
@@ -373,7 +369,7 @@ endfunction
 "execute symfony init-module
 function! s:SymfonyInitModule(app, module)
   if exists("b:sf_root_dir")
-    silent execute '!'.b:sf_root_dir."symfony init-module ".a:app." ".a:module
+    silent execute '!'.b:sf_root_dir."/symfony init-module ".a:app." ".a:module
     echo "init module ".a:app." ".a:module
   else
     call s:error("not set symfony root dir")
@@ -383,7 +379,7 @@ endfunction
 "execute symfony propel-init-admin    
 function! s:SymfonyPropelInitAdmin(app, module, model)
   if exists("b:sf_root_dir")
-    silent execute '!'.b:sf_root_dir."symfony propel-init-admin ".a:app." ".a:module." ".a:model
+    silent execute '!'.b:sf_root_dir."/symfony propel-init-admin ".a:app." ".a:module." ".a:model
     echo "propel-init-admin ".a:app." ".a:module." ".a:model
   else
     call s:error("not set symfony root dir")
@@ -394,14 +390,14 @@ function! s:GetSymfonyActionList(A,L,P)
   if exists("b:sf_root_dir")
     let words = split(a:L)
     if len(words) == 4 || (len(words) == 3 && a:A == "")
-      let lists = split(substitute(glob(b:sf_root_dir."apps/".words[1]."/modules/".words[2].'/actions/*Action\.class\.php'), b:sf_root_dir."apps/".words[1]."/modules/".words[2].'/actions/\(.\{-}\)Action\.class\.php', '\1', "g"), "\n")
+      let lists = split(substitute(glob(b:sf_root_dir."/apps/".words[1]."/modules/".words[2].'/actions/*Action\.class\.php'), b:sf_root_dir."/apps/".words[1]."/modules/".words[2].'/actions/\(.\{-}\)Action\.class\.php', '\1', "g"), "\n")
     elseif len(words) == 3 || (len(words) == 2 && a:A == "")
-      let list1 = split(substitute(glob(b:sf_root_dir."apps/".words[1]."/modules/*"), b:sf_root_dir."apps/".words[1]."/modules/", "", "g"), "\n")
-      let list2 = split(substitute(glob(b:sf_root_dir."apps/*/modules/".words[1].'/actions/*Action\.class\.php'), b:sf_root_dir.'apps/.\{-}/modules/'.words[1].'/actions/\(.\{-}\)Action\.class\.php', '\1', "g"), "\n")
+      let list1 = split(substitute(glob(b:sf_root_dir."/apps/".words[1]."/modules/*"), b:sf_root_dir."/apps/".words[1]."/modules/", "", "g"), "\n")
+      let list2 = split(substitute(glob(b:sf_root_dir."/apps/*/modules/".words[1].'/actions/*Action\.class\.php'), b:sf_root_dir.'/apps/.\{-}/modules/'.words[1].'/actions/\(.\{-}\)Action\.class\.php', '\1', "g"), "\n")
       let lists = list1 + list2
     elseif len(words) <= 2 
-      let list1 = split(substitute(glob(b:sf_root_dir."apps/*"), b:sf_root_dir."apps/", "", "g"), "\n")
-      let list2 = split(substitute(glob(b:sf_root_dir."apps/*/modules/*"), b:sf_root_dir.'apps/.\{-}/modules/', "", "g"), "\n")
+      let list1 = split(substitute(glob(b:sf_root_dir."/apps/*"), b:sf_root_dir."/apps/", "", "g"), "\n")
+      let list2 = split(substitute(glob(b:sf_root_dir."/apps/*/modules/*"), b:sf_root_dir.'/apps/.\{-}/modules/', "", "g"), "\n")
       let lists = list1 + list2
     endif
     return filter(lists, 'v:val =~ "^".a:A')
@@ -422,9 +418,9 @@ function! s:GetSymfonyConfigList(A,L,P)
     if exists("s:sf_complete_session")
       return s:sf_complete_session
     else
-      let list = substitute(glob(b:sf_root_dir."config/"."**"),b:sf_root_dir,"","g")
-      let list2 = substitute(glob(b:sf_root_dir."apps/*/config/"."**"),b:sf_root_dir."apps/*/","","g")
-      let list3 = substitute(glob(b:sf_root_dir."apps/*/modules/*/config/"."**"),b:sf_root_dir."apps/","","g")
+      let list = substitute(glob(b:sf_root_dir."/config/"."**"),b:sf_root_dir,"","g")
+      let list2 = substitute(glob(b:sf_root_dir."/apps/*/config/"."**"),b:sf_root_dir."/apps/*/","","g")
+      let list3 = substitute(glob(b:sf_root_dir."/apps/*/modules/*/config/"."**"),b:sf_root_dir."/apps/","","g")
       let s:sf_complete_session = join(sort(split(list."\n".list2."\n".list3, "\n")), "\n")
       return s:sf_complete_session
     endif
@@ -447,7 +443,7 @@ endfunction
 "open symfonyProject/lib* file
 function! s:GetSymfonyLibList(A,L,P)
   if exists("b:sf_root_dir")
-    return split(substitute(glob(b:sf_root_dir."lib/".a:A."*"),b:sf_root_dir."lib/","","g"), "\n")
+    return split(substitute(glob(b:sf_root_dir."/lib/".a:A."*"),b:sf_root_dir."/lib/","","g"), "\n")
   else
     call s:error("not set symfony root dir")
   endif
@@ -455,7 +451,7 @@ endfunction
 
 function! s:GetSymfonyModelList(A, L, P)
   if exists("b:sf_model_dir")
-    return split(substitute(glob(b:sf_root_dir."lib/model/".a:A."*"),b:sf_root_dir."lib/model/","","g"), "\n")
+    return split(substitute(glob(b:sf_root_dir."/lib/model/".a:A."*"),b:sf_root_dir."/lib/model/","","g"), "\n")
   else
     call s:error("not set symfony model path")
   endif
@@ -463,14 +459,14 @@ endfunction
 
 function! s:GetSymfonyFormList(A, L, P)
   if exists("b:sf_root_dir")
-    return split(substitute(glob(b:sf_root_dir."lib/form/".a:A."*"),b:sf_root_dir."lib/form/","","g"), "\n")
+    return split(substitute(glob(b:sf_root_dir."/lib/form/".a:A."*"),b:sf_root_dir."/lib/form/","","g"), "\n")
   else
     call s:error("not set symfony root dir")
   endif
 endfunction
 
 function! s:SymfonyOpenLibFile(word)
-  silent execute ':e '.s:escape(b:sf_root_dir."lib/".a:word)
+  silent execute ':e '.s:escape(b:sf_root_dir."/lib/".a:word)
 endfunction
 
 "search argument word in current buffer and move this line
