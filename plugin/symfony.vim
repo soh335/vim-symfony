@@ -91,10 +91,6 @@ function! s:error(str)
   echohl None
 endfunction
 
-"escape find file
-function! s:findfile_esc(name, path)
-  return findfile(escape(a:name, ' '), escape(a:path, ' '))
-endfunction
 
 "escape find fir
 function! s:finddir_esc(name, path)
@@ -107,8 +103,8 @@ endfunction
 
 " open template file function
 function! s:openTemplateFile(file)
-  if s:finddir_esc("templates","./../") != ""
-    silent exec ":e ". s:finddir_esc("templates", expand('%:p:h')."/../"). "/".a:file
+  if isdirectory(b:sf_root_dir."apps/".s:GetApp()."/modules/".s:GetModule()."/templates")
+    silent edit `=b:sf_root_dir."apps/".s:GetApp()."/modules/".s:GetModule()."/templates/".a:file`
   else
     call s:error("error not find  templates directory")
   endif
@@ -148,14 +144,14 @@ function! s:SymfonyAction(...)
     elseif expand('%:t') =~ 'Error.php'
       let l:view = 'Error.php'
     endif
-    if s:finddir_esc("actions","./../") != "" && substitute(expand('%:p:h'),'.*/','','') == "templates"
+    if substitute(expand('%:p:h'),'.*/','','') == "templates"
       let l:prefix = substitute(expand('%:t'),l:view,"","") 
       let l:file = l:prefix."Action.class.php"
-      if s:findfile_esc(l:file,"./../actions/") != ""
-        silent execute ':e '.s:findfile_esc(l:file, "./../actions")
+      if filereadable(b:sf_root_dir."apps/".s:GetApp()."/modules/".s:GetModule()."/actions/".l:file)
+        silent edit `=b:sf_root_dir."apps/".s:GetApp()."/modules/".s:GetModule()."/actions/".l:file`
         call s:searchWordInFileAndMove('execute')
-      elseif s:findfile_esc("actions.class.php", "./../actions") != ""
-        silent execute ':e '.s:findfile_esc("actions.class.php", "./../actions")
+      elseif filereadable(b:sf_root_dir."apps/".s:GetApp()."/modules/".s:GetModule()."/actions/actions.class.php")
+        silent edit `=b:sf_root_dir."apps/".s:GetApp()."/modules/".s:GetModule()."/actions/actions.class.php"`
         call s:searchWordInFileAndMove('execute'.toupper(l:prefix[0:0]).l:prefix[1:])
       else
         call s:error("not exist action class file")
@@ -169,20 +165,19 @@ function! s:SymfonyAction(...)
       if !exists("b:sf_root_dir")
         call s:error("not set root dir")
       endif
-      if s:OpenExistFile(l:list[0]."Action.class.php", b:sf_root_dir."apps/".b:sf_default_app."/modules/".s:GetModule()."/actions/") != 0
-      "elseif s:OpenExistFile("actions.class.php", .l:list[0]."/actions/")
-      elseif s:OpenExistFile("actions.class.php", b:sf_root_dir."apps/".b:sf_default_app."/modules/".l:list[0]."/actions/") != 0
+      if s:OpenExistFile(b:sf_root_dir."apps/".b:sf_default_app."/modules/".s:GetModule()."/actions/".l:list[0]."Action.class.php") != 0
+      elseif s:OpenExistFile(b:sf_root_dir."apps/".b:sf_default_app."/modules/".l:list[0]."/actions/actions.class.php") != 0
       else
         call s:error("Not find")
       endif
     elseif len(l:list) == 2
-      if s:OpenExistFile(l:list[1]."Action.class.php", b:sf_root_dir."apps/".b:sf_default_app."/modules/".l:list[0]."/actions/") != 0
-      elseif s:OpenExistFile("actions.class.php", b:sf_root_dir."apps/".l:list[0]."/modules/".l:list[1]."/actions/") != 0
+      if s:OpenExistFile(b:sf_root_dir."apps/".b:sf_default_app."/modules/".l:list[0]."/actions/".l:list[1]."Action.class.php") != 0
+      elseif s:OpenExistFile(b:sf_root_dir."apps/".l:list[0]."/modules/".l:list[1]."/actions/actions.class.php") != 0
       else
         call s:error("Not find")
       endif
     elseif len(l:list) == 3
-      if s:OpenExistFile(l:list[2]."Action.class.php", b:sf_root_dir."apps/".l:list[0]."/modules/".l:list[1]."/actions/") != 0
+      if s:OpenExistFile(b:sf_root_dir."apps/".l:list[0]."/modules/".l:list[1]."/actions/".l:list[2]."Action.class.php") != 0
       else
         call s:error("Not find")
       endif
@@ -190,9 +185,9 @@ function! s:SymfonyAction(...)
   endif
 endfunction
 
-function! s:OpenExistFile(file, path)
-  if s:findfile_esc(a:file, a:path) != ""
-    silent execute ':e '.a:path.a:file
+function! s:OpenExistFile(path)
+  if filereadable(a:path)
+    silent edit `=a:path`
     return 1
   endif
   return 0
@@ -212,25 +207,15 @@ function! s:SymfonyModel(word)
   if l:word =~ "/" || b:sf_model_dir !~ "\\*"
     let l:path = b:sf_root_dir."lib/model/".l:word
     if filereadable(l:path) == "1"
-      silent execute ':e '. s:escape(l:path)
+      silent edit `=l:path`
     endif
   else
-    if s:findfile_esc(l:word, b:sf_model_dir) != ""
-      silent execute ':e '. s:findfile_esc(l:word, b:sf_model_dir)
+    if filereadable(glob(b:sf_model_dir."/".l:word))
+      silent edit `=glob(b:sf_model_dir."/".l:word)`
     else
       call s:error("not find ".l:word)
     endif
   endif
-  "if s:findfile_esc(l:word.".php", b:sf_root_dir."lib/model/") != ""
-  "if s:findfile_esc(l:word, b:sf_model_dir) != ""
-  "    silent execute ':e '.b:sf_model_dir.l:word
-  "else
-  "    if s:findfile_esc(l:word, b:sf_model_dir) != ""
-  "        silent execute ':e '. s:findfile_esc(l:word, b:sf_model_dir)
-  "    else
-  "        call s:error("not find ".l:word)
-  "    endif
-  "endif
 endfunction
 
 "find form class
@@ -243,8 +228,8 @@ function! s:SymfonyForm(word)
   if l:word !~ "\.class\.php"
     let l:word = l:word.".class.php"
   endif
-  if s:findfile_esc(l:word, b:sf_root_dir."lib/form/") != ""
-    silent execute 'e '.s:findfile_esc(l:word, b:sf_root_dir."lib/form/")
+  if filereadable(b:sf_root_dir."lib/form/".l:word)
+    silent edit `=b:sf_root_dir."lib/form/".l:word`
   else
     call s:error("not find ".l:word)
   endif
@@ -257,12 +242,11 @@ function! s:SymfonyComponent()
     let l:module = substitute(l:l, l:mx, '\1', '')
     let l:temp = substitute(l:l, l:mx, '\2', '')
     "silent execute ':e ../../'.l:module.'/templates/_'.l:temp.'.php'
-    silent execute ':e '.s:escape(b:sf_root_dir.'apps/'.s:GetApp().'/'.l:model.'/templates/_'.l:tmp.'.php')
+    silent edit `=b:sf_root_dir.'apps/'.s:GetApp().'/'.l:module.'templates/_'.l:tmp.'php'`
   else
     let l:file = expand('%:r')
     let l:file = l:file[1:]
-    "silent execute ':e ../actions/components.class.php'
-    silent execute ':e '.s:escape(b:sf_root_dir."apps/".s:GetApp().'/modules/'.s:GetModule().'/actions/components.class.php')
+    silent edit `=b:sf_root_dir.'apps/'.s:GetApp().'/modules/'.s:GetModule().'/actions/components.class.php'`
     call s:searchWordInFileAndMove('execute'.toupper(l:file[0:0]).l:file[1:])
   endif
 endfunction
@@ -272,19 +256,19 @@ function! s:SymfonyPartial()
   let l:word = matchstr(getline('.'), 'include_partial(["''].\{-}["'']')
   let l:tmp = l:word[17:-2]
   if l:tmp[0:5] == "global"
-    silent execute ':e '.b:sf_root_dir.'apps/'.s:GetApp().'/templates/_'.l:tmp[7:].'.php'
+    silent edit `=b:sf_root_dir.'apps/'.s:GetApp().'/templates/_'.l:tmp[7:].'.php'`
   elseif l:tmp =~ "/"
     let l:list = matchlist(l:tmp, '\(.*\)/\(.*\)')
-    silent execute ':e '.s:escape(b:sf_root_dir.'apps/'.s:GetApp().'/modules/'.l:list[1].'/templates/_'.l:list[2].'.php')
+    silent edit `=b:sf_root_dir.'apps/'.s:GetApp().'/modules/'.l:list[1].'/templates/_'.l:list[2].'.php'`
   else
-    silent execute ':e '.s:escape(b:sf_root_dir.'apps/'.s:GetApp().'/modules/'.s:GetModule().'/templates/_'.l:tmp.'.php')
+    silent edit `=b:sf_root_dir.'apps/'.s:GetApp().'/modules/'.s:GetModule().'/templates/_'.l:tmp.'.php'`
   endif
 endfunction
 
 
 "set symfony home project directory
 function! s:SymfonyProject(word)
-  if s:finddir_esc('apps', a:word) != "" && s:finddir_esc('web' , a:word) != "" && s:finddir_esc('lib', a:word) != ""
+  if isdirectory(a:word.'/apps') && isdirectory(a:word.'/web') && isdirectory(a:word.'/lib')
     "let l:tmp = s:finddir_esc('apps', a:word)
     let b:sf_root_dir = a:word."/"
     "if l:tmp == "apps"
@@ -295,6 +279,8 @@ function! s:SymfonyProject(word)
     call s:SetSymfonyVersion()
     call s:SetModelPath()
     call s:SetDefaultApp()
+    call s:SetBufferCommand()
+    call s:SetBufferMap()
   else
     call s:error("nof find apps, web, lib dir")
   endif
@@ -455,7 +441,7 @@ function! s:SymfonyOpenConfigFile(word)
   if a:word[0:5] != "config"
     let path = "apps/".a:word
   endif
-  silent execute 'e '.b:sf_root_dir.path
+  silent edit `=b:sf_root_dir.path`
 endfunction
 
 "open symfonyProject/lib* file
@@ -520,28 +506,28 @@ function! s:Detect(filename)
   endwhile
 endfunction
 
+function! s:SetBufferCommand()
+  command! -buffer -nargs=* -complete=customlist,s:GetSymfonyViewList Sview :call s:SymfonyView(<q-args>)
+  command! -buffer -nargs=* -complete=customlist,s:GetSymfonyActionList Saction :call s:SymfonyAction(<q-args>)
+  command! -buffer -nargs=? -complete=customlist,s:GetSymfonyModelList Smodel :call s:SymfonyModel(<q-args>)
+  command! -buffer -nargs=? -complete=customlist,s:GetSymfonyFormList Sform :call s:SymfonyForm(<q-args>)
+  command! -buffer -nargs=0 Spartial :call s:SymfonyPartial()
+  command! -buffer -nargs=0 Scomponent :call s:SymfonyComponent()
+  command! -buffer -complete=file -nargs=1 SymfonyProject :call s:SymfonyProject(<f-args>)
+  command! -buffer -nargs=0 SymfonyCC :call s:SymconyCC()
+  command! -buffer -nargs=1 SymfonyInitApp :call s:SymfonyInitApp(<f-args>)
+  command! -buffer -nargs=+ SymfonyInitModule :call s:SymfonyInitModule(<f-args>)
+  command! -buffer -nargs=+ SymfonyPropelInitAdmin :call s:SymfonyPropelInitAdmin(<f-args>)
+  command! -buffer -nargs=? -complete=custom,s:GetSymfonyConfigList Sconfig :call s:SymfonyOpenConfigFile(<f-args>)
+  command! -buffer -nargs=? -complete=customlist,s:GetSymfonyLibList Slib :call s:SymfonyOpenLibFile(<f-args>)
+endfunction
+
+function! s:SetBufferMap()
+endfunction
+
 "{{{ auto
 augroup symfonyPluginDetect
   autocmd!
   autocmd BufNewFile,BufRead * call s:Detect(expand("<afile>:p"))
 augroup END
-"}}}
-
-"{{{ map
-"command! -nargs=? Sview :call s:SymfonyView(<q-args>)
-command! -nargs=* -complete=customlist,s:GetSymfonyViewList Sview :call s:SymfonyView(<q-args>)
-"command! -nargs=* Saction :call s:SymfonyAction(<q-args>)
-command! -nargs=* -complete=customlist,s:GetSymfonyActionList Saction :call s:SymfonyAction(<q-args>)
-command! -nargs=? -complete=customlist,s:GetSymfonyModelList Smodel :call s:SymfonyModel(<q-args>)
-command! -nargs=? -complete=customlist,s:GetSymfonyFormList Sform :call s:SymfonyForm(<q-args>)
-command! -nargs=0 Spartial :call s:SymfonyPartial()
-command! -nargs=0 Scomponent :call s:SymfonyComponent()
-command! -complete=file -nargs=1 SymfonyProject :call s:SymfonyProject(<f-args>)
-command! -nargs=0 SymfonyCC :call s:SymconyCC()
-command! -nargs=1 SymfonyInitApp :call s:SymfonyInitApp(<f-args>)
-command! -nargs=+ SymfonyInitModule :call s:SymfonyInitModule(<f-args>)
-command! -nargs=+ SymfonyPropelInitAdmin :call s:SymfonyPropelInitAdmin(<f-args>)
-"command! -nargs=? -complete=customlist,s:GetSymfonyConfigList Sconfig :call s:SymfonyOpenConfigFile(<f-args>)
-command! -nargs=? -complete=custom,s:GetSymfonyConfigList Sconfig :call s:SymfonyOpenConfigFile(<f-args>)
-command! -nargs=? -complete=customlist,s:GetSymfonyLibList Slib :call s:SymfonyOpenLibFile(<f-args>)
 "}}}
