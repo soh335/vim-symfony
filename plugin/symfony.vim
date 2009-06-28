@@ -91,6 +91,14 @@ function! s:error(str)
   echohl None
 endfunction
 
+function! s:sub(str, pat, rep)
+  return substitute(a:str, '\v'.a:pat, a:rep, '')
+endfunction
+
+function! s:gsub(str, pat, rep)
+  return substitute(a:str, '\v'.a:pat, a:rep, 'g')
+endfunction
+
 function! s:escapeback(str)
   return substitute(a:str, '\v\', '\\\', 'g')
 endfunction
@@ -384,14 +392,14 @@ function! s:GetSymfonyActionList(A,L,P)
   if exists("b:sf_root_dir")
     let words = split(a:L)
     if len(words) == 4 || (len(words) == 3 && a:A == "")
-      let lists = split(substitute(glob(b:sf_root_dir."/apps/".words[1]."/modules/".words[2].'/actions/*Action\.class\.php'), b:sf_root_dir."/apps/".words[1]."/modules/".words[2].'/actions/\(.\{-}\)Action\.class\.php', '\1', "g"), "\n")
+      let lists = split(substitute(glob(b:sf_root_dir."/apps/".words[1]."/modules/".words[2].'/actions/*Action\.class\.php'), s:escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]modules[/\]'.words[2].'[/\]actions[/\]\(.\{-}\)Action\.class\.php'), '\1', "g"), "\n")
     elseif len(words) == 3 || (len(words) == 2 && a:A == "")
-      let list1 = split(substitute(glob(b:sf_root_dir."/apps/".words[1]."/modules/*"), b:sf_root_dir."/apps/".words[1]."/modules/", "", "g"), "\n")
-      let list2 = split(substitute(glob(b:sf_root_dir."/apps/*/modules/".words[1].'/actions/*Action\.class\.php'), b:sf_root_dir.'/apps/.\{-}/modules/'.words[1].'/actions/\(.\{-}\)Action\.class\.php', '\1', "g"), "\n")
+      let list1 = split(substitute(glob(b:sf_root_dir."/apps/".words[1]."/modules/*"), s:escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]modules[/\]'), "", "g"), "\n")
+      let list2 = split(substitute(glob(b:sf_root_dir."/apps/*/modules/".words[1].'/actions/*Action\.class\.php'), s:escapeback(b:sf_root_dir.'[/\]apps[/\].\{-}[/\]modules[/\]'.words[1].'[/\]actions[/\]\(.\{-}\)Action\.class\.php'), '\1', "g"), "\n")
       let lists = list1 + list2
     elseif len(words) <= 2 
-      let list1 = split(substitute(glob(b:sf_root_dir."/apps/*"), b:sf_root_dir."/apps/", "", "g"), "\n")
-      let list2 = split(substitute(glob(b:sf_root_dir."/apps/*/modules/*"), b:sf_root_dir.'/apps/.\{-}/modules/', "", "g"), "\n")
+      let list1 = split(substitute(glob(b:sf_root_dir."/apps/*"), s:escapeback(b:sf_root_dir.'[/\]apps[/\]'), "", "g"), "\n")
+      let list2 = split(s:gsub(glob(b:sf_root_dir."/apps/*/modules/*"), s:escapeback(b:sf_root_dir.'[/\]apps[/\].{-}[/\]modules[/\]'), ""), "\n")
       let lists = list1 + list2
     endif
     return filter(lists, 'v:val =~ "^".a:A')
@@ -408,13 +416,12 @@ endfunction
 "open symfonyProject/config/* file
 function! s:GetSymfonyConfigList(A,L,P)
   if exists("b:sf_root_dir")
-    "return split(substitute(glob(b:sf_root_dir."config/".a:A."*"),b:sf_root_dir."config/","","g"), "\n")
     if exists("s:sf_complete_session")
       return s:sf_complete_session
     else
-      let list = substitute(glob(b:sf_root_dir."/config/"."**"),b:sf_root_dir,"","g")
-      let list2 = substitute(glob(b:sf_root_dir."/apps/*/config/"."**"),b:sf_root_dir."/apps/*/","","g")
-      let list3 = substitute(glob(b:sf_root_dir."/apps/*/modules/*/config/"."**"),b:sf_root_dir."/apps/","","g")
+      let list = substitute(glob(b:sf_root_dir."/config/"."**"),s:escapeback(b:sf_root_dir.'[/\]'),"","g")
+      let list2 = substitute(glob(b:sf_root_dir."/apps/*/config/"."**"),s:escapeback(b:sf_root_dir.'[/\]apps[/\]*[/\]'),"","g")
+      let list3 = substitute(glob(b:sf_root_dir."/apps/*/modules/*/config/"."**"),s:escapeback(b:sf_root_dir.'[/\]apps[/\]'),"","g")
       let s:sf_complete_session = join(sort(split(list."\n".list2."\n".list3, "\n")), "\n")
       return s:sf_complete_session
     endif
@@ -431,13 +438,13 @@ function! s:SymfonyOpenConfigFile(word)
   if a:word[0:5] != "config"
     let path = "apps/".a:word
   endif
-  silent edit `=b:sf_root_dir.path`
+  silent edit `=b:sf_root_dir."/".path`
 endfunction
 
 "open symfonyProject/lib* file
 function! s:GetSymfonyLibList(A,L,P)
   if exists("b:sf_root_dir")
-    return split(substitute(glob(b:sf_root_dir."/lib/".a:A."*"), s:escapeback(b:sf_root_dir.'[/\\]lib[/\\]'),"","g"), "\n")
+    return split(substitute(glob(b:sf_root_dir."/lib/".a:A."*"), s:escapeback(b:sf_root_dir.'[/\]lib[/\]'),"","g"), "\n")
   else
     call s:error("not set symfony root dir")
   endif
@@ -445,7 +452,7 @@ endfunction
 
 function! s:GetSymfonyModelList(A, L, P)
   if exists("b:sf_model_dir")
-    return split(substitute(glob(b:sf_root_dir."/lib/model/".a:A."*"),s:escapeback(b:sf_root_dir.'[/\\]lib[/\\]model[/\\]'),"","g"), "\n")
+    return split(substitute(glob(b:sf_root_dir."/lib/model/".a:A."*"),s:escapeback(b:sf_root_dir.'[/\]lib[/\]model[/\]'),"","g"), "\n")
   else
     call s:error("not set symfony model path")
   endif
@@ -453,14 +460,14 @@ endfunction
 
 function! s:GetSymfonyFormList(A, L, P)
   if exists("b:sf_root_dir")
-    return split(substitute(glob(b:sf_root_dir."/lib/form/".a:A."*"),s:escapeback(b:sf_root_dir.'[/\\]lib[/\\]form[/\\]',"","g"), "\n")
+    return split(substitute(glob(b:sf_root_dir."/lib/form/".a:A."*"),s:escapeback(b:sf_root_dir.'[/\]lib[/\]form[/\]',"","g"), "\n")
   else
     call s:error("not set symfony root dir")
   endif
 endfunction
 
 function! s:SymfonyOpenLibFile(word)
-  silent edit `=b:sf_root_dir.'/lib/".a:word`
+  silent edit `=b:sf_root_dir.'/lib/'.a:word`
 endfunction
 
 "search argument word in current buffer and move this line
