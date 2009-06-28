@@ -91,14 +91,8 @@ function! s:error(str)
   echohl None
 endfunction
 
-
-"escape find fir
-function! s:finddir_esc(name, path)
-  return finddir(escape(a:name, ' '), escape(a:path, ' '))
-endfunction
-
-function! s:escape(word)
-  return escape(a:word, ' ')
+function! s:escapeback(str)
+  return substitute(str, '\v\', '\\\', 'g')
 endfunction
 
 " open template file function
@@ -443,7 +437,7 @@ endfunction
 "open symfonyProject/lib* file
 function! s:GetSymfonyLibList(A,L,P)
   if exists("b:sf_root_dir")
-    return split(substitute(glob(b:sf_root_dir."/lib/".a:A."*"),b:sf_root_dir."/lib/","","g"), "\n")
+    return split(substitute(glob(b:sf_root_dir."/lib/".a:A."*"), s:escapeback(b:sf_root_dir.'[/\\]lib[/\\]'),"","g"), "\n")
   else
     call s:error("not set symfony root dir")
   endif
@@ -451,7 +445,7 @@ endfunction
 
 function! s:GetSymfonyModelList(A, L, P)
   if exists("b:sf_model_dir")
-    return split(substitute(glob(b:sf_root_dir."/lib/model/".a:A."*"),b:sf_root_dir."/lib/model/","","g"), "\n")
+    return split(substitute(glob(b:sf_root_dir."/lib/model/".a:A."*"),s:escapeback(b:sf_root_dir.'[/\\]lib[/\\]model[/\\]'),"","g"), "\n")
   else
     call s:error("not set symfony model path")
   endif
@@ -459,14 +453,14 @@ endfunction
 
 function! s:GetSymfonyFormList(A, L, P)
   if exists("b:sf_root_dir")
-    return split(substitute(glob(b:sf_root_dir."/lib/form/".a:A."*"),b:sf_root_dir."/lib/form/","","g"), "\n")
+    return split(substitute(glob(b:sf_root_dir."/lib/form/".a:A."*"),s:escapeback(b:sf_root_dir.'[/\\]lib[/\\]form[/\\]',"","g"), "\n")
   else
     call s:error("not set symfony root dir")
   endif
 endfunction
 
 function! s:SymfonyOpenLibFile(word)
-  silent execute ':e '.s:escape(b:sf_root_dir."/lib/".a:word)
+  silent edit `=b:sf_root_dir.'/lib/".a:word`
 endfunction
 
 "search argument word in current buffer and move this line
