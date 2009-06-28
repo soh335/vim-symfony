@@ -92,7 +92,7 @@ function! s:error(str)
 endfunction
 
 function! s:escapeback(str)
-  return substitute(str, '\v\', '\\\', 'g')
+  return substitute(a:str, '\v\', '\\\', 'g')
 endfunction
 
 " open template file function
