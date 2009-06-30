@@ -324,7 +324,7 @@ function! s:SetModelPath()
   if exists("b:sf_root_dir")
     if glob(b:sf_root_dir."/lib/model/*Peer.php") != ""
       let b:sf_model_dir = b:sf_root_dir."/lib/model/"
-    elseif glob(b:sf_root_dir."lib/model/*/*Peer.php") != ""
+    elseif glob(b:sf_root_dir."/lib/model/*/*Peer.php") != ""
       let b:sf_model_dir = b:sf_root_dir."/lib/model/*/"
     endif
   endif
@@ -452,7 +452,7 @@ endfunction
 
 function! s:GetSymfonyModelList(A, L, P)
   if exists("b:sf_model_dir")
-    return split(substitute(glob(b:sf_root_dir."/lib/model/".a:A."*"),s:escapeback(b:sf_root_dir.'[/\]lib[/\]model[/\]'),"","g"), "\n")
+    return split(substitute(glob(b:sf_root_dir.'/lib/model/'.a:A."*"),s:escapeback(b:sf_root_dir.'[/\]lib[/\]model[/\]'),"","g"), "\n")
   else
     call s:error("not set symfony model path")
   endif
