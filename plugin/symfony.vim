@@ -284,6 +284,12 @@ function! s:SymfonyProject(word)
     call s:SetDefaultApp()
     call s:SetBufferCommand()
     call s:SetBufferMap()
+    "reference rails.vim 
+    if exists('g:loaded_snippet')
+      runtime! ftplugin/symfony_snippets.vim
+      " filetype snippets need to come last for higher priority
+      exe "silent! runtime! ftplugin/".&filetype."_snippets.vim"
+    endif
   else
     call s:error("nof find apps, web, lib dir")
   endif
