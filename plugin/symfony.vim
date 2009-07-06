@@ -336,26 +336,6 @@ function! s:SetModelPath()
   endif
 endfunction
 
-"execute symfony clear cache
-function! s:SymconyCC()
-  if exists("b:sf_root_dir")
-    silent execute '!'.b:sf_root_dir."/symfony cc"
-    echo "cache clear"
-  else
-    call s:error("not set symfony root dir")
-  endif
-endfunction
-
-"execute symfony init-app 
-function! s:SymfonyInitApp(app)
-  if exists("b:sf_root_dir")
-    silent execute '!'.b:sf_root_dir."/symfony init-app ".a:app
-    echo "init app ".a:app
-  else
-    call s:error("not set symfony root dir")
-  endif
-endfunction
-
 "get now app
 function! s:GetApp()
   if exists("b:sf_app_name") == 0
@@ -372,26 +352,6 @@ function! s:GetModule()
     let b:sf_module_name = substitute(matchstr(l:t, 'modules[/\\]\(.\{-}\)[/\\]')[:-2], 'modules[/\\]', '', '')
   endif
   return b:sf_module_name
-endfunction
-
-"execute symfony init-module
-function! s:SymfonyInitModule(app, module)
-  if exists("b:sf_root_dir")
-    silent execute '!'.b:sf_root_dir."/symfony init-module ".a:app." ".a:module
-    echo "init module ".a:app." ".a:module
-  else
-    call s:error("not set symfony root dir")
-  endif
-endfunction
-
-"execute symfony propel-init-admin    
-function! s:SymfonyPropelInitAdmin(app, module, model)
-  if exists("b:sf_root_dir")
-    silent execute '!'.b:sf_root_dir."/symfony propel-init-admin ".a:app." ".a:module." ".a:model
-    echo "propel-init-admin ".a:app." ".a:module." ".a:model
-  else
-    call s:error("not set symfony root dir")
-  endif
 endfunction
 
 function! s:GetSymfonyActionList(A,L,P)
@@ -509,6 +469,23 @@ function! s:Detect(filename)
   endwhile
 endfunction
 
+function! s:SymfonyCommand(...)
+   execute '!'.b:sf_root_dir."/symfony ".join(a:000, " ")
+endfunction
+
+function! s:GetSymfonyCommandList(A, L, P)
+  if exists("b:sf_version")
+    if b:sf_version == 10
+      let list = ['clear-cache', 'clear-controllers', 'disable', 'downgrade', 'enable', 'fix-perms', 'freeze', 'init-app', 'init-batch', 'init-controller',
+            \ 'init-module', 'init-project', 'log-purge', 'log-rotate', 'plugin-install', 'plugin-list', 'plugin-uninstall', 'plugin-upgrade', 'propel-build-all',
+            \ 'propel-build-all-load', 'propel-build-db', 'propel-build-model', 'propel-build-schema', 'propel-build-sql', 'propel-convert-xml-schema',
+            \ 'propel-convert-yml-schema', 'propel-dump-data', 'propel-generate-crud', 'propel-init-admin', 'propel-init-crud', 'propel-insert-sql',
+            \  'propel-load-data', 'sync', 'test-all', 'test-functional', 'test-unit', 'unfreeze', 'upgrade', 'app', 'batch', 'cc', 'controller', 'module', 'new']
+    endif
+    return filter(list, 'v:val =~ "^".a:A')
+  endif
+endfunction
+
 function! s:SetBufferCommand()
   command! -buffer -nargs=* -complete=customlist,s:GetSymfonyViewList Sview :call s:SymfonyView(<q-args>)
   command! -buffer -nargs=* -complete=customlist,s:GetSymfonyActionList Saction :call s:SymfonyAction(<q-args>)
@@ -517,10 +494,7 @@ function! s:SetBufferCommand()
   command! -buffer -nargs=0 Spartial :call s:SymfonyPartial()
   command! -buffer -nargs=0 Scomponent :call s:SymfonyComponent()
   command! -buffer -complete=file -nargs=1 SymfonyProject :call s:SymfonyProject(<f-args>)
-  command! -buffer -nargs=0 SymfonyCC :call s:SymconyCC()
-  command! -buffer -nargs=1 SymfonyInitApp :call s:SymfonyInitApp(<f-args>)
-  command! -buffer -nargs=+ SymfonyInitModule :call s:SymfonyInitModule(<f-args>)
-  command! -buffer -nargs=+ SymfonyPropelInitAdmin :call s:SymfonyPropelInitAdmin(<f-args>)
+  command! -buffer -nargs=* -complete=customlist,s:GetSymfonyCommandList Symfony :call s:SymfonyCommand(<f-args>)
   command! -buffer -nargs=? -complete=custom,s:GetSymfonyConfigList Sconfig :call s:SymfonyOpenConfigFile(<f-args>)
   command! -buffer -nargs=? -complete=customlist,s:GetSymfonyLibList Slib :call s:SymfonyOpenLibFile(<f-args>)
 endfunction
