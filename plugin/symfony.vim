@@ -61,21 +61,8 @@
 "       If you call this in 'include_component...', move to template file.
 "       And when it is other than that, move to components.class.php file
 "
-"   :SymconyCC
-"       execute symfony clear cache
-"       It it necessary to do :SymfonyProject first.
-"
-"   :SymfonyInitApp
-"       execute symfony init-app xxx
-"       It it necessary to do :SymfonyProject first.
-"
-"   :SymfonyInitModule
-"       execute symfony init-module xxx xxx
-"       It it necessary to do :SymfonyProject first.
-"
-"   :SymfonyPropelInitAdmin
-"       execyte symfony prople-init-admin xxx xxx xxx
-"       It it necessary to do :SymfonyProject first.
+"   :Symfony xxx
+"       execute symfony task. 
 "
 "   :SConfig
 "       It is shortcut to config/* files.
