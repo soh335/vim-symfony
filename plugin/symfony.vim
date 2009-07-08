@@ -303,7 +303,7 @@ endfunction
 
 function! s:SetSymfonyVersion()
   if filereadable(b:sf_root_dir."/config/ProjectConfiguration.class.php")
-    if s:finddir_esc("sfProtoculousPlugin", b:sf_root_dir."/web/") != ""
+    if isdirectory(b:sf_root_dir."/web/sfProtoculousPlugin") 
       let b:sf_version = 12
     else
       let b:sf_version = 11
@@ -413,7 +413,7 @@ endfunction
 
 function! s:GetSymfonyFormList(A, L, P)
   if exists("b:sf_root_dir")
-    return split(substitute(glob(b:sf_root_dir."/lib/form/".a:A."*"),s:escapeback(b:sf_root_dir.'[/\]lib[/\]form[/\]',"","g"), "\n")
+    return split(substitute(glob(b:sf_root_dir."/lib/form/".a:A."*"),s:escapeback(b:sf_root_dir.'[/\]lib[/\]form[/\]'),"","g"), "\n")
   else
     call s:error("not set symfony root dir")
   endif
@@ -461,15 +461,27 @@ function! s:SymfonyCommand(...)
 endfunction
 
 function! s:GetSymfonyCommandList(A, L, P)
-  if exists("b:sf_version")
+  let words = split(a:L)
+  if exists("b:sf_version") && len(words) <= 2 
+    echo "hoge"
     if b:sf_version == 10
       let list = ['clear-cache', 'clear-controllers', 'disable', 'downgrade', 'enable', 'fix-perms', 'freeze', 'init-app', 'init-batch', 'init-controller',
             \ 'init-module', 'init-project', 'log-purge', 'log-rotate', 'plugin-install', 'plugin-list', 'plugin-uninstall', 'plugin-upgrade', 'propel-build-all',
             \ 'propel-build-all-load', 'propel-build-db', 'propel-build-model', 'propel-build-schema', 'propel-build-sql', 'propel-convert-xml-schema',
             \ 'propel-convert-yml-schema', 'propel-dump-data', 'propel-generate-crud', 'propel-init-admin', 'propel-init-crud', 'propel-insert-sql',
             \  'propel-load-data', 'sync', 'test-all', 'test-functional', 'test-unit', 'unfreeze', 'upgrade', 'app', 'batch', 'cc', 'controller', 'module', 'new']
+    elseif b:sf_version == 12
+      let list = ['help', 'list', 'app:routes', 'cache:clear', 'configure:author', 'configure:database', 'generate:app', 'generate:module', 'generate:project',
+            \ 'generate:task', 'i18n:extract', 'i18n:find', 'log:clear', 'log:rotate', 'plugin:add-channel', 'plugin:install', 'plugin:list', 'plugin:publish-assets',
+            \ 'plugin:uninstall', 'plugin:upgrade', 'project:clear-controllers', 'project:deploy', 'project:disable', 'project:enable', 'project:freeze', 
+            \ 'project:permissions', 'project:unfreeze', 'project:upgrade1.1', 'project:upgrade1.2', 'propel:build-all', 'propel:build-all-load', 'propel:build-filters',
+            \ 'propel:build-forms', 'propel:build-model', 'propel:build-schema', 'propel:build-sql', 'propel:data-dump', 'propel:data-load', 'propel:generate-admin',
+            \ 'propel:generate-module', 'propel:generate-module-for-route', 'propel:graphviz', 'propel:init-admin', 'propel:insert-sql', 'propel:schema-to-xml',
+            \ 'propel:schema-to-yml', 'test:all', 'test:coverage', 'test:functional', 'test:unit']
     endif
     return filter(list, 'v:val =~ "^".a:A')
+  else
+    return []
   endif
 endfunction
 
@@ -480,7 +492,7 @@ function! s:SetBufferCommand()
   command! -buffer -nargs=? -complete=customlist,s:GetSymfonyFormList Sform :call s:SymfonyForm(<q-args>)
   command! -buffer -nargs=0 Spartial :call s:SymfonyPartial()
   command! -buffer -nargs=0 Scomponent :call s:SymfonyComponent()
-  command! -buffer -complete=file -nargs=1 SymfonyProject :call s:SymfonyProject(<f-args>)
+  "command! -buffer -complete=file -nargs=1 SymfonyProject :call s:SymfonyProject(<f-args>)
   command! -buffer -nargs=* -complete=customlist,s:GetSymfonyCommandList Symfony :call s:SymfonyCommand(<f-args>)
   command! -buffer -nargs=? -complete=custom,s:GetSymfonyConfigList Sconfig :call s:SymfonyOpenConfigFile(<f-args>)
   command! -buffer -nargs=? -complete=customlist,s:GetSymfonyLibList Slib :call s:SymfonyOpenLibFile(<f-args>)
