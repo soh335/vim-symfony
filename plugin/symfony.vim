@@ -363,6 +363,7 @@ endfunction
 
 function! s:GetSymfonyViewList(A,L,P)
   if exists("b:sf_root_dir")
+    let words = split(a:L)
   endif
 endfunction
 
@@ -463,7 +464,6 @@ endfunction
 function! s:GetSymfonyCommandList(A, L, P)
   let words = split(a:L)
   if exists("b:sf_version") && len(words) <= 2 
-    echo "hoge"
     if b:sf_version == 10
       let list = ['clear-cache', 'clear-controllers', 'disable', 'downgrade', 'enable', 'fix-perms', 'freeze', 'init-app', 'init-batch', 'init-controller',
             \ 'init-module', 'init-project', 'log-purge', 'log-rotate', 'plugin-install', 'plugin-list', 'plugin-uninstall', 'plugin-upgrade', 'propel-build-all',
@@ -481,7 +481,13 @@ function! s:GetSymfonyCommandList(A, L, P)
     endif
     return filter(list, 'v:val =~ "^".a:A')
   else
-    return []
+    let command = words[1]
+    if command == 'init-module' || command == 'generate:module'
+      let list = split(substitute(glob(b:sf_root_dir."/apps/*"), s:escapeback(b:sf_root_dir.'[/\]apps[/\]'), "", "g"), "\n")
+      return filter(list, 'v:val =~ "^".a:A')
+    else
+      return []
+    endif
   endif
 endfunction
 
