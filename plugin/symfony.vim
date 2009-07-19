@@ -470,6 +470,13 @@ function! s:GetSymfonyCommandList(A, L, P)
             \ 'propel-build-all-load', 'propel-build-db', 'propel-build-model', 'propel-build-schema', 'propel-build-sql', 'propel-convert-xml-schema',
             \ 'propel-convert-yml-schema', 'propel-dump-data', 'propel-generate-crud', 'propel-init-admin', 'propel-init-crud', 'propel-insert-sql',
             \  'propel-load-data', 'sync', 'test-all', 'test-functional', 'test-unit', 'unfreeze', 'upgrade', 'app', 'batch', 'cc', 'controller', 'module', 'new']
+    elseif b:sf_version == 11
+      let list = ['help', 'list', 'configure:author', 'configure:database', 'generate:app', 'generate:module', 'generate:project', 'generate:task',
+            \ 'i18n:extract', 'i18n:find', 'log:clear', 'log:rotate', 'plugin:add-channel', 'plugin:install', 'plugin:list', 'plugin:uninstall', 'plugin:upgrade', 'project:clear-controllers',
+            \ 'prom:deploy', 'project:disable', 'project:enable', 'project:freeze', 'project:permissions', 'project:unfreeze', 'project:upgrade1.1', 'propel:build-all', 'propel:build-all-load',
+            \ 'propel:build-db', 'propel:build-forms', 'propel:build-schema', 'propel:build-sql', 'propel:data-dump', 'propel:data-load', 'propel:generate-crud', 'propel:init-admin', 'propel:insert-sql',
+            \ 'propel:schema-to-xml', 'propel:schema-to-yml', 'test:all', 'test:functional', 'test:unit']
+
     elseif b:sf_version == 12
       let list = ['help', 'list', 'app:routes', 'cache:clear', 'configure:author', 'configure:database', 'generate:app', 'generate:module', 'generate:project',
             \ 'generate:task', 'i18n:extract', 'i18n:find', 'log:clear', 'log:rotate', 'plugin:add-channel', 'plugin:install', 'plugin:list', 'plugin:publish-assets',
