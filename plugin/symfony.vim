@@ -103,25 +103,34 @@ endfunction
 "find and edit symfony view file 
 "find and edit xxxError.php if argument is error
 "find executeXXX or execute in line
-function! s:SymfonyView(arg)
-  let l:suffix = "Success.php"
-  if a:arg == "error"
-    let l:suffix = "Error.php"
+function! s:SymfonyView(...)
+  if a:1 == "" || a:1 == "error"
+    let l:suffix = "Success.php"
+    if a:1 == "error"
+      let l:suffix = "Error.php"
+    endif
+    let l:word = matchstr(getline('.'),'execute[0-9a-zA-Z_-]*')
+    if l:word == 'execute'
+      "if action file is separeted
+      let l:file = substitute(expand('%:t'),"Action.class.php","","").l:suffix
+      call s:openTemplateFile(l:file)
+      unlet l:file
+      return
+    elseif l:word  =~ 'execute' && strlen(l:word)>7
+      let l:file = tolower(l:word[7:7]).l:word[8:].l:suffix
+      call s:openTemplateFile(l:file)
+      unlet l:file
+      return
+    endif
+    call s:error("not find executeXXX in this line")
+  else
+    let words = split(a:1)
+    if len(words) == 2 && words[1] =~ "\.php$"
+      silent edit `=b:sf_root_dir."/apps/".words[0]."/templates/".words[1]`
+    else
+      silent edit `=b:sf_root_dir."/apps/".words[0]."/modules/".words[1]."/templates/".words[2]`
+    endif
   endif
-  let l:word = matchstr(getline('.'),'execute[0-9a-zA-Z_-]*')
-  if l:word == 'execute'
-    "if action file is separeted
-    let l:file = substitute(expand('%:t'),"Action.class.php","","").l:suffix
-    call s:openTemplateFile(l:file)
-    unlet l:file
-    return
-  elseif l:word  =~ 'execute' && strlen(l:word)>7
-    let l:file = tolower(l:word[7:7]).l:word[8:].l:suffix
-    call s:openTemplateFile(l:file)
-    unlet l:file
-    return
-  endif
-  call s:error("not find executeXXX in this line")
 endfunction
 
 " find and edit action class file
@@ -364,6 +373,15 @@ endfunction
 function! s:GetSymfonyViewList(A,L,P)
   if exists("b:sf_root_dir")
     let words = split(a:L)
+    if len(words) == 4 || (len(words) == 3 && a:A == "")
+      let list1 = split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/modules/".words[2].'/templates/*'), s:escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]modules[/\]'.words[2].'[/\]templates[/\]'), ""), "\n")
+    elseif len(words) == 3 || (len(words) == 2 && a:A == "")
+      let list1 = split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/modules/*"), s:escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]modules[/\]'), ""), "\n")
+      let list1 = list1 + split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/templates/*"), s:escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]templates[/\]'), ""), "\n")
+    elseif len(words) <= 2
+      let list1 = split(s:gsub(glob(b:sf_root_dir."/apps/*"), s:escapeback(b:sf_root_dir.'[/\]apps[/\]'), ""), "\n")
+    endif
+    return filter(list1, 'v:val =~ "^".a:A')
   endif
 endfunction
 
