@@ -251,17 +251,29 @@ function! s:SymfonyComponent()
 endfunction
 
 "find and edit partial template
-function! s:SymfonyPartial()
-  let l:word = matchstr(getline('.'), 'include_partial(["''].\{-}["'']')
-  let l:tmp = l:word[17:-2]
-  if l:tmp[0:5] == "global"
-    silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/templates/_'.l:tmp[7:].'.php'`
-  elseif l:tmp =~ "/"
-    let l:list = matchlist(l:tmp, '\(.*\)/\(.*\)')
-    silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/modules/'.l:list[1].'/templates/_'.l:list[2].'.php'`
+function! s:SymfonyPartial(arg, line1, line2)
+  if a:arg != ""
+    let tmp = @@
+    silent normal gvy
+    let selected = @@
+    let @@ = tmp
+    call append(a:line1-1, '<?php include_partial("'.s:GetModule().'/'.a:arg.'") ?>')
+    execute a:line1 + 1
+    execute 'delete'.(a:line2 - a:line1 + 1)
+    silent new `=b:sf_root_dir.'/apps/'.s:GetApp().'/modules/'.s:GetModule().'/templates/_'.a:arg.'.php'`
+    call append(0, split(selected, '\n'))
   else
-    silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/modules/'.s:GetModule().'/templates/_'.l:tmp.'.php'`
-  endif
+    let l:word = matchstr(getline('.'), 'include_partial(["''].\{-}["'']')
+    let l:tmp = l:word[17:-2]
+    if l:tmp[0:5] == "global"
+      silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/templates/_'.l:tmp[7:].'.php'`
+    elseif l:tmp =~ "/"
+      let l:list = matchlist(l:tmp, '\(.*\)/\(.*\)')
+      silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/modules/'.l:list[1].'/templates/_'.l:list[2].'.php'`
+    else
+      silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/modules/'.s:GetModule().'/templates/_'.l:tmp.'.php'`
+    endif
+  end
 endfunction
 
 
@@ -521,7 +533,7 @@ function! s:SetBufferCommand()
   command! -buffer -nargs=* -complete=customlist,s:GetSymfonyActionList Saction :call s:SymfonyAction(<q-args>)
   command! -buffer -nargs=? -complete=customlist,s:GetSymfonyModelList Smodel :call s:SymfonyModel(<q-args>)
   command! -buffer -nargs=? -complete=customlist,s:GetSymfonyFormList Sform :call s:SymfonyForm(<q-args>)
-  command! -buffer -nargs=0 Spartial :call s:SymfonyPartial()
+  command! -buffer -range -nargs=? Spartial :call s:SymfonyPartial(<q-args>, <line1>, <line2>)
   command! -buffer -nargs=0 Scomponent :call s:SymfonyComponent()
   "command! -buffer -complete=file -nargs=1 SymfonyProject :call s:SymfonyProject(<f-args>)
   command! -buffer -nargs=* -complete=customlist,s:GetSymfonyCommandList Symfony :call s:SymfonyCommand(<f-args>)
