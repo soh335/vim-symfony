@@ -55,6 +55,10 @@
 "   :Spartial
 "       move to partial template file. It judges from line.
 "       Also in global/xxx, it corresponds.
+"       If you call this method after select lines by visual-mode, create new
+"       partial file.
+"       :'<,'>Spartial xxx
+"
 "
 "   :Scomponent
 "       move to component template file or components.class.php.
