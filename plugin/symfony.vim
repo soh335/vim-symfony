@@ -109,7 +109,15 @@ function! s:SymfonyView(...)
     if a:1 == "error"
       let l:suffix = "Error.php"
     endif
-    let l:word = matchstr(getline('.'),'execute[0-9a-zA-Z_-]*')
+    let l:lineNum = line(".")
+    while( l:lineNum > 0 )
+      let l:line = getline(l:lineNum)
+      let l:word = matchstr(l:line,'execute[0-9a-zA-Z_-]*')
+      if (l:word != "")
+        break
+      endif
+      let l:lineNum = l:lineNum - 1
+    endwhile
     if l:word == 'execute'
       "if action file is separeted
       let l:file = substitute(expand('%:t'),"Action.class.php","","").l:suffix
