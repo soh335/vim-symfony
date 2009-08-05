@@ -162,10 +162,10 @@ function! s:SymfonyAction(...)
       let l:file = l:prefix."Action.class.php"
       if filereadable(b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/actions/".l:file)
         silent edit `=b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/actions/".l:file`
-        call s:searchWordInFileAndMove('execute')
+        call s:SearchWordInFileAndMove('execute')
       elseif filereadable(b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/actions/actions.class.php")
         silent edit `=b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/actions/actions.class.php"`
-        call s:searchWordInFileAndMove('execute'.toupper(l:prefix[0:0]).l:prefix[1:])
+        call s:SearchWordInFileAndMove('execute'.toupper(l:prefix[0:0]).l:prefix[1:])
       else
         call s:error("not exist action class file")
       endif
@@ -260,7 +260,7 @@ function! s:SymfonyComponent()
     let l:file = expand('%:r')
     let l:file = l:file[1:]
     silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/modules/'.s:GetModule().'/actions/components.class.php'`
-    call s:searchWordInFileAndMove('execute'.toupper(l:file[0:0]).l:file[1:])
+    call s:SearchWordInFileAndMove('execute'.toupper(l:file[0:0]).l:file[1:])
   endif
 endfunction
 
@@ -470,7 +470,7 @@ function! s:SymfonyOpenLibFile(word)
 endfunction
 
 "search argument word in current buffer and move this line
-function! s:searchWordInFileAndMove(str)
+function! s:SearchWordInFileAndMove(str)
   let l:num = 0
   while l:num <= line('$')
     let l:line = getline(l:num)
