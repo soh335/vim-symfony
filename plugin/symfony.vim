@@ -95,7 +95,7 @@ function! s:escapeback(str)
 endfunction
 
 " open template file function
-function! s:openTemplateFile(file)
+function! s:OpenTemplateFile(file)
   echo b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/templates"
   if isdirectory(b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/templates")
     silent edit `=b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/templates/".a:file`
@@ -125,12 +125,12 @@ function! s:SymfonyView(...)
     if l:word == 'execute'
       "if action file is separeted
       let l:file = substitute(expand('%:t'),"Action.class.php","","").l:suffix
-      call s:openTemplateFile(l:file)
+      call s:OpenTemplateFile(l:file)
       unlet l:file
       return
     elseif l:word  =~ 'execute' && strlen(l:word)>7
       let l:file = tolower(l:word[7:7]).l:word[8:].l:suffix
-      call s:openTemplateFile(l:file)
+      call s:OpenTemplateFile(l:file)
       unlet l:file
       return
     endif
@@ -306,6 +306,7 @@ function! s:SymfonyProject(word)
     call s:SetDefaultApp()
     call s:SetBufferCommand()
     call s:SetBufferMap()
+    call s:SetPath()
     "reference rails.vim 
     if exists('g:loaded_snippet')
       runtime! ftplugin/symfony_snippets.vim
@@ -374,6 +375,12 @@ function! s:GetModule()
     let b:sf_module_name = substitute(matchstr(l:t, 'modules[/\\]\(.\{-}\)[/\\]')[:-2], 'modules[/\\]', '', '')
   endif
   return b:sf_module_name
+endfunction
+
+function! s:SetPath()
+  let _path = &path
+  let &path=_path.','.b:sf_root_dir.'/lib/model/om/,'.b:sf_root_dir.'lib/model/*/om/,'
+  setlocal includeexpr=substitute(v:fname,'$','.php','') 
 endfunction
 
 function! s:GetSymfonyActionList(A,L,P)
