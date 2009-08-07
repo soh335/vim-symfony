@@ -271,10 +271,19 @@ function! s:SymfonyPartial(arg, line1, line2)
     silent normal gvy
     let selected = @@
     let @@ = tmp
-    call append(a:line1-1, '<?php include_partial("'.s:GetModule().'/'.a:arg.'") ?>')
+
+    let argList = matchlist(a:arg, '\(.\{-}\)/\(.*\)')
+    let moduleName = get(argList, 1)
+    let fileName   = get(argList, 2)
+    if (moduleName == "0" || fileName == "0")
+        let moduleName = s:GetModule()
+        let fileName = a:arg
+    endif
+
+    call append(a:line1-1, '<?php include_partial("'.moduleName.'/'.fileName.'") ?>')
     execute a:line1 + 1
     execute 'delete'.(a:line2 - a:line1 + 1)
-    silent new `=b:sf_root_dir.'/apps/'.s:GetApp().'/modules/'.s:GetModule().'/templates/_'.a:arg.'.php'`
+    silent new `=b:sf_root_dir.'/apps/'.s:GetApp().'/modules/'.moduleName.'/templates/_'.fileName.'.php'`
     call append(0, split(selected, '\n'))
   else
     let l:word = matchstr(getline('.'), 'include_partial(["''].\{-}["'']')
@@ -285,7 +294,7 @@ function! s:SymfonyPartial(arg, line1, line2)
       let l:list = matchlist(l:tmp, '\(.*\)/\(.*\)')
       silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/modules/'.l:list[1].'/templates/_'.l:list[2].'.php'`
     else
-      silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/modules/'.s:GetModule().'/templates/_'.l:tmp.'.php'`
+      silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/modules/'.moduleName.'/templates/_'.l:tmp.'.php'`
     endif
   end
 endfunction
