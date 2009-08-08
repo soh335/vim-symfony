@@ -348,6 +348,7 @@ function! SymfonyProject(word)
       " filetype snippets need to come last for higher priority
       exe "silent! runtime! ftplugin/".&filetype."_snippets.vim"
     endif
+    silent doautocmd User Symfony
   else
     call s:error("nof find apps, web, lib dir")
   endif
