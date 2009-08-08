@@ -341,7 +341,6 @@ function! SymfonyProject(word)
     call s:SetModelPath()
     call s:SetDefaultApp()
     call s:SetBufferCommand()
-    call s:SetBufferMap()
     call s:SetPath()
     "reference rails.vim 
     if exists('g:loaded_snippet')
@@ -590,7 +589,4 @@ function! s:SetBufferCommand()
   command! -buffer -nargs=? -complete=custom,<SID>GetSymfonyConfigList Sconfig :call <SID>SymfonyOpenConfigFile(<f-args>)
   command! -buffer -nargs=? -complete=customlist,<SID>GetSymfonyLibList Slib :call <SID>SymfonyOpenLibFile(<f-args>)
   command! -buffer -nargs=? -complete=customlist,<SID>GetSymfonyHelperList Shelper :call <SID>SymfonyHelper(<q-args>)
-endfunction
-
-function! s:SetBufferMap()
 endfunction
