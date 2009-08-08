@@ -52,6 +52,11 @@
 "       if you call this medhot with no argument, judges from word under
 "       cursor.
 "
+"   :Shelper
+"       move to lib/helper/xxxHelper.php
+"       if you call this method with no argument, judges from word under
+"       cursor.
+"
 "   :Spartial
 "       move to partial template file. It judges from line.
 "       Also in global/xxx, it corresponds.
@@ -299,6 +304,23 @@ function! s:SymfonyPartial(arg, line1, line2)
   end
 endfunction
 
+"find symfony helper
+function! s:SymfonyHelper(word)
+  if a:word == ""
+    let l:word = expand('<cword>')
+  else
+    let l:word = a:word
+  endif
+  if l:word !~ "Helper\.php"
+    let l:word = l:word."Helper\.php"
+  endif
+
+  if filereadable(b:sf_root_dir."/lib/helper/".l:word)
+    silent edit `=b:sf_root_dir."/lib/helper/".l:word`
+  else
+    call s:error("not find ".l:word)
+  endif
+endfunction
 
 "set symfony home project directory
 function! s:SymfonyProject(word)
@@ -481,6 +503,14 @@ function! s:GetSymfonyFormList(A, L, P)
   endif
 endfunction
 
+function! s:GetSymfonyHelperList(A, L, P)
+  if exists("b:sf_root_dir")
+    return split(substitute(glob(b:sf_root_dir."/lib/helper/".a:A."*\.php"),s:escapeback(b:sf_root_dir.'[/\]lib[/\]helper[/\]'),"","g"), "\n")
+  else
+    call s:error("not set symfony root dir")
+  endif
+endfunction
+
 function! s:SymfonyOpenLibFile(word)
   silent edit `=b:sf_root_dir.'/lib/'.a:word`
 endfunction
@@ -570,6 +600,7 @@ function! s:SetBufferCommand()
   command! -buffer -nargs=* -complete=customlist,s:GetSymfonyCommandList Symfony :call s:SymfonyCommand(<f-args>)
   command! -buffer -nargs=? -complete=custom,s:GetSymfonyConfigList Sconfig :call s:SymfonyOpenConfigFile(<f-args>)
   command! -buffer -nargs=? -complete=customlist,s:GetSymfonyLibList Slib :call s:SymfonyOpenLibFile(<f-args>)
+  command! -buffer -nargs=? -complete=customlist,s:GetSymfonyHelperList Shelper :call s:SymfonyHelper(<q-args>)
 endfunction
 
 function! s:SetBufferMap()
