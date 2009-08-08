@@ -387,8 +387,8 @@ function! s:GetModule()
 endfunction
 
 function! s:SetPath()
-  let _path = &path
-  let &path=_path.','.b:sf_root_dir.'/lib/model/om/,'.b:sf_root_dir.'lib/model/*/om/,'
+  let _path = &l:path
+  let &l:path=_path.','.b:sf_root_dir.'/lib/,'.b:sf_root_dir.'/lib/model/*/om/'.','.b:sf_root_dir.'/lib/model/om/,'.b:sf_root_dir.'/lib/action/,'.b:sf_root_dir.'/lib/helper/,'
   setlocal includeexpr=substitute(v:fname,'$','.php','') 
 endfunction
 
