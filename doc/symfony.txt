@@ -1,0 +1,93 @@
+*symfony.txt* Improve your Symfony project in vim
+
+Version: 0.01
+Author: soh kitahara
+URL: http://github.com/soh335/vim-symfony/tree/master
+==============================================================================
+introduction                                            *symfony-introduction*
+
+When you work with symfony, open various files many times. For example action
+files, view files and model files. If you repeat to edit and quiet, take time.
+So symfony.vim provide some convenient commands.
+==============================================================================
+commands                                                    *symfony-commands*
+
+                                                              *symfony-:Sview*
+:Sview                If you edit action.class.php and call this method, find
+                      function executeXXX() and move to 
+                      template/xxxSuucess.php.
+
+:Sview error          If an argument is error, move to template/xxxError.php.
+
+:Sview [{name}]       You can pass arguments are apps name, module name and
+                      file name.
+                      Ex: :Sview xxx aaa bbbSuccess.php, open apps/xxx/module/
+                      aaa/templates/bbbSuccess.php
+
+                                                            *symfony-:Saction*
+:Saction              If you edit templates/xxxSuucess.php file and call this 
+                      method, find xxxAcrion.class.php or action.class.php
+                      and move function executeXXX() line.
+
+:Saction [{name}]     You can pass arguments are apps name, module name and
+                      file name.
+                      Ex: :Saction xxx aaa, open apps/xxx/module/aaa/
+                      actions.class.php.
+                      Ex: :Saction xxx aaa bbb, open apps/xxx/module/aaa/
+                      bbbAction.class.php
+
+                                                             *symfony-:Smodel*
+:Smodel               You call this method, judges from word under cursor.
+                      If your cursor under word is XxxPeer, open lib/model/
+                      XxxPeer.php
+
+:Smodel [{name}]      You can pass argument.
+                      Ex: :Smodel AaaPeer.php, open lib/model/AaaPeer.php
+
+                                                              *symfony-:Sform*
+:Sform                You call this method, judges from word under cursor.
+
+:Sform [{name}]       You can pass argument.
+
+                                                            *symfony-:Shelper*
+:Shelper              You call this method, judges from word under cursor.
+
+:Shelper [{name}]     You can pass argument.
+                      Ex: :Shelper xxxHelper.php open lib/model/xxxHelper.php
+
+                                                           *symfony-:Spartial*
+:Spartial             If present cursor line is include_partial('...') and
+                      call this method, open partial file.
+
+:[range]Spartial      see {symfony-refactoring}
+
+                                                         *symfony-:Scomponent*
+:Scomponent           If present cursor line is include_component('...') and
+                      call this method, open component file.
+
+                                                            *symfony-:Symfony*
+:Symfony [{name}]     execute symfony task.
+
+                                                               *symfony-:Slib*
+:Slib [{name}]        Open lib file.
+
+                                                            *symfony-:Sconfig*
+:Sconfig [{name}]     Open config file.
+==============================================================================
+refactoring                                              *symfony-refactoring*
+
+If you select lines by visual-mode and call |:Spartial| with arguments, 
+replace these lines to <php include_partial(arguments) ?> and create new file
+and append these lines.
+==============================================================================
+snippet                                                      *symfony-snippet*
+
+Symfony.vim support snippetsEmu.vim. For example you type req and type 
+g:snippetsEmu_key replace to $this->getRequestParameter().
+If you want to know snippet, see after/ftplugin/symfony_snippets.vim
+==============================================================================
+changelog                                                  *symfony-changelog*
+0.1:
+  - First release.
+==============================================================================
+ vim:tw=78:ts=8:ft=help:norl:fdm=marker:
