@@ -165,7 +165,7 @@ function! s:SymfonyModel(word, t)
   if l:word =~ "/" || b:sf_model_dir !~ "\\*"
     let l:path = b:sf_root_dir."/lib/model/".l:word
     if filereadable(l:path) == "1"
-      call s:splitWindow(t)
+      call s:splitWindow(a:t)
       silent edit `=l:path`
     endif
   else
