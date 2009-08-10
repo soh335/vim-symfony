@@ -24,6 +24,12 @@ commands                                                    *symfony-commands*
                       Ex: :Sview xxx aaa bbbSuccess.php, open apps/xxx/module/
                       aaa/templates/bbbSuccess.php
 
+                                                             *symfony-:SSview*
+:SSview               Execute split and call |:Sview|
+
+                                                             *symfony-:SVview*
+:SVview               Execute vsplit and call |:Sview|
+
                                                             *symfony-:Saction*
 :Saction              If you edit templates/xxxSuucess.php file and call this 
                       method, find xxxAcrion.class.php or action.class.php
@@ -36,6 +42,12 @@ commands                                                    *symfony-commands*
                       Ex: :Saction xxx aaa bbb, open apps/xxx/module/aaa/
                       bbbAction.class.php
 
+                                                           *symfony-:SSaction*
+:SSaction             Execute split and call |:Saction|
+
+                                                           *symfony-:SVaction*
+:SVaction             Execute vsplit and call |:Saction|
+
                                                              *symfony-:Smodel*
 :Smodel               You call this method, judges from word under cursor.
                       If your cursor under word is XxxPeer, open lib/model/
@@ -44,10 +56,22 @@ commands                                                    *symfony-commands*
 :Smodel [{name}]      You can pass argument.
                       Ex: :Smodel AaaPeer.php, open lib/model/AaaPeer.php
 
+                                                            *symfony-:SSmodel*
+:SSmodel              Execute split and call |:Smodel|
+
+                                                            *symfony-:SVmodel*
+:SVmodel              Execute vsplit and call |:Smodel|
+
                                                               *symfony-:Sform*
 :Sform                You call this method, judges from word under cursor.
 
 :Sform [{name}]       You can pass argument.
+
+                                                             *symfony-:SSform*
+:SSform               Execute split and call |:Sform|
+
+                                                             *symfony-:SVform*
+:SVform               Execute vsplit and call |:Sform|
 
                                                             *symfony-:Shelper*
 :Shelper              You call this method, judges from word under cursor.
@@ -55,15 +79,33 @@ commands                                                    *symfony-commands*
 :Shelper [{name}]     You can pass argument.
                       Ex: :Shelper xxxHelper.php open lib/model/xxxHelper.php
 
+                                                           *symfony-:SShelper*
+:SShelper             Execute split and call |:Shelper|
+
+                                                           *symfony-:SVhelper*
+:SVhelper             Execute vsplit and call |:Shelper|
+
                                                            *symfony-:Spartial*
 :Spartial             If present cursor line is include_partial('...') and
                       call this method, open partial file.
 
-:[range]Spartial      see {symfony-refactoring}
+:[range]Spartial      see |symfony-refactoring|
+
+                                                          *symfony-:SSpartial*
+:SSpartial            Execute split and call |:Spartial|
+
+                                                          *symfony-:SVpartial*
+:SVpartial            Execute vsplit and call |:Spartial|
 
                                                          *symfony-:Scomponent*
 :Scomponent           If present cursor line is include_component('...') and
                       call this method, open component file.
+
+                                                        *symfony-:SScomponent*
+:SScomponent          Execute split and call |:Scomponent|
+
+                                                        *symfony-:SVcomponent*
+:SVcomponent          Execute vsplit and call |:Scomponent|
 
                                                             *symfony-:Symfony*
 :Symfony [{name}]     execute symfony task.
@@ -71,8 +113,20 @@ commands                                                    *symfony-commands*
                                                                *symfony-:Slib*
 :Slib [{name}]        Open lib file.
 
+                                                              *symfony-:SSlib*
+:SSlib                Execute split and call |:Slib|
+
+                                                              *symfony-:SVlib*
+:SVlib                Execute vsplit and call |:Slib|
+
                                                             *symfony-:Sconfig*
 :Sconfig [{name}]     Open config file.
+
+                                                           *symfony-:SSconfig*
+:SSconfig             Execute split and call |:Sconfig|
+
+                                                           *symfony-:SVconfig*
+:SVconfig             Execute vsplit and call |:Sconfig|
 ==============================================================================
 refactoring                                              *symfony-refactoring*
 
