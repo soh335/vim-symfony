@@ -78,7 +78,7 @@ function! s:SymfonyView(args, t)
     endif
     call s:error("not find executeXXX in this line")
   else
-    let words = split(a:1)
+    let words = split(a:args)
     if len(words) == 1 && words[0] =~ "\.php$"
       silent edit `=b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/templates/".words[0]`
     elseif len(words) == 2 && words[1] =~ "\.php$"
