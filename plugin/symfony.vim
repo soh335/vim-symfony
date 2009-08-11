@@ -20,7 +20,6 @@ endfunction
 "{{{ autoload
 function! s:autoload()
   if !exists("g:autoloaded_symfony")
-    echo "autoload"
     runtime! autoload/symfony.vim
   endif
   if exists("g:autoloaded_symfony")
