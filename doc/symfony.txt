@@ -4,13 +4,13 @@ Version: 0.01
 Author: soh kitahara
 URL: http://github.com/soh335/vim-symfony/tree/master
 ==============================================================================
-introduction                                            *symfony-introduction*
+INTRODUCTION                                            *symfony-introduction*
 
 When you work with symfony, open various files many times. For example action
 files, view files and model files. If you repeat to edit and quiet, take time.
 So symfony.vim provide some convenient commands.
 ==============================================================================
-commands                                                    *symfony-commands*
+COMMANDS                                                    *symfony-commands*
 
                                                               *symfony-:Sview*
 :Sview                If you edit action.class.php and call this method, find
@@ -128,24 +128,24 @@ commands                                                    *symfony-commands*
                                                            *symfony-:SVconfig*
 :SVconfig             Execute vsplit and call |:Sconfig|
 ==============================================================================
-refactoring                                              *symfony-refactoring*
+REFACTORING                                              *symfony-refactoring*
 
 If you select lines by visual-mode and call |:Spartial| with arguments, 
 replace these lines to <php include_partial(arguments) ?> and create new file
 and append these lines.
 ==============================================================================
-snippet                                                      *symfony-snippet*
+SNIPPET                                                      *symfony-snippet*
 
 Symfony.vim support snippetsEmu.vim. For example you type req and type 
 g:snippetsEmu_key replace to $this->getRequestParameter().
 If you want to know snippet, see after/ftplugin/symfony_snippets.vim
 ==============================================================================
-autocmd                                                      *symfony-autocmd*
+AUTOCMD                                                      *symfony-autocmd*
 
 If you want to use symfony autocmd, write like this.
 autocmd User Symfony set -----
 ==============================================================================
-changelog                                                  *symfony-changelog*
+CHANGELOG                                                  *symfony-changelog*
 0.01:
   - First release.
 ==============================================================================
