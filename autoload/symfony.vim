@@ -252,7 +252,7 @@ function! s:SymfonyPartial(arg, line1, line2, t)
       silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/modules/'.l:list[1].'/templates/_'.l:list[2].'.php'`
     else
       call s:splitWindow(a:t)
-      silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/modules/'.moduleName.'/templates/_'.l:tmp.'.php'`
+      silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/modules/'.s:GetModule().'/templates/_'.l:tmp.'.php'`
     endif
   end
 endfunction
