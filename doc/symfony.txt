@@ -1,6 +1,6 @@
 *symfony.txt* Improve your Symfony project in vim
 
-Version: 0.01
+Version: 0.02
 Author: soh kitahara
 URL: http://github.com/soh335/vim-symfony/tree/master
 ==============================================================================
@@ -8,7 +8,7 @@ INTRODUCTION                                            *symfony-introduction*
 
 When you work with symfony, open various files many times. For example action
 files, view files and model files. If you repeat to edit and quiet, take time.
-So symfony.vim provide some convenient commands.
+So symfony.vim provide some convenient commands to open file.
 ==============================================================================
 COMMANDS                                                    *symfony-commands*
 
