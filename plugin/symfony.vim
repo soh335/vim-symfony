@@ -13,7 +13,7 @@ function! s:Detect(filename)
       return SymfonyProject(fn)
     endif
     let ofn = fn
-    let fn = fnamemodify(ofn,':s?\(.*\)[\/]\(apps\|config\|data\|doc\|lib\|log\|plugins\|test\|web\)\($\|[\/].*$\)?\1?')
+    let fn = fnamemodify(ofn,':s?\(.*\)[\/]\(apps\|batch\|config\|data\|lib\|log\|plugins\|test\|web\)\($\|[\/].*$\)?\1?')
   endwhile
 endfunction
 
