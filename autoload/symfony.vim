@@ -110,32 +110,32 @@ function! s:SymfonyAction(args, t)
       if !exists("b:sf_root_dir")
         call s:error("not set root dir")
       endif
-      if s:OpenExistFile(b:sf_root_dir."/apps/".b:sf_default_app."/modules/".s:GetModule()."/actions/".l:list[0]."Action.class.php", a:t) != 0
-      elseif s:OpenExistFile(b:sf_root_dir."/apps/".b:sf_default_app."/modules/".l:list[0]."/actions/actions.class.php", a:t) != 0
-      else
+      if s:OpenFilereadble([b:sf_root_dir."/apps/".b:sf_default_app."/modules/".s:GetModule()."/actions/".l:list[0]."Action.class.php",
+            \b:sf_root_dir."/apps/".b:sf_default_app."/modules/".l:list[0]."/actions/actions.class.php"], 'call s:splitWindow(a:t)', 0) == 0
         call s:error("Not find")
       endif
     elseif len(l:list) == 2
-      if s:OpenExistFile(b:sf_root_dir."/apps/".b:sf_default_app."/modules/".l:list[0]."/actions/".l:list[1]."Action.class.php", a:t) != 0
-      elseif s:OpenExistFile(b:sf_root_dir."/apps/".l:list[0]."/modules/".l:list[1]."/actions/actions.class.php", a:t) != 0
-      else
+      if s:OpenFilereadble([b:sf_root_dir."/apps/".b:sf_default_app."/modules/".l:list[0]."/actions/".l:list[1]."Action.class.php",
+            \b:sf_root_dir."/apps/".l:list[0]."/modules/".l:list[1]."/actions/actions.class.php"], 'call s:splitWindow(a:t)', 0) == 0
         call s:error("Not find")
       endif
     elseif len(l:list) == 3
-      if s:OpenExistFile(b:sf_root_dir."/apps/".l:list[0]."/modules/".l:list[1]."/actions/".l:list[2]."Action.class.php", a:t) != 0
-      else
+      if s:OpenExistFile[b:sf_root_dir."/apps/".l:list[0]."/modules/".l:list[1]."/actions/".l:list[2]."Action.class.php"], 'call s:splitWindow(a:t)', 0) == 0
         call s:error("Not find")
       endif
     endif
   endif
 endfunction
 
-function! s:OpenExistFile(path, t)
-  if filereadable(a:path)
-    call s:splitWindow(a:t)
-    silent edit `=a:path`
-    return 1
-  endif
+function! s:OpenFilereadble(list, before_eval, after_eval)
+  for item in a:list
+    if filereadable(item)
+      if a:before_eval | call eval(a:before_eval) | endif
+      silent edit `=item`
+      if a:after_eval | call eval(a:after_eval) | endif
+      return 1
+    endif
+  endfor
   return 0
 endfunction
 
