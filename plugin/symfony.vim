@@ -31,8 +31,11 @@ endfunction
 "}}}
 
 "{{{ auto
+"reference plugin/rails.vim 
 augroup symfonyPluginDetect
   autocmd!
   autocmd BufNewFile,BufRead * call s:Detect(expand("<afile>:p"))
+  autocmd VimEnter * if expand("<amatch>") == "" && !exists("b:sf_root_dir") | call s:Detect(getcwd()) | endif
+  autocmd FileType netrw if !exists("b:sf_root_dir") | call s:Detect(expand("<afile>:p")) | endif
 augroup END
 "}}}
