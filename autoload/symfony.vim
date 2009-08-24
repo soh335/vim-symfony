@@ -279,13 +279,7 @@ endfunction
 "set symfony home project directory
 function! SymfonyProject(word)
   if isdirectory(a:word.'/apps') && isdirectory(a:word.'/web') && isdirectory(a:word.'/lib')
-    "let l:tmp = s:finddir_esc('apps', a:word)
     let b:sf_root_dir = a:word
-    "if l:tmp == "apps"
-    "    let b:sf_root_dir =substitute(expand('%:p'),"/apps.*","", "")."/"
-    "else
-    "    let b:sf_root_dir = s:finddir_esc('apps',a:word)[:-5]
-    "endif
     call s:SetSymfonyVersion()
     call s:SetModelPath()
     call s:SetDefaultApp()
