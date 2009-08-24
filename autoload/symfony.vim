@@ -34,16 +34,6 @@ function! s:splitWindow(t)
   endif
 endfunction
 
-" open template file function
-function! s:OpenTemplateFile(file)
-  echo b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/templates"
-  if isdirectory(b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/templates")
-    silent edit `=b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/templates/".a:file`
-  else
-    call s:error("error not find  templates directory")
-  endif
-endfunction
-
 "find and edit symfony view file 
 "find and edit xxxError.php if argument is error
 "find executeXXX or execute in line
@@ -56,27 +46,25 @@ function! s:SymfonyView(args, t)
     let l:lineNum = line(".")
     while( l:lineNum > 0 )
       let l:line = getline(l:lineNum)
-      let l:word = matchstr(l:line,'execute[0-9a-zA-Z_-]*')
-      if (l:word != "")
+      let l:t = matchlist(l:line,'function\s\+\(execute\)\([0-9a-zA-Z_-]*\)')
+      if (get(l:t,1) != "")
         break
       endif
       let l:lineNum = l:lineNum - 1
     endwhile
-    if l:word == 'execute'
-      "if action file is separeted
-      let l:file = substitute(expand('%:t'),"Action.class.php","","").l:suffix
-      call s:splitWindow(a:t)
-      call s:OpenTemplateFile(l:file)
-      unlet l:file
-      return
-    elseif l:word  =~ 'execute' && strlen(l:word)>7
-      let l:file = tolower(l:word[7:7]).l:word[8:].l:suffix
-      call s:splitWindow(a:t)
-      call s:OpenTemplateFile(l:file)
-      unlet l:file
-      return
+    let path = b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/templates/"
+    if get(l:t, 2) == "" "if action file is separated
+      let file = path.substitute(expand('%:t'),"Action.class.php","","").l:suffix
+    elseif get(l:t,1) == 'execute' && get(l:t, 2) != ""
+      let l:word =get(l:t, 2)
+      let file = path.tolower(l:word[0:0]).l:word[1:].l:suffix
     endif
-    call s:error("not find executeXXX in this line")
+    if filereadable(file)
+      call s:splitWindow(a:t)
+      silent edit `=file`
+    else
+      call s:error("not find executeXXX")
+    end
   else
     let words = split(a:args)
     if len(words) == 1 && words[0] =~ "\.php$"
