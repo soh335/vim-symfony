@@ -52,6 +52,10 @@ function! s:SymfonyView(args, t)
       endif
       let l:lineNum = l:lineNum - 1
     endwhile
+    if l:lineNum == 0
+      call s:error("not find executeXXX")
+      return
+    endif
     let path = b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/templates/"
     if get(l:t, 2) == "" "if action file is separated
       let file = path.substitute(expand('%:t'),"Action.class.php","","").l:suffix
@@ -59,12 +63,8 @@ function! s:SymfonyView(args, t)
       let l:word =get(l:t, 2)
       let file = path.tolower(l:word[0:0]).l:word[1:].l:suffix
     endif
-    if filereadable(file)
-      call s:splitWindow(a:t)
-      silent edit `=file`
-    else
-      call s:error("not find executeXXX")
-    end
+    call s:splitWindow(a:t)
+    silent edit `=file`
   else
     let words = split(a:args)
     if len(words) == 1 && words[0] =~ "\.php$"
