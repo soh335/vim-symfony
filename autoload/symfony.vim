@@ -110,12 +110,12 @@ function! s:SymfonyAction(args, t)
       if !exists("b:sf_root_dir")
         call s:error("not set root dir")
       endif
-      if s:OpenFilereadble([b:sf_root_dir."/apps/".b:sf_default_app."/modules/".s:GetModule()."/actions/".l:list[0]."Action.class.php",
-            \b:sf_root_dir."/apps/".b:sf_default_app."/modules/".l:list[0]."/actions/actions.class.php"], 'call s:splitWindow(a:t)', 0) == 0
+      if s:OpenFilereadble([b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/actions/".l:list[0]."Action.class.php",
+            \b:sf_root_dir."/apps/".s:GetApp()."/modules/".l:list[0]."/actions/actions.class.php"], 'call s:splitWindow(a:t)', 0) == 0
         call s:error("Not find")
       endif
     elseif len(l:list) == 2
-      if s:OpenFilereadble([b:sf_root_dir."/apps/".b:sf_default_app."/modules/".l:list[0]."/actions/".l:list[1]."Action.class.php",
+      if s:OpenFilereadble([b:sf_root_dir."/apps/".s:GetApp()."/modules/".l:list[0]."/actions/".l:list[1]."Action.class.php",
             \b:sf_root_dir."/apps/".l:list[0]."/modules/".l:list[1]."/actions/actions.class.php"], 'call s:splitWindow(a:t)', 0) == 0
         call s:error("Not find")
       endif
@@ -270,7 +270,7 @@ function! SymfonyProject(word)
     let b:sf_root_dir = a:word
     call s:SetSymfonyVersion()
     call s:SetModelPath()
-    call s:SetDefaultApp()
+    "call s:SetDefaultApp()
     call s:SetBufferCommand()
     call s:SetPath()
     "reference rails.vim 
@@ -360,7 +360,7 @@ function! s:GetSymfonyActionList(A,L,P)
       let list = split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/modules/".words[2].'/actions/*Action\.class\.php'), s:escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]modules[/\]'.words[2].'[/\]actions[/\](.{-})Action.class.php'), '\1'), "\n")
     elseif len(words) == 3 || (len(words) == 2 && a:A == "")
       let list = split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/modules/*"), s:escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]modules[/\]'), ""), "\n")
-      let list += split(s:gsub(glob(b:sf_root_dir."/apps/*/modules/".words[1].'/actions/*Action\.class\.php'), s:escapeback(b:sf_root_dir.'[/\]apps[/\].\{-}[/\]modules[/\]'.words[1].'[/\]actions[/\](.{-})Action.class.php'), ''), "\n")
+      let list += split(s:gsub(glob(b:sf_root_dir."/apps/".s:GetApp()."/modules/".words[1].'/actions/*Action\.class\.php'), s:escapeback(b:sf_root_dir.'[/\]apps[/\]'.s:GetApp().'[/\]modules[/\]'.words[1].'[/\]actions[/\](.{-})Action.class.php'), '\1'), "\n")
     elseif len(words) <= 2 
       let list = split(s:gsub(glob(b:sf_root_dir."/apps/*"), s:escapeback(b:sf_root_dir.'[/\]apps[/\]'), ""), "\n")
       let list += split(s:gsub(glob(b:sf_root_dir."/apps/".s:GetApp()."/modules/*"), s:escapeback(b:sf_root_dir.'[/\]apps[/\].{-}[/\]modules[/\]'), ""), "\n")
