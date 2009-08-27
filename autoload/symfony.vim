@@ -120,7 +120,7 @@ function! s:SymfonyAction(args, t)
         call s:error("Not find")
       endif
     elseif len(l:list) == 3
-      if s:OpenExistFile[b:sf_root_dir."/apps/".l:list[0]."/modules/".l:list[1]."/actions/".l:list[2]."Action.class.php"], 'call s:splitWindow(a:t)', 0) == 0
+      if s:OpenFilereadble([b:sf_root_dir."/apps/".l:list[0]."/modules/".l:list[1]."/actions/".l:list[2]."Action.class.php"], 'call s:splitWindow(a:t)', 0) == 0
         call s:error("Not find")
       endif
     endif
