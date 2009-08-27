@@ -146,6 +146,9 @@ If you want to use symfony autocmd, write like this.
 autocmd User Symfony set -----
 ==============================================================================
 CHANGELOG                                                  *symfony-changelog*
+0.03:
+  - Fix some bugs.
+  - don't use sf_default_app
 0.02:
   - Fix some bugs.
   - add detect when filetype is netrw and autocmd VimEnter
