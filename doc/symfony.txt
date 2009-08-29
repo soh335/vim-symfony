@@ -1,6 +1,6 @@
 *symfony.txt* Improve your Symfony project in vim
 
-Version: 0.02
+Version: 0.03
 Author: soh kitahara
 URL: http://github.com/soh335/vim-symfony/tree/master
 ==============================================================================
