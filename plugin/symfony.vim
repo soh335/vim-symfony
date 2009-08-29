@@ -6,7 +6,11 @@ function! s:Detect(filename)
   if exists("b:sf_root_dir")
     return 0
   endif
-  let fn = substitute(fnamemodify(a:filename,":p"),'\c^file://','','')
+  if isdirectory(a:filename)
+    let fn = substitute(fnamemodify(a:filename,":p:h"),'\c^file://','','')
+  else
+    let fn = substitute(fnamemodify(a:filename,":p"),'\c^file://','','')
+  endif
   let ofn = ""
   while fn != ofn
     if filereadable(fn."/config/databases.yml") && s:autoload() == 1
