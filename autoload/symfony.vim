@@ -22,7 +22,7 @@ function! s:gsub(str, pat, rep)
   return substitute(a:str, '\v'.a:pat, a:rep, 'g')
 endfunction
 
-function! s:escapeback(str)
+function! symfony#escapeback(str)
   return substitute(a:str, '\v\', '\\\', 'g')
 endfunction
 
@@ -274,10 +274,13 @@ function! SymfonyProject(word)
     call s:SetBufferCommand()
     call s:SetPath()
     "reference rails.vim 
-    if exists('g:loaded_snippet')
+    if g:symfony_snippets_emu == 1 && exists('g:loaded_snippet')
       runtime! ftplugin/symfony_snippets.vim
       " filetype snippets need to come last for higher priority
       exe "silent! runtime! ftplugin/".&filetype."_snippets.vim"
+    endif
+    if g:symfony_fuf == 1
+      call s:SetSymfonyFufCommand()
     endif
     silent doautocmd User Symfony
   else
@@ -357,13 +360,13 @@ function! s:GetSymfonyActionList(A,L,P)
   if exists("b:sf_root_dir")
     let words = split(a:L)
     if len(words) == 4 || (len(words) == 3 && a:A == "")
-      let list = split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/modules/".words[2].'/actions/*Action\.class\.php'), s:escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]modules[/\]'.words[2].'[/\]actions[/\](.{-})Action.class.php'), '\1'), "\n")
+      let list = split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/modules/".words[2].'/actions/*Action\.class\.php'), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]modules[/\]'.words[2].'[/\]actions[/\](.{-})Action.class.php'), '\1'), "\n")
     elseif len(words) == 3 || (len(words) == 2 && a:A == "")
-      let list = split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/modules/*"), s:escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]modules[/\]'), ""), "\n")
-      let list += split(s:gsub(glob(b:sf_root_dir."/apps/".s:GetApp()."/modules/".words[1].'/actions/*Action\.class\.php'), s:escapeback(b:sf_root_dir.'[/\]apps[/\]'.s:GetApp().'[/\]modules[/\]'.words[1].'[/\]actions[/\](.{-})Action.class.php'), '\1'), "\n")
+      let list = split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/modules/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]modules[/\]'), ""), "\n")
+      let list += split(s:gsub(glob(b:sf_root_dir."/apps/".s:GetApp()."/modules/".words[1].'/actions/*Action\.class\.php'), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'.s:GetApp().'[/\]modules[/\]'.words[1].'[/\]actions[/\](.{-})Action.class.php'), '\1'), "\n")
     elseif len(words) <= 2 
-      let list = split(s:gsub(glob(b:sf_root_dir."/apps/*"), s:escapeback(b:sf_root_dir.'[/\]apps[/\]'), ""), "\n")
-      let list += split(s:gsub(glob(b:sf_root_dir."/apps/".s:GetApp()."/modules/*"), s:escapeback(b:sf_root_dir.'[/\]apps[/\].{-}[/\]modules[/\]'), ""), "\n")
+      let list = split(s:gsub(glob(b:sf_root_dir."/apps/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'), ""), "\n")
+      let list += split(s:gsub(glob(b:sf_root_dir."/apps/".s:GetApp()."/modules/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\].{-}[/\]modules[/\]'), ""), "\n")
     endif
     return filter(list, 'v:val =~ "^".a:A')
   else
@@ -375,13 +378,13 @@ function! s:GetSymfonyViewList(A,L,P)
   if exists("b:sf_root_dir")
     let words = split(a:L)
     if len(words) == 4 || (len(words) == 3 && a:A == "")
-      let list = split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/modules/".words[2].'/templates/*'), s:escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]modules[/\]'.words[2].'[/\]templates[/\]'), ""), "\n")
+      let list = split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/modules/".words[2].'/templates/*'), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]modules[/\]'.words[2].'[/\]templates[/\]'), ""), "\n")
     elseif len(words) == 3 || (len(words) == 2 && a:A == "")
-      let list = split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/modules/*"), s:escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]modules[/\]'), ""), "\n")
-      let list += split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/templates/*"), s:escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]templates[/\]'), ""), "\n")
+      let list = split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/modules/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]modules[/\]'), ""), "\n")
+      let list += split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/templates/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]templates[/\]'), ""), "\n")
     elseif len(words) <= 2
-      let list = split(s:gsub(glob(b:sf_root_dir."/apps/*"), s:escapeback(b:sf_root_dir.'[/\]apps[/\]'), ""), "\n")
-      let list += split(s:gsub(glob(b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/templates/*"), s:escapeback(b:sf_root_dir.'[/\]apps[/\]'.s:GetApp().'[/\]modules[/\]'.s:GetModule().'[/\]templates[/\]'), ""), "\n")
+      let list = split(s:gsub(glob(b:sf_root_dir."/apps/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'), ""), "\n")
+      let list += split(s:gsub(glob(b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/templates/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'.s:GetApp().'[/\]modules[/\]'.s:GetModule().'[/\]templates[/\]'), ""), "\n")
     endif
     return filter(list, 'v:val =~ "^".a:A')
   endif
@@ -393,9 +396,9 @@ function! s:GetSymfonyConfigList(A,L,P)
     if exists("s:sf_complete_session")
       return s:sf_complete_session
     else
-      let list = substitute(glob(b:sf_root_dir."/config/"."**"),s:escapeback(b:sf_root_dir.'[/\]'),"","g")
-      let list2 = substitute(glob(b:sf_root_dir."/apps/*/config/"."**"),s:escapeback(b:sf_root_dir.'[/\]apps[/\]*[/\]'),"","g")
-      let list3 = substitute(glob(b:sf_root_dir."/apps/*/modules/*/config/"."**"),s:escapeback(b:sf_root_dir.'[/\]apps[/\]'),"","g")
+      let list = substitute(glob(b:sf_root_dir."/config/"."**"),symfony#escapeback(b:sf_root_dir.'[/\]'),"","g")
+      let list2 = substitute(glob(b:sf_root_dir."/apps/*/config/"."**"),symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]*[/\]'),"","g")
+      let list3 = substitute(glob(b:sf_root_dir."/apps/*/modules/*/config/"."**"),symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'),"","g")
       let s:sf_complete_session = join(sort(split(list."\n".list2."\n".list3, "\n")), "\n")
       return s:sf_complete_session
     endif
@@ -419,7 +422,7 @@ endfunction
 "open symfonyProject/lib* file
 function! s:GetSymfonyLibList(A,L,P)
   if exists("b:sf_root_dir")
-    return split(substitute(glob(b:sf_root_dir."/lib/".a:A."*"), s:escapeback(b:sf_root_dir.'[/\]lib[/\]'),"","g"), "\n")
+    return split(substitute(glob(b:sf_root_dir."/lib/".a:A."*"), symfony#escapeback(b:sf_root_dir.'[/\]lib[/\]'),"","g"), "\n")
   else
     call s:error("not set symfony root dir")
   endif
@@ -427,7 +430,7 @@ endfunction
 
 function! s:GetSymfonyModelList(A, L, P)
   if exists("b:sf_model_dir")
-    return split(substitute(glob(b:sf_root_dir.'/lib/model/'.a:A."*"),s:escapeback(b:sf_root_dir.'[/\]lib[/\]model[/\]'),"","g"), "\n")
+    return split(substitute(glob(b:sf_root_dir.'/lib/model/'.a:A."*"),symfony#escapeback(b:sf_root_dir.'[/\]lib[/\]model[/\]'),"","g"), "\n")
   else
     call s:error("not set symfony model path")
   endif
@@ -435,7 +438,7 @@ endfunction
 
 function! s:GetSymfonyFormList(A, L, P)
   if exists("b:sf_root_dir")
-    return split(substitute(glob(b:sf_root_dir."/lib/form/".a:A."*"),s:escapeback(b:sf_root_dir.'[/\]lib[/\]form[/\]'),"","g"), "\n")
+    return split(substitute(glob(b:sf_root_dir."/lib/form/".a:A."*"),symfony#escapeback(b:sf_root_dir.'[/\]lib[/\]form[/\]'),"","g"), "\n")
   else
     call s:error("not set symfony root dir")
   endif
@@ -443,7 +446,7 @@ endfunction
 
 function! s:GetSymfonyHelperList(A, L, P)
   if exists("b:sf_root_dir")
-    return split(substitute(glob(b:sf_root_dir."/lib/helper/".a:A."*\.php"),s:escapeback(b:sf_root_dir.'[/\]lib[/\]helper[/\]'),"","g"), "\n")
+    return split(substitute(glob(b:sf_root_dir."/lib/helper/".a:A."*\.php"),symfony#escapeback(b:sf_root_dir.'[/\]lib[/\]helper[/\]'),"","g"), "\n")
   else
     call s:error("not set symfony root dir")
   endif
@@ -504,12 +507,16 @@ function! s:GetSymfonyCommandList(A, L, P)
   else
     let command = words[1]
     if command == 'init-module' || command == 'generate:module'
-      let list = split(substitute(glob(b:sf_root_dir."/apps/*"), s:escapeback(b:sf_root_dir.'[/\]apps[/\]'), "", "g"), "\n")
+      let list = split(substitute(glob(b:sf_root_dir."/apps/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'), "", "g"), "\n")
       return filter(list, 'v:val =~ "^".a:A')
     else
       return []
     endif
   endif
+endfunction
+
+function! s:SetSymfonyFufCommand()
+  command! SmodelFinder :call symfony#fuf#SmodelFinder()
 endfunction
 
 function! s:SetBufferCommand()
