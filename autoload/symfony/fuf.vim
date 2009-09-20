@@ -10,6 +10,24 @@ function! symfony#fuf#SmodelFinder()
   call fuf#callbackitem#launch('', 0, '>model>', s:listener, list, 1)
 endfunction
 
+function! symfony#fuf#SviewFinder()
+endfunction
+
+function! symfony#fuf#SformFinder()
+endfunction
+
+function! symfony#fuf#SlibFinder()
+endfunction
+
+function! symfony#fuf#SconfigFinder()
+endfunction
+
+function! symfony#fuf#SactionFinder()
+endfunction
+
+function! symfony#fuf#ShelperFinder()
+endfunction
+
 function s:listener.onComplete(item, method)
   silent edit `=b:sf_root_dir.'/lib/model/'.a:item`
 endfunction

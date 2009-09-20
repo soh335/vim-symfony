@@ -517,6 +517,12 @@ endfunction
 
 function! s:SetSymfonyFufCommand()
   command! SmodelFinder :call symfony#fuf#SmodelFinder()
+  command! SviewFinder :call symfony#fuf#SviewFinder()
+  command! SformFinder :call symfony#fuf#SformFinder()
+  command! SlibFinder :call symfony#fuf#SlibFinder()
+  command! SconfigFinder :call symfony#fuf#SconfigFinder()
+  command! SactionFinder :call symfony#fuf#SactionFinder()
+  command! ShelperFinder :call symfony#fuf#ShelperFinder()
 endfunction
 
 function! s:SetBufferCommand()
