@@ -1,6 +1,6 @@
 *symfony.txt* Improve your Symfony project in vim
 
-Version: 0.03
+Version: 0.04
 Author: soh kitahara
 URL: http://github.com/soh335/vim-symfony/tree/master
 ==============================================================================
@@ -140,12 +140,34 @@ Symfony.vim support snippetsEmu.vim. For example you type req and type
 g:snippetsEmu_key replace to $this->getRequestParameter().
 If you want to know snippet, see after/ftplugin/symfony_snippets.vim
 ==============================================================================
+FuzzyFinder                                                      *symfony-fuf*
+
+Symfony.vim support FuzzyFinder.vim. If you want to use, write 
+'let g:symfony_fuf = 1' in your .vimrc. default is 0.  If this option is 
+active, you can use these commands.
+
+:SmodelFinder         
+
+:SviewFinder
+
+:SformFinder
+
+:SlibFinder
+
+:SconfigFinder
+
+:SactionFinder
+
+:ShelperFinder
+==============================================================================
 AUTOCMD                                                      *symfony-autocmd*
 
 If you want to use symfony autocmd, write like this.
 autocmd User Symfony set -----
 ==============================================================================
 CHANGELOG                                                  *symfony-changelog*
+0.04:
+  - add fuzzyfinder interface
 0.03:
   - Fix some bugs.
   - don't use sf_default_app
