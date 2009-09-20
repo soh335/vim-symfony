@@ -139,12 +139,13 @@ SNIPPET                                                      *symfony-snippet*
 Symfony.vim support snippetsEmu.vim. For example you type req and type 
 g:snippetsEmu_key replace to $this->getRequestParameter().
 If you want to know snippet, see after/ftplugin/symfony_snippets.vim
+See also |symfony_snippets_emu|
 ==============================================================================
 FuzzyFinder                                                      *symfony-fuf*
 
 Symfony.vim support FuzzyFinder.vim. If you want to use, write 
 'let g:symfony_fuf = 1' in your .vimrc. default is 0.  If this option is 
-active, you can use these commands.
+active, you can use these commands. See also |symfony_fuf|
 
 :SmodelFinder         
 
@@ -164,6 +165,18 @@ AUTOCMD                                                      *symfony-autocmd*
 
 If you want to use symfony autocmd, write like this.
 autocmd User Symfony set -----
+
+==============================================================================
+OPTION                                                        *symfony-option*
+
+                                                                 *symfony_fuf*
+g:symfony_fuf            default is off. If you want to use fuzzyfinder,
+                         turn on this option, write 'let g:symfony_fuf = 1'
+                         in your .vimrc
+                                                        *symfony_snippets_emu*
+g:symfony_snippets_emu   default is off. If you want to use snippet by
+                         snippetsEmu.vim, turn on this option, write 
+                         'let g:symfony_snippets_emu = 1' in your .vimrc
 ==============================================================================
 CHANGELOG                                                  *symfony-changelog*
 0.04:
