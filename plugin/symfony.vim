@@ -43,3 +43,16 @@ augroup symfonyPluginDetect
   autocmd FileType netrw if !exists("b:sf_root_dir") | call s:Detect(expand("<afile>:p")) | endif
 augroup END
 "}}}
+
+
+function! s:setDefaultOption(key, value)
+  if !exists(a:key)
+    let {a:key} = a:value
+  endif
+endfunction
+
+"{{{ setting
+call s:setDefaultOption('g:symfony_fuf', 0)
+call s:setDefaultOption('g:symfony_snippets_emu', 0)
+call s:setDefaultOption('g:symfony_snipmate', 0)
+"}}}
