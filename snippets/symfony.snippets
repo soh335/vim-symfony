@@ -1,0 +1,67 @@
+snippet requ
+	$this->getRequestParameter("${1}");${2}
+snippet fw
+	$this->forward("${1}", "${2}");${3}
+snippet red
+	$this->redirect("${1}");${2}
+snippet verror 
+	return sfView::ERROR${2};
+snippet serror 
+	$this->getRequest()->setError("${1}, "${2}");$3}
+
+snippet partial 
+	<?php include_partial("${1}") ?>${2}
+snippet component 
+	<?php include_component("${1}", "${2}") ?>${3}
+snippet slot 
+	<?php include_slot("${1}") ?>
+		${2}
+	<?php end_slot() ?>${3}
+
+snippet newc 
+	$c = new Criteria();${1}
+snippet add 
+	$c->add("${1}", "${2}");${2}
+snippet desc 
+	$c->addDescendingOrderByColumn("${1}");${2}
+snippet asc 
+	$c->addAscendingOrderByColumn("${1}");${2}
+snippet lim 
+	$c->setLimit("${1}");${2}
+snippet dos 
+	${1:self}::doSelect($c);${2}
+snippet doo 
+	${1:self}::doSelectOne($c);${2}
+snippet doc 
+	${1:self}::doCount($c);${2}
+
+snippet ceq 
+	Criteria::EQUAL${1}
+snippet cne 
+	Criteria::NOT_EQUAL${1}
+snippet cgt 
+	Criteria::GREATER_THAN${1}
+snippet clt 
+	Criteria::LESS_THAN${1}
+snippet cge 
+	Criteria::GREATER_EQUAL${1}
+snippet cle 
+	Criteria::LESS_EQUAL${1}
+snippet cli 
+	Criteria::LIKE${1}
+snippet cnl 
+	Criteria::NOT_LIKE${1}
+snippet cin 
+	Criteria::IN${1}
+snippet ccu 
+	Criteria::CUSTOM${1}
+
+snippet action 
+	<?php
+	
+	class ${1:index}Action extends sfAction
+	{
+		public function execute($request) {
+			${2}
+		}
+	}${3}
