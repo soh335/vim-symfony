@@ -166,7 +166,7 @@ AUTOCMD                                                      *symfony-autocmd*
 If you want to use symfony autocmd, write like this.
 autocmd User Symfony set -----
 ==============================================================================
-FileType                                                     *symfony-autocmd*
+FileType                                                    *symfony-filetype*
 
 symfony.vim add filetype 'symfony', if find symfony project.  It supports 
 snippets of snipMate.vim.
