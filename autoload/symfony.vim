@@ -492,6 +492,11 @@ function! s:GetSymfonyCommandList(A, L, P)
   endif
 endfunction
 
+augroup symfonyInitialize
+    autocmd!
+    autocmd User Symfony setlocal filetype+=.symfony
+augroup END
+
 function! s:SetSymfonyFufCommand()
   command! SmodelFinder :call symfony#fuf#SmodelFinder()
   command! SviewFinder :call symfony#fuf#SviewFinder()
