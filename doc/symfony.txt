@@ -165,6 +165,11 @@ AUTOCMD                                                      *symfony-autocmd*
 
 If you want to use symfony autocmd, write like this.
 autocmd User Symfony set -----
+==============================================================================
+FileType                                                     *symfony-autocmd*
+
+symfony.vim add filetype 'symfony', if find symfony project.  It supports 
+snippets of snipMate.vim.
 
 ==============================================================================
 OPTION                                                        *symfony-option*
@@ -181,6 +186,8 @@ g:symfony_snippets_emu   default is off. If you want to use snippet by
 CHANGELOG                                                  *symfony-changelog*
 0.04:
   - add fuzzyfinder interface
+  - add filetype 'symfony'
+  - add snippets of snipMate.vim
 0.03:
   - Fix some bugs.
   - don't use sf_default_app
