@@ -281,6 +281,7 @@ function! SymfonyProject(word)
     if g:symfony_fuf == 1
       call s:SetSymfonyFufCommand()
     endif
+    silent doautocmd User SymfonyBufInit
     silent doautocmd User Symfony
   else
     call s:error("nof find apps, web, lib dir")
@@ -492,9 +493,9 @@ function! s:GetSymfonyCommandList(A, L, P)
   endif
 endfunction
 
-augroup symfonyInitialize
+augroup symfonyBufInit
     autocmd!
-    autocmd User Symfony setlocal filetype+=.symfony
+    autocmd User symfonyBufInit setlocal filetype+=.symfony
 augroup END
 
 function! s:SetSymfonyFufCommand()
