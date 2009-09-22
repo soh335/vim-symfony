@@ -270,7 +270,6 @@ function! SymfonyProject(word)
     let b:sf_root_dir = a:word
     call s:SetSymfonyVersion()
     call s:SetModelPath()
-    "call s:SetDefaultApp()
     call s:SetBufferCommand()
     call s:SetPath()
     "reference rails.vim 
@@ -286,28 +285,6 @@ function! SymfonyProject(word)
   else
     call s:error("nof find apps, web, lib dir")
   endif
-endfunction
-
-function! s:SetDefaultApp()
-  if exists("b:sf_root_dir") && filereadable(b:sf_root_dir."/web/index.php")
-    for l:line in readfile(b:sf_root_dir."/web/index.php")
-      if b:sf_version == 10
-        if l:line =~ 'define(.*SF_APP.*)'
-          let l:app = substitute(l:line,'define.*SF_APP.*,.\{-}["'']','','')
-          let l:app = substitute(l:app,'["''].*','','')
-          let b:sf_default_app = l:app
-        endif
-      else
-        if l:line =~ 'getApplicationConfiguration'
-          let l:app = matchstr(l:line, '''\(.\{-}\)''')[1:-2]
-          let b:sf_default_app = l:app
-        endif
-      endif
-    endfor
-  endif
-  if !exists("b:sf_default_app")
-    let b:sf_default_app = 0
-  end
 endfunction
 
 function! s:SetSymfonyVersion()
