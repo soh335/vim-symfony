@@ -2,6 +2,9 @@
 "Author: soh kitahara <sugarbabe335@gmail.com>
 
 "reference plugin/rails.vim 
+
+let s:symfony_rout = {}
+
 function! s:Detect(filename)
   if exists("b:sf_root_dir")
     return 0
@@ -12,8 +15,17 @@ function! s:Detect(filename)
     let fn = substitute(fnamemodify(a:filename,":p"),'\c^file://','','')
   endif
   let ofn = ""
+  let nfn = fn
+  while nfn != ofn && nfn != ""
+    if has_key(s:symfony_rout, nfn)
+      return SymfonyProject(nfn)
+    endif
+    let ofn = nfn 
+    let nfn = fnamemodify(nfn,':h')
+  endwhile
   while fn != ofn
     if filereadable(fn."/config/databases.yml") && s:autoload() == 1
+      let s:symfony_rout[fn] = 1
       return SymfonyProject(fn)
     endif
     let ofn = fn
