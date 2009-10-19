@@ -56,7 +56,7 @@ function! s:SymfonyView(args, t)
       call s:error("not find executeXXX")
       return
     endif
-    let path = b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/templates/"
+    let path = b:sf_root_dir."/apps/".symfony#GetApp()."/modules/".symfony#GetModule()."/templates/"
     if get(l:t, 2) == "" "if action file is separated
       let file = path.substitute(expand('%:t'),"Action.class.php","","").l:suffix
     elseif get(l:t,1) == 'execute' && get(l:t, 2) != ""
@@ -68,7 +68,7 @@ function! s:SymfonyView(args, t)
   else
     let words = split(a:args)
     if len(words) == 1 && words[0] =~ "\.php$"
-      silent edit `=b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/templates/".words[0]`
+      silent edit `=b:sf_root_dir."/apps/".symfony#GetApp()."/modules/".symfony#GetModule()."/templates/".words[0]`
     elseif len(words) == 2 && words[1] =~ "\.php$"
       silent edit `=b:sf_root_dir."/apps/".words[0]."/templates/".words[1]`
     else
@@ -91,13 +91,13 @@ function! s:SymfonyAction(args, t)
     if substitute(expand('%:p:h'),'.*/','','') == "templates"
       let l:prefix = substitute(expand('%:t'),l:view,"","") 
       let l:file = l:prefix."Action.class.php"
-      if filereadable(b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/actions/".l:file)
+      if filereadable(b:sf_root_dir."/apps/".symfony#GetApp()."/modules/".symfony#GetModule()."/actions/".l:file)
         call s:splitWindow(a:t)
-        silent edit `=b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/actions/".l:file`
+        silent edit `=b:sf_root_dir."/apps/".symfony#GetApp()."/modules/".symfony#GetModule()."/actions/".l:file`
         call s:SearchWordInFileAndMove('execute')
-      elseif filereadable(b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/actions/actions.class.php")
+      elseif filereadable(b:sf_root_dir."/apps/".symfony#GetApp()."/modules/".symfony#GetModule()."/actions/actions.class.php")
         call s:splitWindow(a:t)
-        silent edit `=b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/actions/actions.class.php"`
+        silent edit `=b:sf_root_dir."/apps/".symfony#GetApp()."/modules/".symfony#GetModule()."/actions/actions.class.php"`
         call s:SearchWordInFileAndMove('execute'.toupper(l:prefix[0:0]).l:prefix[1:])
       else
         call s:error("not exist action class file")
@@ -111,12 +111,12 @@ function! s:SymfonyAction(args, t)
       if !exists("b:sf_root_dir")
         call s:error("not set root dir")
       endif
-      if s:OpenFilereadble([b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/actions/".l:list[0]."Action.class.php",
-            \b:sf_root_dir."/apps/".s:GetApp()."/modules/".l:list[0]."/actions/actions.class.php"], 'call s:splitWindow(a:t)', 0) == 0
+      if s:OpenFilereadble([b:sf_root_dir."/apps/".symfony#GetApp()."/modules/".symfony#GetModule()."/actions/".l:list[0]."Action.class.php",
+            \b:sf_root_dir."/apps/".symfony#GetApp()."/modules/".l:list[0]."/actions/actions.class.php"], 'call s:splitWindow(a:t)', 0) == 0
         call s:error("Not find")
       endif
     elseif len(l:list) == 2
-      if s:OpenFilereadble([b:sf_root_dir."/apps/".s:GetApp()."/modules/".l:list[0]."/actions/".l:list[1]."Action.class.php",
+      if s:OpenFilereadble([b:sf_root_dir."/apps/".symfony#GetApp()."/modules/".l:list[0]."/actions/".l:list[1]."Action.class.php",
             \b:sf_root_dir."/apps/".l:list[0]."/modules/".l:list[1]."/actions/actions.class.php"], 'call s:splitWindow(a:t)', 0) == 0
         call s:error("Not find")
       endif
@@ -193,12 +193,12 @@ function! s:SymfonyComponent(t)
     let l:temp = substitute(l:l, l:mx, '\2', '')
     "silent execute ':e ../../'.l:module.'/templates/_'.l:temp.'.php'
     call s:splitWindow(a:t)
-    silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/'.l:module.'templates/_'.l:tmp.'php'`
+    silent edit `=b:sf_root_dir.'/apps/'.symfony#GetApp().'/'.l:module.'templates/_'.l:tmp.'php'`
   else
     let l:file = expand('%:r')
     let l:file = l:file[1:]
     call s:splitWindow(a:t)
-    silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/modules/'.s:GetModule().'/actions/components.class.php'`
+    silent edit `=b:sf_root_dir.'/apps/'.symfony#GetApp().'/modules/'.symfony#GetModule().'/actions/components.class.php'`
     call s:SearchWordInFileAndMove('execute'.toupper(l:file[0:0]).l:file[1:])
   endif
 endfunction
@@ -215,14 +215,14 @@ function! s:SymfonyPartial(arg, line1, line2, t)
     let moduleName = get(argList, 1)
     let fileName   = get(argList, 2)
     if (moduleName == "0" || fileName == "0")
-        let moduleName = s:GetModule()
+        let moduleName = symfony#GetModule()
         let fileName = a:arg
     endif
 
     call append(a:line1-1, '<?php include_partial("'.moduleName.'/'.fileName.'") ?>')
     execute a:line1 + 1
     execute 'delete'.(a:line2 - a:line1 + 1)
-    let _path = b:sf_root_dir.'/apps/'.s:GetApp().'/modules/'.moduleName.'/templates/_'.fileName.'.php'
+    let _path = b:sf_root_dir.'/apps/'.symfony#GetApp().'/modules/'.moduleName.'/templates/_'.fileName.'.php'
     if a:t == '' || a:t == 'S'
       silent new `=_path`
     elseif a:t == 'V'
@@ -234,14 +234,14 @@ function! s:SymfonyPartial(arg, line1, line2, t)
     let l:tmp = l:word[17:-2]
     if l:tmp[0:5] == "global"
       call s:splitWindow(a:t)
-      silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/templates/_'.l:tmp[7:].'.php'`
+      silent edit `=b:sf_root_dir.'/apps/'.symfony#GetApp().'/templates/_'.l:tmp[7:].'.php'`
     elseif l:tmp =~ "/"
       let l:list = matchlist(l:tmp, '\(.*\)/\(.*\)')
       call s:splitWindow(a:t)
-      silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/modules/'.l:list[1].'/templates/_'.l:list[2].'.php'`
+      silent edit `=b:sf_root_dir.'/apps/'.symfony#GetApp().'/modules/'.l:list[1].'/templates/_'.l:list[2].'.php'`
     else
       call s:splitWindow(a:t)
-      silent edit `=b:sf_root_dir.'/apps/'.s:GetApp().'/modules/'.s:GetModule().'/templates/_'.l:tmp.'.php'`
+      silent edit `=b:sf_root_dir.'/apps/'.symfony#GetApp().'/modules/'.symfony#GetModule().'/templates/_'.l:tmp.'.php'`
     endif
   end
 endfunction
@@ -312,7 +312,7 @@ function! s:SetModelPath()
 endfunction
 
 "get now app
-function! s:GetApp()
+function! symfony#GetApp()
   if exists("b:sf_app_name") == 0
     let l:t = substitute(expand('%:p'), b:sf_root_dir, '', '')
     let b:sf_app_name = substitute(matchstr(l:t, 'apps[/\\]\(.\{-}\)[/\\]')[:-2], 'apps[/\\]', '', '')
@@ -321,7 +321,7 @@ function! s:GetApp()
 endfunction
 
 "get now module
-function! s:GetModule()
+function! symfony#GetModule()
   if exists("b:sf_module_name") == 0
     let l:t = substitute(expand('%:p'), b:sf_root_dir, '', '')
     let b:sf_module_name = substitute(matchstr(l:t, 'modules[/\\]\(.\{-}\)[/\\]')[:-2], 'modules[/\\]', '', '')
@@ -342,10 +342,10 @@ function! s:GetSymfonyActionList(A,L,P)
       let list = split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/modules/".words[2].'/actions/*Action\.class\.php'), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]modules[/\]'.words[2].'[/\]actions[/\](.{-})Action.class.php'), '\1'), "\n")
     elseif len(words) == 3 || (len(words) == 2 && a:A == "")
       let list = split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/modules/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]modules[/\]'), ""), "\n")
-      let list += split(s:gsub(glob(b:sf_root_dir."/apps/".s:GetApp()."/modules/".words[1].'/actions/*Action\.class\.php'), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'.s:GetApp().'[/\]modules[/\]'.words[1].'[/\]actions[/\](.{-})Action.class.php'), '\1'), "\n")
+      let list += split(s:gsub(glob(b:sf_root_dir."/apps/".symfony#GetApp()."/modules/".words[1].'/actions/*Action\.class\.php'), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'.symfony#GetApp().'[/\]modules[/\]'.words[1].'[/\]actions[/\](.{-})Action.class.php'), '\1'), "\n")
     elseif len(words) <= 2 
       let list = split(s:gsub(glob(b:sf_root_dir."/apps/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'), ""), "\n")
-      let list += split(s:gsub(glob(b:sf_root_dir."/apps/".s:GetApp()."/modules/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\].{-}[/\]modules[/\]'), ""), "\n")
+      let list += split(s:gsub(glob(b:sf_root_dir."/apps/".symfony#GetApp()."/modules/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\].{-}[/\]modules[/\]'), ""), "\n")
     endif
     return filter(list, 'v:val =~ "^".a:A')
   else
@@ -363,7 +363,7 @@ function! s:GetSymfonyViewList(A,L,P)
       let list += split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/templates/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]templates[/\]'), ""), "\n")
     elseif len(words) <= 2
       let list = split(s:gsub(glob(b:sf_root_dir."/apps/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'), ""), "\n")
-      let list += split(s:gsub(glob(b:sf_root_dir."/apps/".s:GetApp()."/modules/".s:GetModule()."/templates/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'.s:GetApp().'[/\]modules[/\]'.s:GetModule().'[/\]templates[/\]'), ""), "\n")
+      let list += split(s:gsub(glob(b:sf_root_dir."/apps/".symfony#GetApp()."/modules/".symfony#GetModule()."/templates/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'.symfony#GetApp().'[/\]modules[/\]'.symfony#GetModule().'[/\]templates[/\]'), ""), "\n")
     endif
     return filter(list, 'v:val =~ "^".a:A')
   endif
@@ -496,7 +496,9 @@ endfunction
 
 augroup symfonyBufInit
     autocmd!
-    autocmd User symfonyBufInit setlocal filetype+=.symfony
+    if g:symfony_filetype == 1
+      autocmd User symfonyBufInit setlocal filetype+=.symfony
+    endif
 augroup END
 
 function! s:SetSymfonyFufCommand()
