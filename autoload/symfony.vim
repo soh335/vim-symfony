@@ -495,7 +495,9 @@ endfunction
 
 augroup symfonyBufInit
     autocmd!
-    autocmd User symfonyBufInit setlocal filetype+=.symfony
+    if g:symfony_filetype == 1
+      autocmd User symfonyBufInit setlocal filetype+=.symfony
+    endif
 augroup END
 
 function! s:SetSymfonyFufCommand()

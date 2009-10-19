@@ -66,4 +66,5 @@ endfunction
 "{{{ setting
 call s:setDefaultOption('g:symfony_fuf', 0)
 call s:setDefaultOption('g:symfony_snippets_emu', 0)
+call s:setDefaultOption('g:symfony_filetype', 0)
 "}}}
