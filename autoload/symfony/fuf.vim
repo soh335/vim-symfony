@@ -44,9 +44,9 @@ function! symfony#fuf#ShelperFinder()
   call fuf#callbackitem#launch('', 0, '>helper>', s:listener, list, 1)
 endfunction
 
-function s:listener.onComplete(item, method)
+function! s:listener.onComplete(item, method)
   silent edit `=b:sf_root_dir.a:item`
 endfunction
 
-function s:listener.onAbort()
+function! s:listener.onAbort()
 endfunction
