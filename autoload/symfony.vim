@@ -82,6 +82,7 @@ endfunction
 " or if passed argument, open action file directory
 function! s:SymfonyAction(args, t)
   if a:args == ""
+    let l:view = ""
     if expand('%:t') =~ 'Success.php'
       let l:view = 'Success.php'
     elseif expand('%:t') =~ 'Error.php'
