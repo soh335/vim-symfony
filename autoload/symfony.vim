@@ -1,7 +1,7 @@
 "Name: vim-symfony
 "Author: soh kitahara <sugarbabe335@gmail.com>
 
-if exists("g:autoloaded_symfony")
+if &cp || exists("g:autoloaded_symfony")
   finish
 end
 
