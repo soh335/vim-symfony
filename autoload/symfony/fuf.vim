@@ -11,7 +11,7 @@ function! symfony#fuf#SmodelFinder()
 endfunction
 
 function! symfony#fuf#SviewFinder()
-  let list = split(substitute(glob(b:sf_root_dir.'/apps/'.symfony#GetApp().'/modules/*/templates/*'),symfony#escapeback(b:sf_root_dir),"","g"), "\n")
+  let list = split(substitute(glob(b:sf_root_dir.'/apps/'.s:GetApp().'/modules/*/templates/*'),symfony#escapeback(b:sf_root_dir),"","g"), "\n")
   call fuf#callbackitem#launch('', 0, '>view>', s:listener, list, 1)
 endfunction
 
@@ -35,7 +35,7 @@ function! symfony#fuf#SconfigFinder()
 endfunction
 
 function! symfony#fuf#SactionFinder()
-  let list = split(substitute(glob(b:sf_root_dir.'/apps/'.symfony#GetApp().'/modules/*/actions/*'),symfony#escapeback(b:sf_root_dir),"","g"), "\n")
+  let list = split(substitute(glob(b:sf_root_dir.'/apps/'.s:GetApp().'/modules/*/actions/*'),symfony#escapeback(b:sf_root_dir),"","g"), "\n")
   call fuf#callbackitem#launch('', 0, '>action>', s:listener, list, 1)
 endfunction
 
@@ -49,4 +49,12 @@ function! s:listener.onComplete(item, method)
 endfunction
 
 function! s:listener.onAbort()
+endfunction
+
+function! s:GetApp()
+  let app = symfony#GetApp()
+  if app == ""
+    let app = '*'
+  endif
+  return app
 endfunction
