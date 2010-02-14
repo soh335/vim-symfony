@@ -71,3 +71,19 @@ function! symfony#fuf#define_command()
   command! -buffer -nargs=0 FufSymfonyFilter call <SID>filter()
 endfunction
 
+function! s:listener.onComplete(item, mode)
+  if a:mode == 1
+    let s = "edit"
+  elseif a:mode == 2
+    let s = "split"
+  elseif a:mode == 3
+    let s = "vsplit"
+  elseif a:mode == 4
+    let s = "tabedit"
+  end
+  execute s .' `=a:item`'
+endfunction
+
+function! s:listener.onAbort()
+endfunction
+
