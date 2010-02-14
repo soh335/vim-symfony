@@ -5,56 +5,69 @@ let g:loaded_autoload_fuf_symfony = 1
 
 let s:listener = {}
 
-function! symfony#fuf#SmodelFinder()
-  let list = split(substitute(glob(b:sf_model_dir.'**'),symfony#escapeback(b:sf_root_dir),"","g"), "\n")
+function! s:model()
+  let symfony = symfony#symfony()
+  let list = split(glob(symfony.model().dir_path().'/**'))
   call fuf#callbackitem#launch('', 0, '>model>', s:listener, list, 1)
 endfunction
 
-function! symfony#fuf#SviewFinder()
-  let list = split(substitute(glob(b:sf_root_dir.'/apps/'.s:GetApp().'/modules/*/templates/*'),symfony#escapeback(b:sf_root_dir),"","g"), "\n")
+function! s:view()
+  let symfony = symfony#symfony()
+  let list = split(glob(symfony.root_path().'/apps/**/templates/*'))
   call fuf#callbackitem#launch('', 0, '>view>', s:listener, list, 1)
 endfunction
 
-function! symfony#fuf#SformFinder()
-  let list = split(substitute(glob(b:sf_root_dir.'/lib/form/*'),symfony#escapeback(b:sf_root_dir),"","g"), "\n")
-  call fuf#callbackitem#launch('', 0, '>form>', s:listener, list, 1)
+function! s:app_view()
+  let symfony = symfony#symfony()
+  let list = split(glob(symfony.root_path().'/apps/'.symfony.app().'/**/templates/*'))
+  call fuf#callbackitem#launch('', 0, '>view>', s:listener, list, 1)
 endfunction
 
-function! symfony#fuf#SlibFinder()
-  let list = split(substitute(glob(b:sf_root_dir.'/lib/**'),symfony#escapeback(b:sf_root_dir),"","g"), "\n")
-  let list += split(substitute(glob(b:sf_root_dir.'/apps/*/lib/*'),symfony#escapeback(b:sf_root_dir),"","g"), "\n")
-  let list += split(substitute(glob(b:sf_root_dir.'/apps/*/modules/*/lib/*'),symfony#escapeback(b:sf_root_dir),"","g"), "\n")
-  call fuf#callbackitem#launch('', 0, '>lib>', s:listener, list, 1)
+function! s:module_view()
+  let symfony = symfony#symfony()
+  let list = split(glob(symfony.root_path().'/apps/'.symfony.app().'/modules/'.symfony.modle().'/templates/*'))
+  call fuf#callbackitem#launch('', 0, '>view>', s:listener, list, 1)
 endfunction
 
-function! symfony#fuf#SconfigFinder()
-  let list = split(substitute(glob(b:sf_root_dir.'/apps/*/modules/*/config/*'),symfony#escapeback(b:sf_root_dir),"","g"), "\n")
-  let list += split(substitute(glob(b:sf_root_dir.'/apps/*/config/*'),symfony#escapeback(b:sf_root_dir),"","g"), "\n")
-  let list += split(substitute(glob(b:sf_root_dir.'/config/*'),symfony#escapeback(b:sf_root_dir),"","g"), "\n")
-  call fuf#callbackitem#launch('', 0, '>config>', s:listener, list, 1)
-endfunction
-
-function! symfony#fuf#SactionFinder()
-  let list = split(substitute(glob(b:sf_root_dir.'/apps/'.s:GetApp().'/modules/*/actions/*'),symfony#escapeback(b:sf_root_dir),"","g"), "\n")
+function! s:action()
+  let symfony = symfony#symfony()
+  let list = split(glob(symfony.root_path().'/apps/**/actions/*'))
   call fuf#callbackitem#launch('', 0, '>action>', s:listener, list, 1)
 endfunction
 
-function! symfony#fuf#ShelperFinder()
-  let list = split(substitute(glob(b:sf_root_dir.'/lib/helper/*'),symfony#escapeback(b:sf_root_dir),"","g"), "\n")
-  call fuf#callbackitem#launch('', 0, '>helper>', s:listener, list, 1)
+function! s:app_action()
+  let symfony = symfony#symfony()
+  let list = split(glob(symfony.root_path().'/apps/'.symfony.app().'/**/actions/*'))
+  call fuf#callbackitem#launch('', 0, '>actions>', s:listener, list, 1)
 endfunction
 
-function! s:listener.onComplete(item, method)
-  silent edit `=b:sf_root_dir.a:item`
+function! s:module_action()
+  let symfony = symfony#symfony()
+  let list = split(glob(symfony.root_path().'/apps/'.symfony.app().'/modules/'.symfony.modle().'/actions/*'))
+  call fuf#callbackitem#launch('', 0, '>action>', s:listener, list, 1)
 endfunction
 
-function! s:listener.onAbort()
+function! s:form()
+  let symfony = symfony#symfony()
+  let list = split(glob(symfony.form().dir_path.'/*'))
+  call fuf#callbackitem#launch('', 0, '>form>', s:listener, list, 1)
 endfunction
 
-function! s:GetApp()
-  let app = symfony#GetApp()
-  if app == ""
-    let app = '*'
-  endif
-  return app
+function! s:filter()
+  let symfony = symfony#symfony()
+  let list = split(glob(symfony.filter().dir_path.'/*'))
+  call fuf#callbackitem#launch('', 0, '>filter>', s:listener, list, 1)
 endfunction
+
+function! symfony#fuf#define_command()
+  command! -buffer -nargs=0 FufSymfonyModel call <SID>model()
+  command! -buffer -nargs=0 FufSymfonyView call <SID>view()
+  command! -buffer -nargs=0 FufSymfonyCurrentAppView call <SID>app_view()
+  command! -buffer -nargs=0 FufSymfonyCurrentModuleView call <SID>module_view()
+  command! -buffer -nargs=0 FufSymfonyAction call <SID>action()
+  command! -buffer -nargs=0 FufSymfonyCurrentAppAction call <SID>app_action()
+  command! -buffer -nargs=0 FufSymfonyCurrentModuleAction call <SID>module_action()
+  command! -buffer -nargs=0 FufSymfonyForm call <SID>form()
+  command! -buffer -nargs=0 FufSymfonyFilter call <SID>filter()
+endfunction
+

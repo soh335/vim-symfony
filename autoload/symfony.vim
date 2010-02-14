@@ -6,547 +6,731 @@ if &cp || exists("g:autoloaded_symfony")
 end
 
 let g:autoloaded_symfony = 1
+let s:symfony = {}
+let s:is_debug = 0
+let s:open_cmds = { 'edit': 'E', 'split': 'S', 'vsplit': 'V', 'tabnew': 'T' }
 
-"echo errormsg func
+" util functions {{{
+function! s:debug(str)
+  if s:is_debug == 1
+    echo a:str
+  endif
+endfunction
+
 function! s:error(str)
   echohl ErrorMsg
   echomsg a:str
   echohl None
 endfunction
 
-function! s:sub(str, pat, rep)
-  return substitute(a:str, '\v'.a:pat, a:rep, '')
+function! s:sub(str,pat,rep)
+  return substitute(a:str,'\v\C'.a:pat,a:rep,'')
 endfunction
 
-function! s:gsub(str, pat, rep)
-  return substitute(a:str, '\v'.a:pat, a:rep, 'g')
+function! s:gsub(str,pat,rep)
+  return substitute(a:str,'\v\C'.a:pat,a:rep,'g')
 endfunction
 
-function! symfony#escapeback(str)
-  return substitute(a:str, '\v\', '\\\', 'g')
+function! s:add_method(dict, key, func_name)
+  let a:dict[a:key] = function(a:func_name)
 endfunction
 
-function! s:splitWindow(t)
-  if a:t == 'V'
-    execute 'vsplit'
-  elseif a:t == 'S'
-    execute 'split'
-  endif
+function! s:add_methods(dict, funcs)
+  for func in a:funcs
+    call s:add_method(a:dict, func[0], func[1])
+  endfor
 endfunction
 
-"find and edit symfony view file 
-"find and edit xxxError.php if argument is error
-"find executeXXX or execute in line
-function! s:SymfonyView(args, t)
-  if a:args == "" || a:args == "error"
-    let l:suffix = "Success.php"
-    if a:args == "error"
-      let l:suffix = "Error.php"
-    endif
-    let l:lineNum = line(".")
-    while( l:lineNum > 0 )
-      let l:line = getline(l:lineNum)
-      let l:t = matchlist(l:line,'function\s\+\(execute\)\([0-9a-zA-Z_-]*\)')
-      if (get(l:t,1) != "")
-        break
-      endif
-      let l:lineNum = l:lineNum - 1
-    endwhile
-    if l:lineNum == 0
-      call s:error("not find executeXXX")
-      return
-    endif
-    let path = b:sf_root_dir."/apps/".symfony#GetApp()."/modules/".symfony#GetModule()."/templates/"
-    if get(l:t, 2) == "" "if action file is separated
-      let file = path.substitute(expand('%:t'),"Action.class.php","","").l:suffix
-    elseif get(l:t,1) == 'execute' && get(l:t, 2) != ""
-      let l:word =get(l:t, 2)
-      let file = path.tolower(l:word[0:0]).l:word[1:].l:suffix
-    endif
-    call s:splitWindow(a:t)
-    silent edit `=file`
-  else
-    let words = split(a:args)
-    if len(words) == 1 && words[0] =~ "\.php$"
-      silent edit `=b:sf_root_dir."/apps/".symfony#GetApp()."/modules/".symfony#GetModule()."/templates/".words[0]`
-    elseif len(words) == 2 && words[1] =~ "\.php$"
-      silent edit `=b:sf_root_dir."/apps/".words[0]."/templates/".words[1]`
-    else
-      silent edit `=b:sf_root_dir."/apps/".words[0]."/modules/".words[1]."/templates/".words[2]`
-    endif
-  endif
+function! s:autocmd(name)
+  execute 'silent doautocmd User '.a:name
 endfunction
 
-" find and edit action class file
-" and find exexuteXXX by xxxSuccess.php or xxxError.php
-" or if passed argument, open action file directory
-function! s:SymfonyAction(args, t)
-  if a:args == ""
-    let l:view = ""
-    if expand('%:t') =~ 'Success.php'
-      let l:view = 'Success.php'
-    elseif expand('%:t') =~ 'Error.php'
-      let l:view = 'Error.php'
-    endif
-    if substitute(expand('%:p:h'),'.*/','','') == "templates"
-      let l:prefix = substitute(expand('%:t'),l:view,"","") 
-      let l:file = l:prefix."Action.class.php"
-      if filereadable(b:sf_root_dir."/apps/".symfony#GetApp()."/modules/".symfony#GetModule()."/actions/".l:file)
-        call s:splitWindow(a:t)
-        silent edit `=b:sf_root_dir."/apps/".symfony#GetApp()."/modules/".symfony#GetModule()."/actions/".l:file`
-        call s:SearchWordInFileAndMove('execute')
-      elseif filereadable(b:sf_root_dir."/apps/".symfony#GetApp()."/modules/".symfony#GetModule()."/actions/actions.class.php")
-        call s:splitWindow(a:t)
-        silent edit `=b:sf_root_dir."/apps/".symfony#GetApp()."/modules/".symfony#GetModule()."/actions/actions.class.php"`
-        call s:SearchWordInFileAndMove('execute'.toupper(l:prefix[0:0]).l:prefix[1:])
-      else
-        call s:error("not exist action class file")
-      endif
-    else
-      call s:error("not exitst action dir")
-    endif
-  else
-    let l:list = split(a:args)
-    if len(l:list) == 1
-      if !exists("b:sf_root_dir")
-        call s:error("not set root dir")
-      endif
-      if s:OpenFilereadble([b:sf_root_dir."/apps/".symfony#GetApp()."/modules/".symfony#GetModule()."/actions/".l:list[0]."Action.class.php",
-            \b:sf_root_dir."/apps/".symfony#GetApp()."/modules/".l:list[0]."/actions/actions.class.php"], 'call s:splitWindow(a:t)', 0) == 0
-        call s:error("Not find")
-      endif
-    elseif len(l:list) == 2
-      if s:OpenFilereadble([b:sf_root_dir."/apps/".symfony#GetApp()."/modules/".l:list[0]."/actions/".l:list[1]."Action.class.php",
-            \b:sf_root_dir."/apps/".l:list[0]."/modules/".l:list[1]."/actions/actions.class.php"], 'call s:splitWindow(a:t)', 0) == 0
-        call s:error("Not find")
-      endif
-    elseif len(l:list) == 3
-      if s:OpenFilereadble([b:sf_root_dir."/apps/".l:list[0]."/modules/".l:list[1]."/actions/".l:list[2]."Action.class.php"], 'call s:splitWindow(a:t)', 0) == 0
-        call s:error("Not find")
-      endif
-    endif
-  endif
+function! s:firstStrLower(str)
+  return tolower(a:str[0:0]).a:str[1:]
 endfunction
 
-function! s:OpenFilereadble(list, before_eval, after_eval)
-  for item in a:list
-    if filereadable(item)
-      if a:before_eval | call eval(a:before_eval) | endif
-      silent edit `=item`
-      if a:after_eval | call eval(a:after_eval) | endif
-      return 1
+function! s:firstStrUpper(str)
+  return toupper(a:str[0:0]).a:str[1:]
+endfunction
+
+function! s:open(open_cmd, file)
+  execute a:open_cmd . ' `=a:file`'
+endfunction
+
+function! s:getLineByWord(path, word)
+  let num = 1
+  for line in readfile(a:path)
+    if line =~ a:word
+      return num
     endif
+    let num = num + 1
   endfor
   return 0
 endfunction
 
-"find model class
-function! s:SymfonyModel(word, t)
-  if a:word == ""
-    let l:word = expand('<cword>')
-  else
-    let l:word = a:word
-  endif
-  if l:word !~ "\.php"
-    let l:word = l:word.".php"
+"}}}
+
+" autoload functions {{{
+function! symfony#symfony()
+  return s:symfony
+endfunction
+
+function! symfony#projectInit(root_path)
+  call s:debug("buf init")
+  call s:symfony.root_path(a:root_path)
+  call s:symfony.set_model()
+
+  call s:autocmd('SymfonyBufInit')
+  call s:autocmd('Symfony'.s:symfony.version())
+endfunction
+
+function! symfony#find(open_cmd)
+endfunction
+
+function! symfony#command(...)
+  execute '!'.s:symfony.root_path()."/symfony ".join(a:000, " ")
+endfunction
+
+function! symfony#alternate(open_cmd)
+
+  let type = s:symfony.type()
+
+  if type == 'action'
+    execute 'Sview success'
+  elseif type == 'view'
+    execute 'Saction'
+  elseif type == 'model'
+    execute 'Smodel '. s:symfony.model().alternate_name()
   endif
 
-  if l:word =~ "/" || b:sf_model_dir !~ "\\*"
-    let l:path = b:sf_root_dir."/lib/model/".l:word
-    if filereadable(l:path) == "1"
-      call s:splitWindow(a:t)
-      silent edit `=l:path`
+endfunction
+
+"}}}
+
+"dictionaries function {{{
+function! s:symfony.setvar(key, value)
+  setlocal a:key = a:value
+endfunction
+
+function! s:symfony.root_path(...) dict
+  if a:0 == 0 "get
+    return b:symfony_root_path
+  else "set
+    let b:symfony_root_path = get(a:000, 0)
+  endif
+endfunction
+
+function! s:symfony.path() dict
+  return expand('%:p')
+endfunction
+
+function! s:symfony.version() dict
+  let v = system(self.root_path() . '/symfony --version')
+  let v = s:sub(s:sub(v, '^symfony\sversion\s(\d\.\d).*', '\1'), '\.', '')
+  return v
+endfunction
+
+function! s:symfony.app() dict
+  let f = self.path()
+  if f =~ 'apps/'
+    return s:sub(f, '.*/apps/(.{-})/.*', '\1')
+  endif
+  return ''
+endfunction
+
+function! s:symfony.app_list() dict
+  return map(split(glob(self.root_path().'/apps/*')), 's:sub(v:val, self.root_path()."/apps/", "")')
+endfunction
+
+function! s:symfony.module() dict
+  let f = self.path()
+  if f =~ '\v\Capps/.{-}/modules/'
+    return s:sub(f, '.*\apps/.{-}/modules/(.{-})/.*', '\1')
+  endif
+  return ''
+endfunction
+
+function! s:symfony.module_list(...) dict
+  let app = get(a:000, 0, 0) != '' ? get(a:000, 0) : '*'
+  return map(split(glob(self.root_path().'/apps/'.app.'/modules/*')), 's:sub(v:val, self.root_path()."/apps/".app."/modules/", "")')
+endfunction
+
+function! s:symfony.type() dict
+  let t = expand('%:p:h:t')
+  if t == 'actions'
+    return 'action'
+  elseif t == 'templates'
+    return 'view'
+  elseif self.path() =~ '\vlib/model'
+    return 'model'
+  elseif self.path() =~ '\vlib/filter'
+    return 'filter'
+  elseif self.path() =~ '\vlib/form'
+    return 'form'
+  endif
+endfunction
+
+function! s:symfony.action() dict
+
+  let t = {}
+
+  function t.name_list(...) dict
+    if a:0 == 0
+      let app = s:symfony.app()
+      let module = s:symfony.module()
+    elseif a:0 == 1
+      let app = s:symfony.app()
+      let module = get(a:000, 0)
+    elseif a:0 == 2
+      let app = get(a:000, 0)
+      let module = get(a:000, 1)
     endif
-  else
-    if filereadable(glob(b:sf_model_dir."/".l:word))
-      call s:splitWindow(a:t)
-      silent edit `=glob(b:sf_model_dir."/".l:word)`
+
+    return map(split(glob(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/actions/*')), 's:sub(v:val, s:symfony.root_path()."/apps/".app."/modules/".module.''/actions/(\S{-})(Action)*\.class\.php'', ''\1'')')
+  endfunction
+
+  function! t.suffix() dict
+    return '.class.php'
+  endfunction
+
+  function! t.separated_name() dict
+    if s:symfony.type() != 'action'
+      return ''
+    endif
+    if expand('%:p:t') == 'actions' . self.suffix()
+      return ''
+    endif
+      return s:sub(expand('%:p:t'), '(\S{-})Action\.class\.php', '\1')
+  endfunction
+
+  function! t.execute_name(search_direction) dict
+
+    if s:symfony.type() != 'action'
+      call s:error("when no args, will you in action file")
+      return
+    endif
+
+    let line_num = line('.')
+    let stop = a:search_direction == 1 ? 0 : line('$')
+
+    while line_num != stop
+      let line = getline(line_num)
+      if line =~ '\vfunction\s+execute\S*'
+        break
+      endif
+      if stop == 0
+        let line_num = line_num - 1
+      else
+        let line_num = line_num + 1
+      endif
+    endwhile
+
+    if line_num == stop
+      return
+    endif
+
+    if self.separated_name()
+      let name = s:firstStrLower(s:symfony.action().separated_name())
     else
-      call s:error("not find ".l:word)
+      let n = s:sub(getline(line_num), '.*function\s+execute(\S{-})\(.*', '\1')
+      let name = s:firstStrLower(n)
     endif
+
+    return name
+  endfunction
+
+  return t
+
+endfunction
+
+function! s:symfony.view() dict
+
+  let t = {}
+
+  function! t.name() dict
+    return s:sub(expand('%:p:t'), '(.{-})(Success|Error)\.php', '\1')
+  endfunction
+
+  function! t.name_list(...) dict
+    if a:0 == 0
+      let app = s:symfony.app()
+      let module = s:symfony.module()
+    elseif a:0 == 1
+      let app = s:symfony.app()
+      let module = get(a:000, 0)
+    elseif a:0 == 2
+      let app = get(a:000, 0)
+      let module = get(a:000, 1)
+    endif
+
+    return map(filter(split(glob(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/templates/*')), 'v:val !~ ''\^'''), 's:sub(v:val, s:symfony.root_path()."/apps/".app."/modules/".module.''/templates/(\S{-})(Success|Error)\.php'', ''\1'')')
+  endfunction
+
+  function! t.suffix(...) dict
+    if a:0 == 1 && a:1 =~ '^e'
+      return 'Error.php'
+    else
+      return 'Success.php'
+    endif
+  endfunction
+
+  function! t.alternate_action_name_and_num() dict
+
+    let name = s:symfony.view().name()
+    let file = s:symfony.root_path() . '/apps/' . s:symfony.app() . '/modules/'
+          \ . s:symfony.module() . '/actions/'
+
+    if filereadable(file . name . 'Action' . s:symfony.action().suffix())
+      let name = 'Action'
+      let num = s:getLineByWord(file, '\vfunction\s+execute\(')
+    elseif filereadable(file . 'actions'.s:symfony.action().suffix())
+      let name = 'actions'
+      let num = s:getLineByWord(file, '\vfunction\s+execute'.name.'\(')
+    else
+      call s:error("can't readble action file")
+    endif
+
+    return { 'name' : name , 'num' : num }
+  endfunction
+
+  return t
+
+endfunction
+
+function! s:symfony.form() dict
+  let t = {}
+
+  function! t.name(...) dict
+    let f = a:0 == 0 ? expand('%:p:t') : a:1
+    return s:sub(f, '(.{-})\.class\.php', '\1')
+  endfunction
+
+  function! t.dir_path() dict
+    if s:symfony.model().type() == 'doctrine'
+      return s:symfony.root_path().'/lib/form/doctrine'
+    elseif s:symfony.model().type() == 'propel'
+      return s:symfony.root_path().'/lib/form'
+    endif
+  endfunction
+
+  function! t.path(...) dict
+    return get(split(glob(self.dir_path().'/**/' . join(a:000, '/') . self.suffix())), 0, 0)
+  endfunction
+
+  function! t.suffix() dict
+    return '.class.php'
+  endfunction
+
+  return t
+endfunction
+
+function! s:symfony.filter() dict
+  let t = {}
+
+  function! t.name(...) dict
+    let f = a:0 == 0 ? expand('%:p:t') : a:1
+    return s:sub(f, '(.{-})\.class\.php', '\1')
+  endfunction
+
+  function! t.dir_path() dict
+    if s:symfony.model().type() == 'doctrine'
+      return s:symfony.root_path().'/lib/filter/doctrine'
+    elseif s:symfony.model().type() == 'propel'
+      return s:symfony.root_path().'/lib/filter'
+    endif
+  endfunction
+
+  function! t.path(...) dict
+      return get(split(glob(self.dir_path().'/**/' . join(a:000, '/') . self.suffix())), 0, 0)
+  endfunction
+
+  function! t.suffix() dict
+    return '.class.php'
+  endfunction
+
+  return t
+endfunction
+
+function! s:symfony.set_model() dict
+
+  let f = printf('%s/%s/%s/%s', self.root_path(), 'config', 'doctrine', 'schema.yml')
+  if filereadable(f)
+    let self.model = function('DoctrineModel')
+  else
+    let self.model = function('PropelModel')
+  endif
+
+endfunction
+"}}}
+
+"model function {{{
+function! DoctrineModel() 
+  let t = {}
+
+  function! t.name(...) dict
+    let n = a:0 == 0 ? expand('%:p:t') : a:1
+    return s:sub(n, '(.{-})\.class\.php', '\1')
+  endfunction
+
+  function! t.type() dict
+    return 'doctrine'
+  endfunction
+
+  function! t.dir_path() dict
+    return s:symfony.root_path().'/lib/model/doctrine'
+  endfunction
+
+  function! t.path(...) dict
+    let f = self.dir_path() .'/**/'. join(a:000, '/') . s:symfony.model().suffix()
+    let file = get(split(glob(f)), 0, 0)
+    return file
+  endfunction
+
+  function! t.suffix() dict
+    return  '.class.php'
+  endfunction
+
+  function! t.is_row() dict
+    if self.name() =~ 'Table$'
+      return 0
+    else
+      return 1
+    endif
+  endfunction
+
+  function t.alternate_name() dict
+    if self.is_row()
+      return self.name() . 'Table'
+    else
+      return s:sub(self.name(), '(\S{-})Table$', '\1')
+    endif
+  endfunction
+
+  return t
+endfunction
+
+
+function! PropelModel() 
+
+  let t = {}
+
+  function! t.name(...) dict
+    let n = a:0 == 0 ? expand('%:p:t') : a:1
+    return s:sub(n, '(.{-})\.php', '\1')
+  endfunction
+
+  function! t.type() dict
+    return 'propel'
+  endfunction
+
+  function! t.dir_path() dict
+    return s:symfony.root_path() . '/lib/model'
+  endfunction
+
+  function! t.path(...) dict
+    let f = self.dir_path() .'/**/'. join(a:000, '/') . s:symfony.model().suffix()
+    let file = get(split(glob(f)), 0, 0)
+    return file
+  endfunction
+
+  function! t.suffix() dict
+    return '.php'
+  endfunction
+
+  function! t.is_row() dict
+    if self.name() =~ 'Peer$'
+      return 0
+    else
+      return 1
+    endif
+  endfunction
+
+  function t.alternate_name() dict
+    if self.is_row()
+      return self.name() . 'Peer'
+    else
+      return s:sub(self.name(), '(\S{-})Peer$', '\1')
+    endif
+  endfunction
+
+  return t
+endfunction
+"}}}
+
+augroup SymfonyBufInit
+  autocmd!
+  autocmd User SymfonyBufInit call s:SymfonyBufInit()
+augroup END
+
+
+"{{{ edit functions
+function! s:actionEdit(open_cmd, ...)
+
+  if a:0 == 0
+
+    let t = s:symfony.view().alternate_action_name_and_num()
+    let name = t.name
+    let num = t.num
+    let app = s:symfony.app()
+    let module = s:symfony.module()
+
+  elseif a:0 == 2
+
+    let app = get(a:000, 0, 0)
+    let module = get(a:000, 1, 0)
+    let name = 'actions'
+    let num = 1
+
+  elseif a:0 >= 3
+
+    let app = get(a:000, 0, 0)
+    let module = get(a:000, 1, 0)
+    let name = get(a:000, 2) != "actions" ? get(a:000, 2) . 'Action' : 'actions'
+    let num = 1
+
+  endif
+
+  let file = s:symfony.root_path() . '/apps/' . app . '/modules/'
+        \ . module . '/actions/' . name . s:symfony.action().suffix()
+
+  call s:open(a:open_cmd, file)
+
+  execute num
+
+endfunction
+
+function! s:viewEdit(open_cmd, search_direction, ...)
+
+  if a:0 == 0
+
+    let name = s:symfony.action().execute_name(a:search_direction)
+    if !name
+      call s:error("can't find executeXXX")
+      return
+    endif
+    let app = s:symfony.app()
+    let module = s:symfony.module()
+    let suffix = s:symfony.view().suffix()
+
+  elseif a:0 == 1 || a:0 == 2
+
+    let name = get(a:000, 0, 0)
+    let app = s:symfony.app()
+    let module = s:symfony.module()
+    let suffix = s:symfony.view().suffix(get(a:000, 1))
+
+  else
+
+    let app = get(a:000, 0, 0)
+    let module = get(a:000, 1, 0)
+    let name = get(a:000, 2, 0)
+    let suffix = s:symfony.view().suffix(get(a:000, 3))
+
+  endif
+
+  let file = s:symfony.root_path() . '/apps/' . app . '/modules/' . module
+        \ . '/templates/' . name . suffix
+
+  call s:open(a:open_cmd, file)
+endfunction
+
+function! s:modelEdit(open_cmd, ...)
+
+  if a:0 == 0
+    let name = [expand('<cword>')]
+  else
+    let name = a:000
+  endif
+
+  let file = call(s:symfony.model().path, name, s:symfony.model())
+  
+  if file != ''
+    call s:open(a:open_cmd, file)
+  else
+    call s:error("can't find")
   endif
 endfunction
 
-"find form class
-function! s:SymfonyForm(word, t)
-  if a:word == ""
-    let l:word = expand('<cword>')
+function! s:formEdit(open_cmd, ...)
+
+  if a:0 == 0
+    let name = [expand('<cword>')]
   else
-    let l:word = a:word
+    let name = a:000
   endif
-  if l:word !~ "\.class\.php"
-    let l:word = l:word.".class.php"
-  endif
-  if filereadable(b:sf_root_dir."/lib/form/".l:word)
-    call s:splitWindow(a:t)
-    silent edit `=b:sf_root_dir."/lib/form/".l:word`
+
+  let file = call(s:symfony.form().path, name, s:symfony.form())
+
+  if file != ''
+    call s:open(a:open_cmd, file)
   else
-    call s:error("not find ".l:word)
+    call s:error("can't find")
   endif
 endfunction
 
-function! s:SymfonyComponent(t)
-  let l:mx = 'include_component(["'']\(.\{-}\)["''].\{-}["'']\(.\{-}\)["'']'
-  let l:l = matchstr(getline('.'), l:mx)
-  if l:l != ""
-    let l:module = substitute(l:l, l:mx, '\1', '')
-    let l:temp = substitute(l:l, l:mx, '\2', '')
-    "silent execute ':e ../../'.l:module.'/templates/_'.l:temp.'.php'
-    call s:splitWindow(a:t)
-    silent edit `=b:sf_root_dir.'/apps/'.symfony#GetApp().'/'.l:module.'templates/_'.l:tmp.'php'`
+function! s:filterEdit(open_cmd, ...)
+
+  if a:0 == 0
+    let name = [expand('<cword>')]
   else
-    let l:file = expand('%:r')
-    let l:file = l:file[1:]
-    call s:splitWindow(a:t)
-    silent edit `=b:sf_root_dir.'/apps/'.symfony#GetApp().'/modules/'.symfony#GetModule().'/actions/components.class.php'`
-    call s:SearchWordInFileAndMove('execute'.toupper(l:file[0:0]).l:file[1:])
+    let name = a:000
+  endif
+
+  let file = call(s:symfony.filter().path, name, s:symfony.filter())
+
+  if file != ''
+    call s:open(a:open_cmd, file)
+  else
+    call s:error("can't find")
   endif
 endfunction
 
-"find and edit partial template
-function! s:SymfonyPartial(arg, line1, line2, t)
-  if a:arg != ""
+function! s:partialEdit(open_cmd, line1, line2, count, ...)
+
+  if a:count == 0
+
+    let l = s:sub(getline('.'), '.*include_partial\(\s*["''](\S{-})["''].*', '\1')
+    if l !~ '/'
+      let file = s:symfony.root_path() . '/apps/' . s:symfony.app() . '/modules/'
+            \ . s:symfony.module() . '/templates/_' . l . '.php'
+    else
+      let ls = split(l, '/')
+      if ls[0] == 'global'
+        let file = s:symfony.root_path() . '/apps/'. s:symfony.app() . '/templates/_'
+              \ . ls[1] . '.php'
+      else
+        let file = s:symfony.root_path() . '/apps/' . s:symfony.app() . '/modules/'
+              \ . ls[0] . '/templates/_' . ls[1] . '.php'
+      endif
+    endif
+    call s:open(a:open_cmd, file)
+
+  else
+
     let tmp = @@
     silent normal gvy
     let selected = @@
     let @@ = tmp
 
-    let argList = matchlist(a:arg, '\(.\{-}\)/\(.*\)')
-    let moduleName = get(argList, 1)
-    let fileName   = get(argList, 2)
-    if (moduleName == "0" || fileName == "0")
-        let moduleName = symfony#GetModule()
-        let fileName = a:arg
+    if a:0 == 1
+      let module = s:symfony.module()
+      let name = get(a:000, 0)
+    elseif a:0 == 2
+      let module = get(a:000, 0)
+      let name = get(a:000, 1)
+    else
+      call s:error("can't find")
+      return
     endif
 
-    call append(a:line1-1, '<?php include_partial("'.moduleName.'/'.fileName.'") ?>')
+    call append(a:line1-1, '<?php include_partial("'.module.'/'.name.'") ?>')
     execute a:line1 + 1
     execute 'delete'.(a:line2 - a:line1 + 1)
-    let _path = b:sf_root_dir.'/apps/'.symfony#GetApp().'/modules/'.moduleName.'/templates/_'.fileName.'.php'
-    if a:t == '' || a:t == 'S'
-      silent new `=_path`
-    elseif a:t == 'V'
-      silent vnew `=_path`
-    endif
+    let file = s:symfony.root_path() . '/apps/' . s:symfony.app(). '/modules/'
+          \ . module . '/templates/_' . name . '.php'
+
+    call s:open(a:open_cmd, file)
     call append(0, split(selected, '\n'))
+  endif
+
+endfunction
+"}}} 
+
+" {{{ completation functions
+function! s:CompleteActionList(a, l, p)
+  let args = split(s:sub(a:l, a:a.'$', '') )
+  let args = args[1:]
+
+  if len(args) == 0
+    let list = s:symfony.app_list()
+  elseif len(args) == 1
+    let list = s:symfony.module_list(args[0])
+  elseif len(args) == 2
+    let list = s:symfony.action().name_list(args[0], args[1])
+  endif
+
+  return filter(list, 'v:val =~ "^".a:a')
+endfunction
+
+function! s:CompleteViewList(a, l, p)
+  let args = split(s:sub(a:l, a:a.'$', '') )
+  let args = args[1:]
+
+  if len(args) == 0
+    let list = s:symfony.app_list()
+  elseif len(args) == 1
+    let list = s:symfony.module_list(args[0])
+  elseif len(args) == 2
+    let list = s:symfony.view().name_list(args[0], args[1])
+  elseif len(args) == 3
+    let list ["success", "error"]
+  endif
+
+  return filter(list, 'v:val =~ "^".a:a')
+endfunction
+
+function! s:CompleteModelList(a, l, p)
+  let args = split(s:sub(a:l, a:a.'$', '') )
+  let args = args[1:]
+  let path = join(args, '/')
+
+  let list = map(split(glob(s:symfony.model().dir_path() . '/' . path . '/*')), 's:symfony.model().name(fnamemodify(v:val, '':t''))')
+
+  return filter(list, 'v:val =~ "^".a:a')
+endfunction
+
+function! s:CompleteFormList(a, l, p)
+  let args = split(s:sub(a:l, a:a.'$', '') )
+  let args = args[1:]
+  let path = join(args, '/')
+
+  let list = map(split(glob(s:symfony.form().dir_path() . '/' . path . '/*')), 's:symfony.filter().name(fnamemodify(v:val, '':t''))')
+
+  return filter(list, 'v:val =~ "^".a:a')
+endfunction
+
+function! s:CompleteFilterList(a, l, p)
+  let args = split(s:sub(a:l, a:a.'$', '') )
+  let args = args[1:]
+  let path = join(args, '/')
+
+  let list = map(split(glob(s:symfony.filter().dir_path() . '/' . path . '/*')), 's:symfony.filter().name(fnamemodify(v:val, '':t''))')
+
+  return filter(list, 'v:val =~ "^".a:a')
+endfunction
+" }}}
+
+function! s:DefineEditCommand(name, ...)
+  if a:0 == 0
+    let args = ''
   else
-    let l:word = matchstr(getline('.'), 'include_partial(["''].\{-}["'']')
-    let l:tmp = l:word[17:-2]
-    if l:tmp[0:5] == "global"
-      call s:splitWindow(a:t)
-      silent edit `=b:sf_root_dir.'/apps/'.symfony#GetApp().'/templates/_'.l:tmp[7:].'.php'`
-    elseif l:tmp =~ "/"
-      let l:list = matchlist(l:tmp, '\(.*\)/\(.*\)')
-      call s:splitWindow(a:t)
-      silent edit `=b:sf_root_dir.'/apps/'.symfony#GetApp().'/modules/'.l:list[1].'/templates/_'.l:list[2].'.php'`
-    else
-      call s:splitWindow(a:t)
-      silent edit `=b:sf_root_dir.'/apps/'.symfony#GetApp().'/modules/'.symfony#GetModule().'/templates/_'.l:tmp.'.php'`
-    endif
-  end
-endfunction
-
-"find symfony helper
-function! s:SymfonyHelper(word, t)
-  if a:word == ""
-    let l:word = expand('<cword>')
-  else
-    let l:word = a:word
+    let args = "," . join(get(a:000, 0), ", ")
   endif
-  if l:word !~ "Helper\.php"
-    let l:word = l:word."Helper\.php"
+  for [key, value] in items(s:open_cmds)
+    execute 'command! -buffer -range=0 -nargs=* -complete=customlist,<SID>Complete'.s:firstStrUpper(a:name).'List S'.value.a:name.' :call <SID>'.a:name.'Edit("' . key .'"' . args.')'
+  endfor
+  if exists("g:vim_symfony_".a:name."_default_open_cmd")
+    let cmd = g:vim_symfony_{a:name}_default_open_cmd
   endif
+    let cmd = 'edit'
+  execute 'command! -buffer -range=0 -nargs=* -complete=customlist,<SID>Complete'.s:firstStrUpper(a:name).'List S'.a:name.' :call <SID>'.a:name.'Edit("' . cmd .'"' . args .')'
+endfunction
 
-  if filereadable(b:sf_root_dir."/lib/helper/".l:word)
-    call s:splitWindow(a:t)
-    silent edit `=b:sf_root_dir."/lib/helper/".l:word`
-  else
-    call s:error("not find ".l:word)
+function! s:DefineCommand()
+  call s:DefineEditCommand('action', ['<f-args>'])
+  call s:DefineEditCommand('view', ['g:vim_symfony_default_search_action_top_direction', '<f-args>'])
+  call s:DefineEditCommand('model', ['<f-args>'])
+  call s:DefineEditCommand('form', ['<f-args>'])
+  call s:DefineEditCommand('filter', ['<f-args>'])
+  call s:DefineEditCommand('partial', ['<line1>', '<line2>', '<count>', '<f-args>'])
+  command! -buffer -nargs=0 Salternate call symfony#alternate('edit')
+  command! -buffer -nargs=0 Sfind call symfony#find('edit')
+  command! -buffer -nargs=* Symfony call symfony#command(<f-args>)
+endfunction
+
+function! s:SymfonyBufInit()
+  call s:DefineCommand()
+  if g:vim_symfony_fuf
+    call symfony#fuf#define_command()
   endif
-endfunction
-
-"set symfony home project directory
-function! SymfonyProject(word)
-  if isdirectory(a:word.'/apps') && isdirectory(a:word.'/web') && isdirectory(a:word.'/lib')
-    let b:sf_root_dir = a:word
-    call s:SetSymfonyVersion()
-    call s:SetModelPath()
-    call s:SetBufferCommand()
-    call s:SetPath()
-    "reference rails.vim 
-    if g:symfony_snippets_emu == 1 && exists('g:loaded_snippet')
-      runtime! ftplugin/symfony_snippets.vim
-      " filetype snippets need to come last for higher priority
-      exe "silent! runtime! ftplugin/".&filetype."_snippets.vim"
-    endif
-    if g:symfony_fuf == 1
-      call s:SetSymfonyFufCommand()
-    endif
-    silent doautocmd User SymfonyBufInit
-    silent doautocmd User Symfony
-  else
-    call s:error("nof find apps, web, lib dir")
-  endif
-endfunction
-
-function! s:SetSymfonyVersion()
-  if filereadable(b:sf_root_dir."/config/ProjectConfiguration.class.php")
-    if isdirectory(b:sf_root_dir."/web/sfProtoculousPlugin") 
-      let b:sf_version = 12
-    else
-      let b:sf_version = 11
-    endif
-  else
-    let b:sf_version = 10
-  endif
-endfunction
-
-function! s:SetModelPath()
-  if exists("b:sf_root_dir")
-    if glob(b:sf_root_dir."/lib/model/*Peer.php") != ""
-      let b:sf_model_dir = b:sf_root_dir."/lib/model/"
-    elseif glob(b:sf_root_dir."/lib/model/*/*Peer.php") != ""
-      let b:sf_model_dir = b:sf_root_dir."/lib/model/*/"
-    endif
-  endif
-endfunction
-
-"get now app
-function! symfony#GetApp()
-  if exists("b:sf_app_name") == 0
-    let l:t = substitute(expand('%:p'), b:sf_root_dir, '', '')
-    let b:sf_app_name = substitute(matchstr(l:t, 'apps[/\\]\(.\{-}\)[/\\]')[:-2], 'apps[/\\]', '', '')
-  endif
-  return b:sf_app_name
-endfunction
-
-"get now module
-function! symfony#GetModule()
-  if exists("b:sf_module_name") == 0
-    let l:t = substitute(expand('%:p'), b:sf_root_dir, '', '')
-    let b:sf_module_name = substitute(matchstr(l:t, 'modules[/\\]\(.\{-}\)[/\\]')[:-2], 'modules[/\\]', '', '')
-  endif
-  return b:sf_module_name
-endfunction
-
-function! s:SetPath()
-  let _path = &l:path
-  let &l:path=_path.','.b:sf_root_dir.'/lib/,'.b:sf_root_dir.'/lib/model/*/om/'.','.b:sf_root_dir.'/lib/model/om/,'.b:sf_root_dir.'/lib/action/,'.b:sf_root_dir.'/lib/helper/,'
-  setlocal includeexpr=substitute(v:fname,'$','.php','') 
-endfunction
-
-function! s:GetSymfonyActionList(A,L,P)
-  if exists("b:sf_root_dir")
-    let words = split(a:L)
-    if len(words) == 4 || (len(words) == 3 && a:A == "")
-      let list = split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/modules/".words[2].'/actions/*Action\.class\.php'), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]modules[/\]'.words[2].'[/\]actions[/\](.{-})Action.class.php'), '\1'), "\n")
-    elseif len(words) == 3 || (len(words) == 2 && a:A == "")
-      let list = split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/modules/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]modules[/\]'), ""), "\n")
-      let list += split(s:gsub(glob(b:sf_root_dir."/apps/".symfony#GetApp()."/modules/".words[1].'/actions/*Action\.class\.php'), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'.symfony#GetApp().'[/\]modules[/\]'.words[1].'[/\]actions[/\](.{-})Action.class.php'), '\1'), "\n")
-    elseif len(words) <= 2 
-      let list = split(s:gsub(glob(b:sf_root_dir."/apps/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'), ""), "\n")
-      let list += split(s:gsub(glob(b:sf_root_dir."/apps/".symfony#GetApp()."/modules/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\].{-}[/\]modules[/\]'), ""), "\n")
-    endif
-    return filter(list, 'v:val =~ "^".a:A')
-  else
-    call s:error("not set symfony root dir")
-  endif
-endfunction
-
-function! s:GetSymfonyViewList(A,L,P)
-  if exists("b:sf_root_dir")
-    let words = split(a:L)
-    if len(words) == 4 || (len(words) == 3 && a:A == "")
-      let list = split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/modules/".words[2].'/templates/*'), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]modules[/\]'.words[2].'[/\]templates[/\]'), ""), "\n")
-    elseif len(words) == 3 || (len(words) == 2 && a:A == "")
-      let list = split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/modules/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]modules[/\]'), ""), "\n")
-      let list += split(s:gsub(glob(b:sf_root_dir."/apps/".words[1]."/templates/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'.words[1].'[/\]templates[/\]'), ""), "\n")
-    elseif len(words) <= 2
-      let list = split(s:gsub(glob(b:sf_root_dir."/apps/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'), ""), "\n")
-      let list += split(s:gsub(glob(b:sf_root_dir."/apps/".symfony#GetApp()."/modules/".symfony#GetModule()."/templates/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'.symfony#GetApp().'[/\]modules[/\]'.symfony#GetModule().'[/\]templates[/\]'), ""), "\n")
-    endif
-    return filter(list, 'v:val =~ "^".a:A')
-  endif
-endfunction
-
-"open symfonyProject/config/* file
-function! s:GetSymfonyConfigList(A,L,P)
-  if exists("b:sf_root_dir")
-    if exists("s:sf_complete_session")
-      return s:sf_complete_session
-    else
-      let list = substitute(glob(b:sf_root_dir."/config/"."**"),symfony#escapeback(b:sf_root_dir.'[/\]'),"","g")
-      let list2 = substitute(glob(b:sf_root_dir."/apps/*/config/"."**"),symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]*[/\]'),"","g")
-      let list3 = substitute(glob(b:sf_root_dir."/apps/*/modules/*/config/"."**"),symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'),"","g")
-      let s:sf_complete_session = join(sort(split(list."\n".list2."\n".list3, "\n")), "\n")
-      return s:sf_complete_session
-    endif
-  else
-    call s:error("not set symfony root dir")
-  endif
-endfunction
-
-function! s:SymfonyOpenConfigFile(word, t)
-  if exists("s:sf_complete_session")
-    unlet s:sf_complete_session
-  endif
-  let path = a:word
-  if a:word[0:5] != "config"
-    let path = "apps/".a:word
-  endif
-  call s:splitWindow(a:t)
-  silent edit `=b:sf_root_dir."/".path`
-endfunction
-
-"open symfonyProject/lib* file
-function! s:GetSymfonyLibList(A,L,P)
-  if exists("b:sf_root_dir")
-    return split(substitute(glob(b:sf_root_dir."/lib/".a:A."*"), symfony#escapeback(b:sf_root_dir.'[/\]lib[/\]'),"","g"), "\n")
-  else
-    call s:error("not set symfony root dir")
-  endif
-endfunction
-
-function! s:GetSymfonyModelList(A, L, P)
-  if exists("b:sf_model_dir")
-    return split(substitute(glob(b:sf_root_dir.'/lib/model/'.a:A."*"),symfony#escapeback(b:sf_root_dir.'[/\]lib[/\]model[/\]'),"","g"), "\n")
-  else
-    call s:error("not set symfony model path")
-  endif
-endfunction
-
-function! s:GetSymfonyFormList(A, L, P)
-  if exists("b:sf_root_dir")
-    return split(substitute(glob(b:sf_root_dir."/lib/form/".a:A."*"),symfony#escapeback(b:sf_root_dir.'[/\]lib[/\]form[/\]'),"","g"), "\n")
-  else
-    call s:error("not set symfony root dir")
-  endif
-endfunction
-
-function! s:GetSymfonyHelperList(A, L, P)
-  if exists("b:sf_root_dir")
-    return split(substitute(glob(b:sf_root_dir."/lib/helper/".a:A."*\.php"),symfony#escapeback(b:sf_root_dir.'[/\]lib[/\]helper[/\]'),"","g"), "\n")
-  else
-    call s:error("not set symfony root dir")
-  endif
-endfunction
-
-function! s:SymfonyOpenLibFile(word, t)
-    call s:splitWindow(a:t)
-  silent edit `=b:sf_root_dir.'/lib/'.a:word`
-endfunction
-
-"search argument word in current buffer and move this line
-function! s:SearchWordInFileAndMove(str)
-  let l:num = 0
-  while l:num <= line('$')
-    let l:line = getline(l:num)
-    let l:word = matchstr(l:line, a:str)
-    if l:word == a:str
-      break
-    endif
-    let l:num = l:num + 1
-  endwhile
-  if l:num != -1
-    silent execute l:num
-  endif
-endfunction
-"}}}
-
-function! s:SymfonyCommand(...)
-   execute '!'.b:sf_root_dir."/symfony ".join(a:000, " ")
-endfunction
-
-function! s:GetSymfonyCommandList(A, L, P)
-  let words = split(a:L)
-  if exists("b:sf_version") && len(words) <= 2 
-    if b:sf_version == 10
-      let list = ['clear-cache', 'clear-controllers', 'disable', 'downgrade', 'enable', 'fix-perms', 'freeze', 'init-app', 'init-batch', 'init-controller',
-            \ 'init-module', 'init-project', 'log-purge', 'log-rotate', 'plugin-install', 'plugin-list', 'plugin-uninstall', 'plugin-upgrade', 'propel-build-all',
-            \ 'propel-build-all-load', 'propel-build-db', 'propel-build-model', 'propel-build-schema', 'propel-build-sql', 'propel-convert-xml-schema',
-            \ 'propel-convert-yml-schema', 'propel-dump-data', 'propel-generate-crud', 'propel-init-admin', 'propel-init-crud', 'propel-insert-sql',
-            \  'propel-load-data', 'sync', 'test-all', 'test-functional', 'test-unit', 'unfreeze', 'upgrade', 'app', 'batch', 'cc', 'controller', 'module', 'new']
-    elseif b:sf_version == 11
-      let list = ['help', 'list', 'configure:author', 'configure:database', 'generate:app', 'generate:module', 'generate:project', 'generate:task',
-            \ 'i18n:extract', 'i18n:find', 'log:clear', 'log:rotate', 'plugin:add-channel', 'plugin:install', 'plugin:list', 'plugin:uninstall', 'plugin:upgrade', 'project:clear-controllers',
-            \ 'prom:deploy', 'project:disable', 'project:enable', 'project:freeze', 'project:permissions', 'project:unfreeze', 'project:upgrade1.1', 'propel:build-all', 'propel:build-all-load',
-            \ 'propel:build-db', 'propel:build-forms', 'propel:build-schema', 'propel:build-sql', 'propel:data-dump', 'propel:data-load', 'propel:generate-crud', 'propel:init-admin', 'propel:insert-sql',
-            \ 'propel:schema-to-xml', 'propel:schema-to-yml', 'test:all', 'test:functional', 'test:unit']
-
-    elseif b:sf_version == 12
-      let list = ['help', 'list', 'app:routes', 'cache:clear', 'configure:author', 'configure:database', 'generate:app', 'generate:module', 'generate:project',
-            \ 'generate:task', 'i18n:extract', 'i18n:find', 'log:clear', 'log:rotate', 'plugin:add-channel', 'plugin:install', 'plugin:list', 'plugin:publish-assets',
-            \ 'plugin:uninstall', 'plugin:upgrade', 'project:clear-controllers', 'project:deploy', 'project:disable', 'project:enable', 'project:freeze', 
-            \ 'project:permissions', 'project:unfreeze', 'project:upgrade1.1', 'project:upgrade1.2', 'propel:build-all', 'propel:build-all-load', 'propel:build-filters',
-            \ 'propel:build-forms', 'propel:build-model', 'propel:build-schema', 'propel:build-sql', 'propel:data-dump', 'propel:data-load', 'propel:generate-admin',
-            \ 'propel:generate-module', 'propel:generate-module-for-route', 'propel:graphviz', 'propel:init-admin', 'propel:insert-sql', 'propel:schema-to-xml',
-            \ 'propel:schema-to-yml', 'test:all', 'test:coverage', 'test:functional', 'test:unit']
-    endif
-    return filter(list, 'v:val =~ "^".a:A')
-  else
-    let command = words[1]
-    if command == 'init-module' || command == 'generate:module'
-      let list = split(substitute(glob(b:sf_root_dir."/apps/*"), symfony#escapeback(b:sf_root_dir.'[/\]apps[/\]'), "", "g"), "\n")
-      return filter(list, 'v:val =~ "^".a:A')
-    else
-      return []
-    endif
-  endif
-endfunction
-
-augroup symfonyBufInit
-    autocmd!
-    if g:symfony_filetype == 1
-      autocmd User symfonyBufInit setlocal filetype+=.symfony
-    endif
-augroup END
-
-function! s:SetSymfonyFufCommand()
-  command! SmodelFinder :call symfony#fuf#SmodelFinder()
-  command! SviewFinder :call symfony#fuf#SviewFinder()
-  command! SformFinder :call symfony#fuf#SformFinder()
-  command! SlibFinder :call symfony#fuf#SlibFinder()
-  command! SconfigFinder :call symfony#fuf#SconfigFinder()
-  command! SactionFinder :call symfony#fuf#SactionFinder()
-  command! ShelperFinder :call symfony#fuf#ShelperFinder()
-endfunction
-
-function! s:SetBufferCommand()
-  command! -buffer -nargs=* -complete=customlist,<SID>GetSymfonyViewList Sview :call <SID>SymfonyView(<q-args>, '')
-  command! -buffer -nargs=* -complete=customlist,<SID>GetSymfonyViewList SSview :call <SID>SymfonyView(<q-args>, 'S')
-  command! -buffer -nargs=* -complete=customlist,<SID>GetSymfonyViewList SVview :call <SID>SymfonyView(<q-args>, 'V')
-
-  command! -buffer -nargs=* -complete=customlist,<SID>GetSymfonyActionList Saction :call <SID>SymfonyAction(<q-args>, '')
-  command! -buffer -nargs=* -complete=customlist,<SID>GetSymfonyActionList SSaction :call <SID>SymfonyAction(<q-args>, 'S')
-  command! -buffer -nargs=* -complete=customlist,<SID>GetSymfonyActionList SVaction :call <SID>SymfonyAction(<q-args>, 'V')
-
-  command! -buffer -nargs=? -complete=customlist,<SID>GetSymfonyModelList Smodel :call <SID>SymfonyModel(<q-args>, '')
-  command! -buffer -nargs=? -complete=customlist,<SID>GetSymfonyModelList SSmodel :call <SID>SymfonyModel(<q-args>, 'S')
-  command! -buffer -nargs=? -complete=customlist,<SID>GetSymfonyModelList SVmodel :call <SID>SymfonyModel(<q-args>, 'V')
-
-  command! -buffer -nargs=? -complete=customlist,<SID>GetSymfonyFormList Sform :call <SID>SymfonyForm(<q-args>, '')
-  command! -buffer -nargs=? -complete=customlist,<SID>GetSymfonyFormList SSform :call <SID>SymfonyForm(<q-args>, 'S')
-  command! -buffer -nargs=? -complete=customlist,<SID>GetSymfonyFormList SVform :call <SID>SymfonyForm(<q-args>, 'V')
-
-  command! -buffer -range -nargs=? Spartial :call <SID>SymfonyPartial(<q-args>, <line1>, <line2>, '')
-  command! -buffer -range -nargs=? SSpartial :call <SID>SymfonyPartial(<q-args>, <line1>, <line2>, 'S')
-  command! -buffer -range -nargs=? SVpartial :call <SID>SymfonyPartial(<q-args>, <line1>, <line2>, 'V')
-
-  command! -buffer -nargs=0 Scomponent :call <SID>SymfonyComponent('')
-  command! -buffer -nargs=0 SScomponent :call <SID>SymfonyComponent('S')
-  command! -buffer -nargs=0 SVcomponent :call <SID>SymfonyComponent('V')
-  "command! -buffer -complete=file -nargs=1 SymfonyProject :call s:SymfonyProject(<f-args>)
-  command! -buffer -nargs=* -complete=customlist,<SID>GetSymfonyCommandList Symfony :call <SID>SymfonyCommand(<f-args>)
-
-  command! -buffer -nargs=? -complete=custom,<SID>GetSymfonyConfigList Sconfig :call <SID>SymfonyOpenConfigFile(<f-args>, '')
-  command! -buffer -nargs=? -complete=custom,<SID>GetSymfonyConfigList SSconfig :call <SID>SymfonyOpenConfigFile(<f-args>, 'S')
-  command! -buffer -nargs=? -complete=custom,<SID>GetSymfonyConfigList SVconfig :call <SID>SymfonyOpenConfigFile(<f-args>, 'V')
-
-  command! -buffer -nargs=? -complete=customlist,<SID>GetSymfonyLibList Slib :call <SID>SymfonyOpenLibFile(<f-args>, '')
-  command! -buffer -nargs=? -complete=customlist,<SID>GetSymfonyLibList SSlib :call <SID>SymfonyOpenLibFile(<f-args>, 'S')
-  command! -buffer -nargs=? -complete=customlist,<SID>GetSymfonyLibList SVlib :call <SID>SymfonyOpenLibFile(<f-args>, 'V')
-
-  command! -buffer -nargs=? -complete=customlist,<SID>GetSymfonyHelperList Shelper :call <SID>SymfonyHelper(<q-args>, '')
-  command! -buffer -nargs=? -complete=customlist,<SID>GetSymfonyHelperList SShelper :call <SID>SymfonyHelper(<q-args>, 'S')
-  command! -buffer -nargs=? -complete=customlist,<SID>GetSymfonyHelperList SVhelper :call <SID>SymfonyHelper(<q-args>, 'V')
 endfunction
