@@ -49,13 +49,13 @@ endfunction
 
 function! s:form()
   let symfony = symfony#symfony()
-  let list = split(glob(symfony.form().dir_path.'/*'))
+  let list = split(glob(symfony.form().dir_path().'/*'))
   call fuf#callbackitem#launch('', 0, '>form>', s:listener, list, 1)
 endfunction
 
 function! s:filter()
   let symfony = symfony#symfony()
-  let list = split(glob(symfony.filter().dir_path.'/*'))
+  let list = split(glob(symfony.filter().dir_path().'/*'))
   call fuf#callbackitem#launch('', 0, '>filter>', s:listener, list, 1)
 endfunction
 
