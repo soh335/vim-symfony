@@ -663,7 +663,7 @@ function! s:CompleteViewList(a, l, p)
   elseif len(args) == 2
     let list = s:symfony.view().name_list(args[0], args[1])
   elseif len(args) == 3
-    let list ["success", "error"]
+    let list = ["success", "error"]
   endif
 
   return filter(list, 'v:val =~ "^".a:a')
