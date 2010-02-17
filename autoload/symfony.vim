@@ -504,7 +504,7 @@ function! s:viewEdit(open_cmd, search_direction, ...)
   if a:0 == 0
 
     let name = s:symfony.action().execute_name(a:search_direction)
-    if !name
+		if name == ''
       call s:error("can't find executeXXX")
       return
     endif
