@@ -125,9 +125,13 @@ function! s:symfony.path() dict
 endfunction
 
 function! s:symfony.version() dict
-  let v = system(self.root_path() . '/symfony --version')
-  let v = s:sub(s:sub(v, '^symfony\sversion\s(\d\.\d).*', '\1'), '\.', '')
-  return v
+	if g:vim_symfony_autocmd_version == 0
+		return ''
+	else
+		let v = system(self.root_path() . '/symfony --version')
+		let v = s:sub(s:sub(v, '^symfony\sversion\s(\d\.\d).*', '\1'), '\.', '')
+		return v
+	endif
 endfunction
 
 function! s:symfony.app() dict

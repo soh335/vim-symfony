@@ -89,6 +89,7 @@ call s:Define('g:vim_symfony_cache_dir_name', expand('~/.vim-symfony-cache'))
 "call s:Define('g:vim_symfony_separate_complitation', 0)
 call s:Define('g:vim_symfony_default_search_action_top_direction', 1)
 call s:Define('g:vim_symfony_fuf', 0)
+call s:Define('g:vim_symfony_autocmd_version', 0)
 
 if g:vim_symfony_auto_search_root_dirctory == 1
   augroup symfonyPluginDetect
