@@ -233,7 +233,7 @@ function! s:symfony.action() dict
       return
     endif
 
-    if self.separated_name()
+    if self.separated_name() != ''
       let name = s:firstStrLower(s:symfony.action().separated_name())
     else
       let n = s:sub(getline(line_num), '.*function\s+execute(\S{-})\(.*', '\1')
