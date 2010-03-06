@@ -78,7 +78,6 @@ endfunction
 function! symfony#projectInit(root_path)
   call s:debug("buf init")
   call s:symfony.root_path(a:root_path)
-  call s:symfony.set_model()
 
   call s:autocmd('SymfonyBufInit')
   call s:autocmd('Symfony'.s:symfony.version())
@@ -100,7 +99,7 @@ function! symfony#alternate(open_cmd)
   elseif type == 'view'
     execute 'Saction'
   elseif type == 'model'
-    execute 'Smodel '. s:symfony.model.alternate_name()
+    execute 'Smodel '. s:symfony.model().alternate_name()
   endif
 
 endfunction
@@ -125,13 +124,16 @@ function! s:symfony.path() dict
 endfunction
 
 function! s:symfony.version() dict
-	if g:vim_symfony_autocmd_version == 0
-		return ''
-	else
-		let v = system(self.root_path() . '/symfony --version')
-		let v = s:sub(s:sub(v, '^symfony\sversion\s(\d\.\d).*', '\1'), '\.', '')
-		return v
-	endif
+  if !self.cache.has(self.root_path(), 'version')
+    if g:vim_symfony_autocmd_version == 0
+      let v = ''
+    else
+      let v = system(self.root_path() . '/symfony --version')
+      let v = s:sub(s:sub(v, '^symfony\sversion\s(\d\.\d).*', '\1'), '\.', '')
+    endif
+    call self.cache.set(self.root_path(), 'version', v)
+  endif
+  return self.cache.get(self.root_path(), 'version')
 endfunction
 
 function! s:symfony.app() dict
@@ -316,9 +318,9 @@ function! s:symfony.form() dict
   endfunction
 
   function! t.dir_path() dict
-    if s:symfony.model.type() == 'doctrine'
+    if s:symfony.model().type() == 'doctrine'
       return s:symfony.root_path().'/lib/form/doctrine'
-    elseif s:symfony.model.type() == 'propel'
+    elseif s:symfony.model().type() == 'propel'
       return s:symfony.root_path().'/lib/form'
     endif
   endfunction
@@ -346,9 +348,9 @@ function! s:symfony.filter() dict
   endfunction
 
   function! t.dir_path() dict
-    if s:symfony.model.type() == 'doctrine'
+    if s:symfony.model().type() == 'doctrine'
       return s:symfony.root_path().'/lib/filter/doctrine'
-    elseif s:symfony.model.type() == 'propel'
+    elseif s:symfony.model().type() == 'propel'
       return s:symfony.root_path().'/lib/filter'
     endif
   endfunction
@@ -366,18 +368,19 @@ endfunction
 
 call s:symfony.filter()
 
-
-function! s:symfony.set_model() dict
-
-  let f = printf('%s/%s/%s/%s', self.root_path(), 'config', 'doctrine', 'schema.yml')
-  if filereadable(f)
-    let self.model = DoctrineModel()
-  else
-    let self.model = PropelModel()
-  endif
-
-endfunction
 "}}}
+
+function! s:symfony.model() dict
+  if !self.cache.has(self.root_path(), 'model')
+    let f = printf('%s/%s/%s/%s', self.root_path(), 'config', 'doctrine', 'schema.yml')
+    if filereadable(f)
+      call self.cache.set(self.root_path(), 'model', DoctrineModel())
+    else
+      call self.cache.set(self.root_path(), 'model', PropelModel())
+    endif
+  endif
+  return self.cache.get(self.root_path(), 'model')
+endfunction
 
 "model function {{{
 function! DoctrineModel() 
@@ -473,6 +476,53 @@ function! PropelModel()
 endfunction
 "}}}
 
+"{{{ cache
+function s:symfony.cache() dict
+
+  let s:cache_prototype = {}
+  let t = {}
+
+  function! t.clear(...) dict
+    if a:0 == 0
+      let s:cache_prototype = {}
+    elseif a:0 == 1
+      unlet! s:cache_prototype[a:1]
+    else
+      unlet! s:cache_prototype[a:1][a:2]
+    endif
+  endfunction
+
+  function! t.get(namespace, key) dict
+    call self.create_namespace(a:namespace)
+    return s:cache_prototype[a:namespace][a:key]
+  endfunction
+
+  function! t.has(namespace, key) dict
+    call self.create_namespace(a:namespace)
+    return has_key(s:cache_prototype[a:namespace], a:key)
+  endfunction
+
+  function! t.set(namespace, key, value) dict
+    call self.create_namespace(a:namespace)
+    let s:cache_prototype[a:namespace][a:key] = a:value
+  endfunction
+
+  function t.clone() dict
+    return deepcopy(s:cache_prototype)
+  endfunction
+
+  function! t.create_namespace(namespace) dict
+    if !has_key(s:cache_prototype, a:namespace)
+      let s:cache_prototype[a:namespace] = {}
+    endif
+  endfunction
+
+  let self.cache = t
+endfunction
+
+call s:symfony.cache()
+"}}}
+
 augroup SymfonyBufInit
   autocmd!
   autocmd User SymfonyBufInit call s:SymfonyBufInit()
@@ -558,7 +608,7 @@ function! s:modelEdit(open_cmd, ...)
     let name = a:000
   endif
 
-  let file = call(s:symfony.model.path, name, s:symfony.model)
+  let file = call(s:symfony.model().path, name, s:symfony.model())
   
   if file != ''
     call s:open(a:open_cmd, file)
@@ -690,7 +740,7 @@ function! s:CompleteModelList(a, l, p)
   let args = args[1:]
   let path = join(args, '/')
 
-  let list = map(split(glob(s:symfony.model.dir_path() . '/' . path . '/*')), 's:symfony.model.name(fnamemodify(v:val, '':t''))')
+  let list = map(split(glob(s:symfony.model().dir_path() . '/' . path . '/*')), 's:symfony.model().name(fnamemodify(v:val, '':t''))')
 
   return filter(list, 'v:val =~ "^".a:a')
 endfunction
