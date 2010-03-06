@@ -282,16 +282,18 @@ function! s:symfony.view() dict
 
   function! t.alternate_action_name_and_num() dict
 
-    let name = s:symfony.view.name()
-    let file = s:symfony.root_path() . '/apps/' . s:symfony.app() . '/modules/'
+    let view_name = s:symfony.view.name()
+    let path = s:symfony.root_path() . '/apps/' . s:symfony.app() . '/modules/'
           \ . s:symfony.module() . '/actions/'
 
-    if filereadable(file . name . 'Action' . s:symfony.action.suffix())
-      let name = 'Action'
+    if filereadable(path . view_name . 'Action' . s:symfony.action.suffix())
+      let name = name . 'Action'
+      let file = path . name . s:symfony.action.suffix()
       let num = s:getLineByWord(file, '\vfunction\s+execute\(')
-    elseif filereadable(file . 'actions'.s:symfony.action.suffix())
+    elseif filereadable(path . 'actions'.s:symfony.action.suffix())
+      let file = path . 'actions' . s:symfony.action.suffix()
+      let num = s:getLineByWord(file, '\vfunction\s+execute'.view_name.'\(')
       let name = 'actions'
-      let num = s:getLineByWord(file, '\vfunction\s+execute'.name.'\(')
     else
       call s:error("can't readble action file")
     endif
