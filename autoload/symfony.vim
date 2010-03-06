@@ -100,7 +100,7 @@ function! symfony#alternate(open_cmd)
   elseif type == 'view'
     execute 'Saction'
   elseif type == 'model'
-    execute 'Smodel '. s:symfony.model().alternate_name()
+    execute 'Smodel '. s:symfony.model.alternate_name()
   endif
 
 endfunction
@@ -234,7 +234,7 @@ function! s:symfony.action() dict
     endif
 
     if self.separated_name() != ''
-      let name = s:firstStrLower(s:symfony.action().separated_name())
+      let name = s:firstStrLower(s:symfony.action.separated_name())
     else
       let n = s:sub(getline(line_num), '.*function\s+execute(\S{-})\(.*', '\1')
       let name = s:firstStrLower(n)
@@ -243,9 +243,11 @@ function! s:symfony.action() dict
     return name
   endfunction
 
-  return t
-
+  let self.action = t
 endfunction
+
+call s:symfony.action()
+
 
 function! s:symfony.view() dict
 
@@ -280,14 +282,14 @@ function! s:symfony.view() dict
 
   function! t.alternate_action_name_and_num() dict
 
-    let name = s:symfony.view().name()
+    let name = s:symfony.view.name()
     let file = s:symfony.root_path() . '/apps/' . s:symfony.app() . '/modules/'
           \ . s:symfony.module() . '/actions/'
 
-    if filereadable(file . name . 'Action' . s:symfony.action().suffix())
+    if filereadable(file . name . 'Action' . s:symfony.action.suffix())
       let name = 'Action'
       let num = s:getLineByWord(file, '\vfunction\s+execute\(')
-    elseif filereadable(file . 'actions'.s:symfony.action().suffix())
+    elseif filereadable(file . 'actions'.s:symfony.action.suffix())
       let name = 'actions'
       let num = s:getLineByWord(file, '\vfunction\s+execute'.name.'\(')
     else
@@ -297,9 +299,11 @@ function! s:symfony.view() dict
     return { 'name' : name , 'num' : num }
   endfunction
 
-  return t
-
+  let self.view = t
 endfunction
+
+call s:symfony.view()
+
 
 function! s:symfony.form() dict
   let t = {}
@@ -310,9 +314,9 @@ function! s:symfony.form() dict
   endfunction
 
   function! t.dir_path() dict
-    if s:symfony.model().type() == 'doctrine'
+    if s:symfony.model.type() == 'doctrine'
       return s:symfony.root_path().'/lib/form/doctrine'
-    elseif s:symfony.model().type() == 'propel'
+    elseif s:symfony.model.type() == 'propel'
       return s:symfony.root_path().'/lib/form'
     endif
   endfunction
@@ -325,8 +329,11 @@ function! s:symfony.form() dict
     return '.class.php'
   endfunction
 
-  return t
+  let self.form = t
 endfunction
+
+call s:symfony.form()
+
 
 function! s:symfony.filter() dict
   let t = {}
@@ -337,9 +344,9 @@ function! s:symfony.filter() dict
   endfunction
 
   function! t.dir_path() dict
-    if s:symfony.model().type() == 'doctrine'
+    if s:symfony.model.type() == 'doctrine'
       return s:symfony.root_path().'/lib/filter/doctrine'
-    elseif s:symfony.model().type() == 'propel'
+    elseif s:symfony.model.type() == 'propel'
       return s:symfony.root_path().'/lib/filter'
     endif
   endfunction
@@ -352,16 +359,19 @@ function! s:symfony.filter() dict
     return '.class.php'
   endfunction
 
-  return t
+  let self.filter = t
 endfunction
+
+call s:symfony.filter()
+
 
 function! s:symfony.set_model() dict
 
   let f = printf('%s/%s/%s/%s', self.root_path(), 'config', 'doctrine', 'schema.yml')
   if filereadable(f)
-    let self.model = function('DoctrineModel')
+    let self.model = DoctrineModel()
   else
-    let self.model = function('PropelModel')
+    let self.model = PropelModel()
   endif
 
 endfunction
@@ -385,7 +395,7 @@ function! DoctrineModel()
   endfunction
 
   function! t.path(...) dict
-    let f = self.dir_path() .'/**/'. join(a:000, '/') . s:symfony.model().suffix()
+    let f = self.dir_path() .'/**/'. join(a:000, '/') . self.suffix()
     let file = get(split(glob(f)), 0, 0)
     return file
   endfunction
@@ -432,7 +442,7 @@ function! PropelModel()
   endfunction
 
   function! t.path(...) dict
-    let f = self.dir_path() .'/**/'. join(a:000, '/') . s:symfony.model().suffix()
+    let f = self.dir_path() .'/**/'. join(a:000, '/') . self.suffix()
     let file = get(split(glob(f)), 0, 0)
     return file
   endfunction
@@ -472,7 +482,7 @@ function! s:actionEdit(open_cmd, ...)
 
   if a:0 == 0
 
-    let t = s:symfony.view().alternate_action_name_and_num()
+    let t = s:symfony.view.alternate_action_name_and_num()
     let name = t.name
     let num = t.num
     let app = s:symfony.app()
@@ -495,7 +505,7 @@ function! s:actionEdit(open_cmd, ...)
   endif
 
   let file = s:symfony.root_path() . '/apps/' . app . '/modules/'
-        \ . module . '/actions/' . name . s:symfony.action().suffix()
+        \ . module . '/actions/' . name . s:symfony.action.suffix()
 
   call s:open(a:open_cmd, file)
 
@@ -507,28 +517,28 @@ function! s:viewEdit(open_cmd, search_direction, ...)
 
   if a:0 == 0
 
-    let name = s:symfony.action().execute_name(a:search_direction)
+    let name = s:symfony.action.execute_name(a:search_direction)
 		if name == ''
       call s:error("can't find executeXXX")
       return
     endif
     let app = s:symfony.app()
     let module = s:symfony.module()
-    let suffix = s:symfony.view().suffix()
+    let suffix = s:symfony.view.suffix()
 
   elseif a:0 == 1 || a:0 == 2
 
     let name = get(a:000, 0, 0)
     let app = s:symfony.app()
     let module = s:symfony.module()
-    let suffix = s:symfony.view().suffix(get(a:000, 1))
+    let suffix = s:symfony.view.suffix(get(a:000, 1))
 
   else
 
     let app = get(a:000, 0, 0)
     let module = get(a:000, 1, 0)
     let name = get(a:000, 2, 0)
-    let suffix = s:symfony.view().suffix(get(a:000, 3))
+    let suffix = s:symfony.view.suffix(get(a:000, 3))
 
   endif
 
@@ -546,7 +556,7 @@ function! s:modelEdit(open_cmd, ...)
     let name = a:000
   endif
 
-  let file = call(s:symfony.model().path, name, s:symfony.model())
+  let file = call(s:symfony.model.path, name, s:symfony.model)
   
   if file != ''
     call s:open(a:open_cmd, file)
@@ -563,7 +573,7 @@ function! s:formEdit(open_cmd, ...)
     let name = a:000
   endif
 
-  let file = call(s:symfony.form().path, name, s:symfony.form())
+  let file = call(s:symfony.form.path, name, s:symfony.form)
 
   if file != ''
     call s:open(a:open_cmd, file)
@@ -580,7 +590,7 @@ function! s:filterEdit(open_cmd, ...)
     let name = a:000
   endif
 
-  let file = call(s:symfony.filter().path, name, s:symfony.filter())
+  let file = call(s:symfony.filter.path, name, s:symfony.filter)
 
   if file != ''
     call s:open(a:open_cmd, file)
@@ -650,7 +660,7 @@ function! s:CompleteActionList(a, l, p)
   elseif len(args) == 1
     let list = s:symfony.module_list(args[0])
   elseif len(args) == 2
-    let list = s:symfony.action().name_list(args[0], args[1])
+    let list = s:symfony.action.name_list(args[0], args[1])
   endif
 
   return filter(list, 'v:val =~ "^".a:a')
@@ -665,7 +675,7 @@ function! s:CompleteViewList(a, l, p)
   elseif len(args) == 1
     let list = s:symfony.module_list(args[0])
   elseif len(args) == 2
-    let list = s:symfony.view().name_list(args[0], args[1])
+    let list = s:symfony.view.name_list(args[0], args[1])
   elseif len(args) == 3
     let list = ["success", "error"]
   endif
@@ -678,7 +688,7 @@ function! s:CompleteModelList(a, l, p)
   let args = args[1:]
   let path = join(args, '/')
 
-  let list = map(split(glob(s:symfony.model().dir_path() . '/' . path . '/*')), 's:symfony.model().name(fnamemodify(v:val, '':t''))')
+  let list = map(split(glob(s:symfony.model.dir_path() . '/' . path . '/*')), 's:symfony.model.name(fnamemodify(v:val, '':t''))')
 
   return filter(list, 'v:val =~ "^".a:a')
 endfunction
@@ -688,7 +698,7 @@ function! s:CompleteFormList(a, l, p)
   let args = args[1:]
   let path = join(args, '/')
 
-  let list = map(split(glob(s:symfony.form().dir_path() . '/' . path . '/*')), 's:symfony.filter().name(fnamemodify(v:val, '':t''))')
+  let list = map(split(glob(s:symfony.form.dir_path() . '/' . path . '/*')), 's:symfony.filter.name(fnamemodify(v:val, '':t''))')
 
   return filter(list, 'v:val =~ "^".a:a')
 endfunction
@@ -698,7 +708,7 @@ function! s:CompleteFilterList(a, l, p)
   let args = args[1:]
   let path = join(args, '/')
 
-  let list = map(split(glob(s:symfony.filter().dir_path() . '/' . path . '/*')), 's:symfony.filter().name(fnamemodify(v:val, '':t''))')
+  let list = map(split(glob(s:symfony.filter.dir_path() . '/' . path . '/*')), 's:symfony.filter.name(fnamemodify(v:val, '':t''))')
 
   return filter(list, 'v:val =~ "^".a:a')
 endfunction
