@@ -289,7 +289,7 @@ function! s:symfony.view() dict
           \ . s:symfony.module() . '/actions/'
 
     if filereadable(path . view_name . 'Action' . s:symfony.action.suffix())
-      let name = name . 'Action'
+      let name = view_name . 'Action'
       let file = path . name . s:symfony.action.suffix()
       let num = s:getLineByWord(file, '\vfunction\s+execute\(')
     elseif filereadable(path . 'actions'.s:symfony.action.suffix())
