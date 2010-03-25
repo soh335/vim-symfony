@@ -119,8 +119,12 @@ function! s:symfony.root_path(...) dict
   endif
 endfunction
 
-function! s:symfony.path() dict
-  return expand('%:p')
+function! s:symfony.path(...) dict
+  let t = '%:p'
+  if a:0 != 0
+    let t = t . a:1
+  endif
+  return expand(t)
 endfunction
 
 function! s:symfony.version() dict
@@ -162,9 +166,14 @@ function! s:symfony.module_list(...) dict
 endfunction
 
 function! s:symfony.type() dict
-  let t = expand('%:p:h:t')
+  let t = self.path(':h:t')
   if t == 'actions'
-    return 'action'
+    let t = self.path(':t:r')
+    if t =~ 'action'
+      return 'action'
+    elseif t =~ 'component'
+      return 'component'
+    endif
   elseif t == 'templates'
     return 'view'
   elseif self.path() =~ '\vlib/model'
@@ -203,10 +212,10 @@ function! s:symfony.action() dict
     if s:symfony.type() != 'action'
       return ''
     endif
-    if expand('%:p:t') == 'actions' . self.suffix()
+    if self.path(':t') == 'actions' . self.suffix()
       return ''
     endif
-      return s:sub(expand('%:p:t'), '(\S{-})Action\.class\.php', '\1')
+      return s:sub(self.path(':t'), '(\S{-})Action\.class\.php', '\1')
   endfunction
 
   function! t.execute_name(search_direction) dict
@@ -256,7 +265,7 @@ function! s:symfony.view() dict
   let t = {}
 
   function! t.name() dict
-    return s:sub(expand('%:p:t'), '(.{-})(Success|Error)\.php', '\1')
+    return s:sub(self.path(':t'), '(.{-})(Success|Error)\.php', '\1')
   endfunction
 
   function! t.name_list(...) dict
@@ -313,7 +322,7 @@ function! s:symfony.form() dict
   let t = {}
 
   function! t.name(...) dict
-    let f = a:0 == 0 ? expand('%:p:t') : a:1
+    let f = a:0 == 0 ? self.path(':t') : a:1
     return s:sub(f, '(.{-})\.class\.php', '\1')
   endfunction
 
@@ -343,7 +352,7 @@ function! s:symfony.filter() dict
   let t = {}
 
   function! t.name(...) dict
-    let f = a:0 == 0 ? expand('%:p:t') : a:1
+    let f = a:0 == 0 ? self.path(':t') : a:1
     return s:sub(f, '(.{-})\.class\.php', '\1')
   endfunction
 
@@ -387,7 +396,7 @@ function! DoctrineModel()
   let t = {}
 
   function! t.name(...) dict
-    let n = a:0 == 0 ? expand('%:p:t') : a:1
+    let n = a:0 == 0 ? self.path(':t') : a:1
     return s:sub(n, '(.{-})\.class\.php', '\1')
   endfunction
 
@@ -434,7 +443,7 @@ function! PropelModel()
   let t = {}
 
   function! t.name(...) dict
-    let n = a:0 == 0 ? expand('%:p:t') : a:1
+    let n = a:0 == 0 ? self.path(':t') : a:1
     return s:sub(n, '(.{-})\.php', '\1')
   endfunction
 
@@ -576,7 +585,7 @@ function! s:viewEdit(open_cmd, search_direction, ...)
     endif
     let app = s:symfony.app()
     let module = s:symfony.module()
-    let suffix = s:symfony.view.suffix()
+    let suffix = s:symfony.s:symfony.s:symfony.view.suffix()
 
   elseif a:0 == 1 || a:0 == 2
 
