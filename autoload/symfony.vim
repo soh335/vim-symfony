@@ -212,10 +212,10 @@ function! s:symfony.action() dict
     if s:symfony.type() != 'action'
       return ''
     endif
-    if self.path(':t') == 'actions' . self.suffix()
+    if s:symfony.path(':t') == 'actions' . self.suffix()
       return ''
     endif
-      return s:sub(self.path(':t'), '(\S{-})Action\.class\.php', '\1')
+      return s:sub(s:symfony.path(':t'), '(\S{-})Action\.class\.php', '\1')
   endfunction
 
   function! t.execute_name(search_direction) dict
@@ -265,7 +265,7 @@ function! s:symfony.view() dict
   let t = {}
 
   function! t.name() dict
-    return s:sub(self.path(':t'), '(.{-})(Success|Error)\.php', '\1')
+    return s:sub(s:symfony.path(':t'), '(.{-})(Success|Error)\.php', '\1')
   endfunction
 
   function! t.name_list(...) dict
@@ -322,7 +322,7 @@ function! s:symfony.form() dict
   let t = {}
 
   function! t.name(...) dict
-    let f = a:0 == 0 ? self.path(':t') : a:1
+    let f = a:0 == 0 ? s:symfony.path(':t') : a:1
     return s:sub(f, '(.{-})\.class\.php', '\1')
   endfunction
 
@@ -352,7 +352,7 @@ function! s:symfony.filter() dict
   let t = {}
 
   function! t.name(...) dict
-    let f = a:0 == 0 ? self.path(':t') : a:1
+    let f = a:0 == 0 ? s:symfony.path(':t') : a:1
     return s:sub(f, '(.{-})\.class\.php', '\1')
   endfunction
 
@@ -396,7 +396,7 @@ function! DoctrineModel()
   let t = {}
 
   function! t.name(...) dict
-    let n = a:0 == 0 ? self.path(':t') : a:1
+    let n = a:0 == 0 ? s:symfony.path(':t') : a:1
     return s:sub(n, '(.{-})\.class\.php', '\1')
   endfunction
 
@@ -443,7 +443,7 @@ function! PropelModel()
   let t = {}
 
   function! t.name(...) dict
-    let n = a:0 == 0 ? self.path(':t') : a:1
+    let n = a:0 == 0 ? s:symfony.path(':t') : a:1
     return s:sub(n, '(.{-})\.php', '\1')
   endfunction
 
