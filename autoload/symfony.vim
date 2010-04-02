@@ -486,7 +486,7 @@ endfunction
 "}}}
 
 "{{{ cache
-function s:symfony.cache() dict
+function! s:symfony.cache() dict
 
   let s:cache_prototype = {}
   let t = {}
@@ -585,7 +585,7 @@ function! s:viewEdit(open_cmd, search_direction, ...)
     endif
     let app = s:symfony.app()
     let module = s:symfony.module()
-    let suffix = s:symfony.s:symfony.s:symfony.view.suffix()
+    let suffix = s:symfony.view.suffix()
 
   elseif a:0 == 1 || a:0 == 2
 
