@@ -805,7 +805,4 @@ endfunction
 
 function! s:SymfonyBufInit()
   call s:DefineCommand()
-  if g:vim_symfony_fuf
-    call symfony#fuf#define_command()
-  endif
 endfunction
