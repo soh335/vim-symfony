@@ -5,45 +5,10 @@ if exists('g:loaded_vim_symfony')
   finish
 end
 
-let g:loaded_vim_symfony = 1;
+let g:loaded_vim_symfony = 1
 let s:symfony_rout = {}
 let s:symfony_cache_routes = {}
 let s:cache_routes_name = 'routes'
-
-function! s:main()
-  if !isdirectory(g:vim_symfony_cache_dir_name)
-    call mkdir(g:vim_symfony_cache_dir_name, 'p')
-  endif
-
-  let file = printf('%s/%s', g:vim_symfony_cache_dir_name, s:cache_routes_name)
-  if filereadable(file)
-    let lists = readfile(file)
-    for dict in lists
-      for [key, value] in items(eval(dict))
-        let s:symfony_cache_routes[key] = value
-      endfor
-    endfor
-  endif
-endfunction
-
-function! s:SymfonyMarkProject(version)
-  let route = expand('%:p:h')
-  if isdirectory(route) && s:CheckIsRoot(route) 
-    let s:symfony_cache_routes[route] = a:version
-  else
-    echo "error"
-    return
-  endif
-
-  let l:list = []
-  for [key, value] in items(s:symfony_cache_routes)
-      call add(l:list, string({key : value}))
-  endfor
-
-  let file = printf('%s/%s', g:vim_symfony_cache_dir_name, s:cache_routes_name)
-  echo l:list
-  call writefile(l:list, file)
-endfunction
 
 function! s:CheckIsRoot(path)
   return executable(a:path .'/symfony')
@@ -86,12 +51,9 @@ function! s:SymfonyOpenProject(filename)
   endwhile
 endfunction
 
-"command! -buffer -nargs=1 SymfonyMarkProject call <SID>SymfonyMarkProject(<q-args>)
-"command! -buffer -nargs=0 SymfonyOpenProject call <SID>SymfonyOpenProject()
+command! -buffer -nargs=0 SymfonyOpenProject call <SID>SymfonyOpenProject(expand('%:p'))
 
 call s:Define('g:vim_symfony_auto_search_root_dirctory', 1)
-call s:Define('g:vim_symfony_cache_dir_name', expand('~/.vim-symfony-cache'))
-"call s:Define('g:vim_symfony_separate_complitation', 0)
 call s:Define('g:vim_symfony_default_search_action_top_direction', 1)
 call s:Define('g:vim_symfony_autocmd_version', 0)
 
