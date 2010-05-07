@@ -1,6 +1,11 @@
 "Name: vim-symfony
 "Author: soh kitahara <sugarbabe335@gmail.com>
 
+if exists('g:loaded_vim_symfony')
+  finish
+end
+
+let g:loaded_vim_symfony = 1;
 let s:symfony_rout = {}
 let s:symfony_cache_routes = {}
 let s:cache_routes_name = 'routes'

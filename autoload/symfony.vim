@@ -1,11 +1,6 @@
 "Name: vim-symfony
 "Author: soh kitahara <sugarbabe335@gmail.com>
 
-if &cp || exists("g:autoloaded_symfony")
-  finish
-end
-
-let g:autoloaded_symfony = 1
 let s:symfony = {}
 let s:is_debug = 0
 let s:open_cmds = { 'edit': 'E', 'split': 'S', 'vsplit': 'V', 'tabnew': 'T' }
