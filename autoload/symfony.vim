@@ -754,7 +754,7 @@ function! s:CompleteFormList(a, l, p)
   let args = args[1:]
   let path = join(args, '/')
 
-  let list = map(split(glob(s:symfony.form.dir_path() . '/' . path . '/*')), 's:symfony.filter.name(fnamemodify(v:val, '':t''))')
+  let list = map(split(glob(s:symfony.form.dir_path() . '/' . path . '/*')), 's:symfony.form.name(fnamemodify(v:val, '':t''))')
 
   return filter(list, 'v:val =~ "^".a:a')
 endfunction
