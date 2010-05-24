@@ -6,17 +6,10 @@ if exists('g:loaded_vim_symfony')
 end
 
 let g:loaded_vim_symfony = 1
-let s:symfony_rout = {}
-let s:symfony_cache_routes = {}
+let s:symfony_roots = {}
 
 function! s:CheckIsRoot(path)
   return executable(a:path .'/symfony')
-endfunction
-
-function! s:Detect(path, version)
-  if has_key(s:symfony_cache_routes, a:path)
-    call symfony#projectInit(a:path, a:version)
-  endif
 endfunction
 
 function! s:Define(key, value)
@@ -34,7 +27,7 @@ function! s:SymfonyOpenProject(filename)
   let ofn = ""
   let nfn = fn
   while nfn != ofn && nfn != ""
-    if has_key(s:symfony_rout, nfn)
+    if has_key(s:symfony_roots, nfn)
       return symfony#projectInit(nfn)
     endif
     let ofn = nfn 
@@ -42,7 +35,7 @@ function! s:SymfonyOpenProject(filename)
   endwhile
   while fn != ofn
     if s:CheckIsRoot(fn) 
-      let s:symfony_rout[fn] = 1
+      let s:symfony_roots[fn] = 1
       return symfony#projectInit(fn)
     endif
     let ofn = fn
