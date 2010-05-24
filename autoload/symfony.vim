@@ -128,7 +128,11 @@ function! s:symfony.version() dict
       let v = ''
     else
       let v = system(self.root_path() . '/symfony --version')
-      let v = s:sub(s:sub(v, '^symfony\sversion\s(\d\.\d).*', '\1'), '\.', '')
+      if v =~ "Fatal error"
+        let v = ''
+      else
+        let v = s:sub(s:sub(v, '^symfony\sversion\s(\d\.\d).*', '\1'), '\.', '')
+      endif
     endif
     call self.cache.set(self.root_path(), 'version', v)
   endif
