@@ -8,7 +8,6 @@ end
 let g:loaded_vim_symfony = 1
 let s:symfony_rout = {}
 let s:symfony_cache_routes = {}
-let s:cache_routes_name = 'routes'
 
 function! s:CheckIsRoot(path)
   return executable(a:path .'/symfony')
