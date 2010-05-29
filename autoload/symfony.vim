@@ -708,6 +708,55 @@ function! s:partialEdit(open_cmd, line1, line2, count, ...)
   endif
 
 endfunction
+
+function! s:componentEdit(open_cmd, line1, line2, count, ...)
+
+  if a:count == 0
+
+    let l = s:sub(getline('.'), '.*include_component\((.*)\).*', '\1')
+    let ls = split(l, ',')
+
+    if len(ls) < 2
+      call s:error("error")
+    endif
+
+    let ls[0] = s:sub(ls[0], '\s*["''](.*)["'']\s*', '\1')
+    let ls[1] = s:sub(ls[1], '\s*["''](.*)["'']\s*', '\1')
+
+    let file = s:symfony.root_path() . '/apps/' . s:symfony.app() . '/modules/'
+             \ . ls[0] . '/templates/_' . ls[1] . '.php'
+    call s:open(a:open_cmd, file)
+
+  else
+
+    let tmp = @@
+    silent normal gvy
+    let selected = @@
+    let @@ = tmp
+
+    if a:0 == 1
+      let module = s:symfony.module()
+      let name = get(a:000, 0)
+    elseif a:0 == 2
+      let module = get(a:000, 0)
+      let name = get(a:000, 1)
+    else
+      call s:error("can't find")
+      return
+    endif
+
+    call append(a:line1-1, '<?php include_component("'.module.'", "'.name.'") ?>')
+    execute a:line1 + 1
+    execute 'delete'.(a:line2 - a:line1 + 1)
+    let file = s:symfony.root_path() . '/apps/' . s:symfony.app(). '/modules/'
+          \ . module . '/templates/_' . name . '.php'
+
+    call s:open(a:open_cmd, file)
+    call append(0, split(selected, '\n'))
+
+  endif
+
+endfunction
 "}}} 
 
 " {{{ completation functions
@@ -797,6 +846,7 @@ function! s:DefineCommand()
   call s:DefineEditCommand('form', ['<f-args>'])
   call s:DefineEditCommand('filter', ['<f-args>'])
   call s:DefineEditCommand('partial', ['<line1>', '<line2>', '<count>', '<f-args>'])
+  call s:DefineEditCommand('component', ['<line1>', '<line2>', '<count>', '<f-args>'])
   command! -buffer -nargs=0 Salternate call symfony#alternate('edit')
   command! -buffer -nargs=0 Sfind call symfony#find('edit')
   command! -buffer -nargs=* Symfony call symfony#command(<f-args>)
