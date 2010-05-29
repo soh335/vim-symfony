@@ -720,8 +720,8 @@ function! s:componentEdit(open_cmd, line1, line2, count, ...)
       call s:error("error")
     endif
 
-    let ls[0] = s:sub(ls[0], '\s*["''](.*)["'']\s*', '\1')
-    let ls[1] = s:sub(ls[1], '\s*["''](.*)["'']\s*', '\1')
+    let ls[0] = s:sub(ls[0], '\s*["'']\s*(.*)\s*["'']\s*', '\1')
+    let ls[1] = s:sub(ls[1], '\s*["'']\s*(.*)\s*["'']\s*', '\1')
 
     let file = s:symfony.root_path() . '/apps/' . s:symfony.app() . '/modules/'
              \ . ls[0] . '/templates/_' . ls[1] . '.php'
