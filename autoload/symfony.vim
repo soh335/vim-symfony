@@ -55,7 +55,7 @@ endfunction
 function! s:getLineByWord(path, word)
   let num = 1
   for line in readfile(a:path)
-    if line =~ a:word
+    if line =~ '\v\C'.a:word
       return num
     endif
     let num = num + 1
@@ -63,6 +63,13 @@ function! s:getLineByWord(path, word)
   return 0
 endfunction
 
+function! s:hasLineByWord(path, word)
+  if filereadable(a:path) == 0
+    return 0
+  endif
+
+  return s:getLineByWord(a:path, a:word)
+endfunction
 "}}}
 
 " autoload functions {{{
@@ -200,7 +207,7 @@ function! s:symfony.action() dict
       let module = get(a:000, 1)
     endif
 
-    return map(split(glob(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/actions/*')), 's:sub(v:val, s:symfony.root_path()."/apps/".app."/modules/".module.''/actions/(\S{-})(Action)*\.class\.php'', ''\1'')')
+    return map(split(glob(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/actions/*')), 's:sub(v:val, s:symfony.root_path()."/apps/".app."/modules/".module.''/actions/(\S{-})(Action|Component)*\.class\.php'', ''\1'')')
   endfunction
 
   function! t.suffix() dict
@@ -208,21 +215,21 @@ function! s:symfony.action() dict
   endfunction
 
   function! t.separated_name() dict
-    if s:symfony.type() != 'action'
+    if s:symfony.type() != 'action' && s:symfony.type() != "component"
       return ''
     endif
-    if s:symfony.path(':t') == 'actions' . self.suffix()
+    if s:symfony.path(':t') =~ '\v\C(actions|components)' . self.suffix()
       return ''
     endif
-      return s:sub(s:symfony.path(':t'), '(\S{-})Action\.class\.php', '\1')
+      return s:sub(s:symfony.path(':t'), '(\S{-})(Action|Component)\.class\.php', '\1')
   endfunction
 
   function! t.execute_name(search_direction) dict
 
-    if s:symfony.type() != 'action'
-      call s:error("when no args, will you in action file")
-      return
-    endif
+    "if s:symfony.type() != 'action'
+    "  call s:error("when no args, will you in action file")
+    "  return
+    "endif
 
     let line_num = line('.')
     let stop = a:search_direction == 1 ? 0 : line('$')
@@ -243,14 +250,20 @@ function! s:symfony.action() dict
       return
     endif
 
-    if self.separated_name() != ''
-      let name = s:firstStrLower(s:symfony.action.separated_name())
+    let separated_name = self.separated_name()
+    if separated_name != ''
+      let name = s:firstStrLower(separated_name)
     else
       let n = s:sub(getline(line_num), '.*function\s+execute(\S{-})\(.*', '\1')
       let name = s:firstStrLower(n)
     endif
 
-    return name
+    if s:symfony.type() == "action"
+      return name
+    elseif s:symfony.type() == "component"
+      return '_'.name
+    endif
+
   endfunction
 
   let self.action = t
@@ -264,7 +277,8 @@ function! s:symfony.view() dict
   let t = {}
 
   function! t.name() dict
-    return s:sub(s:symfony.path(':t'), '(.{-})(Success|Error)\.php', '\1')
+    let n = s:sub(s:symfony.path(':t'), '(.{-})\.php', '\1')
+    return s:sub(n, '(.{-})(Success|Error)', '\1')
   endfunction
 
   function! t.name_list(...) dict
@@ -283,35 +297,50 @@ function! s:symfony.view() dict
   endfunction
 
   function! t.suffix(...) dict
-    if a:0 == 1 && a:1 =~ '^e'
-      return 'Error.php'
-    else
-      return 'Success.php'
+    if s:symfony.type() == "action"
+      if a:0 == 1 && a:1 =~ '^e'
+        return 'Error.php'
+      else
+        return 'Success.php'
+      endif
+    elseif s:symfony.type() == "component"
+      return '.php'
     endif
   endfunction
 
   function! t.alternate_action_name_and_num() dict
 
     let view_name = s:symfony.view.name()
-    let path = s:symfony.root_path() . '/apps/' . s:symfony.app() . '/modules/'
-          \ . s:symfony.module() . '/actions/'
 
-    if filereadable(path . view_name . 'Action' . s:symfony.action.suffix())
-      let name = view_name . 'Action'
-      let file = path . name . s:symfony.action.suffix()
-      let num = s:getLineByWord(file, '\vfunction\s+execute\(')
-    elseif filereadable(path . 'actions'.s:symfony.action.suffix())
-      let file = path . 'actions' . s:symfony.action.suffix()
-      let num = s:getLineByWord(file, '\vfunction\s+execute'.view_name.'\(')
-      let name = 'actions'
-    else
-      call s:error("can't readble action file")
+    echo view_name
+    if view_name[0:0] == '_' "if component
+      return s:searchAndGetNameAndNum(view_name[1:], 'Component', 'components')
+    else "if action
+      return s:searchAndGetNameAndNum(view_name, 'Action', 'actions')
     endif
-
-    return { 'name' : name , 'num' : num }
   endfunction
 
   let self.view = t
+endfunction
+
+function! s:searchAndGetNameAndNum(view_name, single_file_name, base_file_name)
+  let path = s:symfony.root_path() . '/apps/' . s:symfony.app() . '/modules/'
+        \ . s:symfony.module() . '/actions/'
+  let num = s:hasLineByWord(path.a:view_name.a:single_file_name.s:symfony.action.suffix(), 'function\s+execute\(')
+
+  if num != 0
+    let name = a:view_name.a:single_file_name
+  else
+    let num = s:hasLineByWord(path.a:base_file_name.s:symfony.action.suffix(),'function\s+execute'.s:firstStrUpper(a:view_name).'\(')
+    if num == 0
+      call s:error("can't readble action file")
+      return
+    else
+      let name = a:base_file_name
+    endif
+  endif
+
+  return { 'name' : name , 'num' : num }
 endfunction
 
 call s:symfony.view()
