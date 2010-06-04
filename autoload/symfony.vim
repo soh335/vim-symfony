@@ -312,7 +312,6 @@ function! s:symfony.view() dict
 
     let view_name = s:symfony.view.name()
 
-    echo view_name
     if view_name[0:0] == '_' "if component
       return s:searchAndGetNameAndNum(view_name[1:], 'Component', 'components')
     else "if action
@@ -333,8 +332,7 @@ function! s:searchAndGetNameAndNum(view_name, single_file_name, base_file_name)
   else
     let num = s:hasLineByWord(path.a:base_file_name.s:symfony.action.suffix(),'function\s+execute'.s:firstStrUpper(a:view_name).'\(')
     if num == 0
-      call s:error("can't readble action file")
-      return
+      throw "notfind"
     else
       let name = a:base_file_name
     endif
@@ -569,36 +567,40 @@ augroup END
 "{{{ edit functions
 function! s:actionEdit(open_cmd, ...)
 
-  if a:0 == 0
+  try
+    if a:0 == 0
 
-    let t = s:symfony.view.alternate_action_name_and_num()
-    let name = t.name
-    let num = t.num
-    let app = s:symfony.app()
-    let module = s:symfony.module()
+      let t = s:symfony.view.alternate_action_name_and_num()
+      let name = t.name
+      let num = t.num
+      let app = s:symfony.app()
+      let module = s:symfony.module()
 
-  elseif a:0 == 2
+    elseif a:0 == 2
 
-    let app = get(a:000, 0, 0)
-    let module = get(a:000, 1, 0)
-    let name = 'actions'
-    let num = 1
+      let app = get(a:000, 0, 0)
+      let module = get(a:000, 1, 0)
+      let name = 'actions'
+      let num = 1
 
-  elseif a:0 >= 3
+    elseif a:0 >= 3
 
-    let app = get(a:000, 0, 0)
-    let module = get(a:000, 1, 0)
-    let name = get(a:000, 2) != "actions" ? get(a:000, 2) . 'Action' : 'actions'
-    let num = 1
+      let app = get(a:000, 0, 0)
+      let module = get(a:000, 1, 0)
+      let name = get(a:000, 2) != "actions" ? get(a:000, 2) . 'Action' : 'actions'
+      let num = 1
 
-  endif
+    endif
 
-  let file = s:symfony.root_path() . '/apps/' . app . '/modules/'
-        \ . module . '/actions/' . name . s:symfony.action.suffix()
+    let file = s:symfony.root_path() . '/apps/' . app . '/modules/'
+          \ . module . '/actions/' . name . s:symfony.action.suffix()
 
-  call s:open(a:open_cmd, file)
+    call s:open(a:open_cmd, file)
 
-  execute num
+    execute num
+  catch /notfind/
+    call s:error("not exists associated (action|component) file")
+  endtry
 
 endfunction
 
