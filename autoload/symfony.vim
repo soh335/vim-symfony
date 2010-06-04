@@ -247,7 +247,7 @@ function! s:symfony.action() dict
     endwhile
 
     if line_num == stop
-      return
+      throw /notfind/
     endif
 
     let separated_name = self.separated_name()
@@ -606,37 +606,37 @@ endfunction
 
 function! s:viewEdit(open_cmd, search_direction, ...)
 
-  if a:0 == 0
+  try 
+    if a:0 == 0
 
-    let name = s:symfony.action.execute_name(a:search_direction)
-		if name == ''
-      call s:error("can't find executeXXX")
-      return
+      let name = s:symfony.action.execute_name(a:search_direction)
+      let app = s:symfony.app()
+      let module = s:symfony.module()
+      let suffix = s:symfony.view.suffix()
+
+    elseif a:0 == 1 || a:0 == 2
+
+      let name = get(a:000, 0, 0)
+      let app = s:symfony.app()
+      let module = s:symfony.module()
+      let suffix = s:symfony.view.suffix(get(a:000, 1))
+
+    else
+
+      let app = get(a:000, 0, 0)
+      let module = get(a:000, 1, 0)
+      let name = get(a:000, 2, 0)
+      let suffix = s:symfony.view.suffix(get(a:000, 3))
+
     endif
-    let app = s:symfony.app()
-    let module = s:symfony.module()
-    let suffix = s:symfony.view.suffix()
 
-  elseif a:0 == 1 || a:0 == 2
+    let file = s:symfony.root_path() . '/apps/' . app . '/modules/' . module
+          \ . '/templates/' . name . suffix
 
-    let name = get(a:000, 0, 0)
-    let app = s:symfony.app()
-    let module = s:symfony.module()
-    let suffix = s:symfony.view.suffix(get(a:000, 1))
-
-  else
-
-    let app = get(a:000, 0, 0)
-    let module = get(a:000, 1, 0)
-    let name = get(a:000, 2, 0)
-    let suffix = s:symfony.view.suffix(get(a:000, 3))
-
-  endif
-
-  let file = s:symfony.root_path() . '/apps/' . app . '/modules/' . module
-        \ . '/templates/' . name . suffix
-
-  call s:open(a:open_cmd, file)
+    call s:open(a:open_cmd, file)
+  catch /notfind/
+    call s:error("can't find executeXXX")
+  endtry
 endfunction
 
 function! s:modelEdit(open_cmd, ...)
