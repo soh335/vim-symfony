@@ -180,7 +180,8 @@ endfunction
 
 function! s:symfony.module_list(...) dict
   let app = get(a:000, 0, 0) != '' ? get(a:000, 0) : '*'
-  return map(split(glob(self.root_path().'/apps/'.app.'/modules/*')), 's:sub(v:val, self.root_path()."/apps/".app."/modules/", "")')
+	let path = s:gsub(self.root_path().'/apps/'.app.'/modules/', '[/\\]', '[/\\\\]')
+  return map(split(glob(self.root_path().'/apps/'.app.'/modules/*'), '\n'), 's:sub(v:val, path, "")')
 endfunction
 
 function! s:symfony.type() dict
