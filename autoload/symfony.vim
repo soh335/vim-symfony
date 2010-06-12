@@ -220,7 +220,8 @@ function! s:symfony.action() dict
       let module = get(a:000, 1)
     endif
 
-    return map(split(glob(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/actions/*')), 's:sub(v:val, s:symfony.root_path()."/apps/".app."/modules/".module.''/actions/(\S{-})(Action|Component)*\.class\.php'', ''\1'')')
+    let path = s:gsub(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/actions/', '[/\\]', '[/\\\\]')
+    return map(split(glob(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/actions/*')), 's:sub(v:val, path.''(\S{-})(Action|Component)*\.class\.php'', ''\1'')')
   endfunction
 
   function! t.suffix() dict
