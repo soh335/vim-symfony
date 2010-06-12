@@ -166,7 +166,8 @@ function! s:symfony.app() dict
 endfunction
 
 function! s:symfony.app_list() dict
-  return map(split(glob(self.root_path().'/apps/*')), 's:sub(v:val, self.root_path()."/apps/", "")')
+  let path = s:gsub(self.root_path().'/apps/', '[/\\]', '[/\\\\]')
+  return map(split(glob(self.root_path().'/apps/*'), '\n'), 's:sub(v:val, path, "")')
 endfunction
 
 function! s:symfony.module() dict
