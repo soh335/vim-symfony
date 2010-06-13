@@ -71,17 +71,6 @@ function! s:hasLineByWord(path, word)
   return s:getLineByWord(a:path, a:word)
 endfunction
 
-function! symfony#glob(pattern)
-  if !exists('s:symfony_glob_func')
-    if has('win32')
-     let s:symfony_glob_func = function("pathogen#glob")
-    else
-      let s:symfony_glob_func = function("glob")
-    endif
-  endif
-  return call(s:symfony_glob_func, [a:pattern])
-endfunction
-
 function! s:escpath(path)
   return s:gsub(a:path, '[/\\]', '[/\\\\]')
 endfunction
