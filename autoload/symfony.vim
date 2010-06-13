@@ -280,7 +280,7 @@ function! s:symfony.view() dict
 
   function! t.name() dict
     let n = s:sub(s:symfony.path(':t'), '(.{-})\.php', '\1')
-    return s:sub(n, '(.{-})(Success|Error)', '\1')
+    return s:sub(n, '(.{-})(Success|Error)$', '\1')
   endfunction
 
   function! t.name_list(...) dict
