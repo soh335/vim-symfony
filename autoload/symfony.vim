@@ -607,7 +607,7 @@ endfunction
 function! s:viewEdit(open_cmd, search_direction, ...)
 
   try 
-    if a:0 == 0
+    if a:0 == 0 "call in action or components file
 
       let name = s:symfony.action.execute_name(a:search_direction)
       let app = s:symfony.app()
