@@ -97,7 +97,7 @@ function! symfony#alternate(open_cmd)
   let type = s:symfony.type()
 
   if type == 'action'
-    execute 'Sview success'
+    execute 'Sview'
   elseif type == 'view'
     execute 'Saction'
   elseif type == 'model'
