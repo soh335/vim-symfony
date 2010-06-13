@@ -188,6 +188,8 @@ function! s:symfony.type() dict
     return 'filter'
   elseif self.path() =~ '\vlib/form'
     return 'form'
+  else
+    return ''
   endif
 endfunction
 
@@ -297,14 +299,14 @@ function! s:symfony.view() dict
   endfunction
 
   function! t.suffix(...) dict
-    if s:symfony.type() == "action"
+    if s:symfony.type() == 'component'
+      return '.php'
+    else
       if a:0 == 1 && a:1 =~ '^e'
         return 'Error.php'
       else
         return 'Success.php'
       endif
-    elseif s:symfony.type() == "component"
-      return '.php'
     endif
   endfunction
 
