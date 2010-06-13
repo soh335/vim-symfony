@@ -455,7 +455,7 @@ function! DoctrineModel()
 
   function! t.path(...) dict
     let f = self.dir_path() .'/**/'. join(a:000, '/') . self.suffix()
-    let file = get(split(glob(f)), 0, 0)
+    let file = get(split(glob(f), '\n'), 0, 0)
     return file
   endfunction
 
@@ -502,7 +502,7 @@ function! PropelModel()
 
   function! t.path(...) dict
     let f = self.dir_path() .'/**/'. join(a:000, '/') . self.suffix()
-    let file = get(split(glob(f)), 0, 0)
+    let file = get(split(glob(f), '\n'), 0, 0)
     return file
   endfunction
 
@@ -847,7 +847,7 @@ function! s:CompleteModelList(a, l, p)
   let args = args[1:]
   let path = join(args, '/')
 
-  let list = map(split(glob(s:symfony.model().dir_path() . '/' . path . '/*')), 's:symfony.model().name(fnamemodify(v:val, '':t''))')
+  let list = map(split(glob(s:symfony.model().dir_path() . '/' . path . '/*'), '\n'), 's:symfony.model().name(fnamemodify(v:val, '':t''))')
 
   return filter(list, 'v:val =~ "^".a:a')
 endfunction
