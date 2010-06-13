@@ -225,7 +225,7 @@ function! s:symfony.action() dict
     endif
 
     let path = s:escpath(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/actions/')
-    return map(split(glob(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/actions/*')), 's:sub(v:val, path.''(\S{-})(Action|Component)*\.class\.php'', ''\1'')')
+    return map(split(glob(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/actions/*'), '\n'), 's:sub(v:val, path.''(\S{-})(Action|Component)*\.class\.php'', ''\1'')')
   endfunction
 
   function! t.suffix() dict
