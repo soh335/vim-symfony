@@ -199,11 +199,11 @@ function! s:symfony.type() dict
     endif
   elseif t == 'templates'
     return 'view'
-  elseif self.path() =~ '\vlib/model'
+  elseif self.path() =~ '\vlib[/\\]model'
     return 'model'
-  elseif self.path() =~ '\vlib/filter'
+  elseif self.path() =~ '\vlib[/\\]filter'
     return 'filter'
-  elseif self.path() =~ '\vlib/form'
+  elseif self.path() =~ '\vlib[/\\]form'
     return 'form'
   endif
 endfunction
