@@ -163,8 +163,8 @@ endfunction
 
 function! s:symfony.app() dict
   let f = self.path()
-  if f =~ 'apps/'
-    return s:sub(f, '.*/apps/(.{-})/.*', '\1')
+  if f =~ 'apps[/\\\\]'
+    return s:sub(f, '.*[/\\\\]apps[/\\\\](.{-})[/\\\\].*', '\1')
   endif
   return ''
 endfunction
