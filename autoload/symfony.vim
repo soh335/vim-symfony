@@ -70,6 +70,10 @@ function! s:hasLineByWord(path, word)
 
   return s:getLineByWord(a:path, a:word)
 endfunction
+
+function! s:escpath(path)
+  return s:gsub(a:path, '[/\\]', '[/\\\\]')
+endfunction
 "}}}
 
 " autoload functions {{{
@@ -148,27 +152,29 @@ endfunction
 
 function! s:symfony.app() dict
   let f = self.path()
-  if f =~ 'apps/'
-    return s:sub(f, '.*/apps/(.{-})/.*', '\1')
+  if f =~ 'apps[/\\\\]'
+    return s:sub(f, '.*[/\\\\]apps[/\\\\](.{-})[/\\\\].*', '\1')
   endif
   return ''
 endfunction
 
 function! s:symfony.app_list() dict
-  return map(split(glob(self.root_path().'/apps/*')), 's:sub(v:val, self.root_path()."/apps/", "")')
+  let path = s:escpath(self.root_path().'/apps/')
+  return map(split(glob(self.root_path().'/apps/*'), '\n'), 's:sub(v:val, path, "")')
 endfunction
 
 function! s:symfony.module() dict
   let f = self.path()
-  if f =~ '\v\Capps/.{-}/modules/'
-    return s:sub(f, '.*\apps/.{-}/modules/(.{-})/.*', '\1')
+  if f =~ '\v\Capps[/\\\\].{-}[/\\\\]modules[/\\\\]'
+    return s:sub(f, '.*\apps[/\\\\].{-}[/\\\\]modules[/\\\\](.{-})[/\\\\].*', '\1')
   endif
   return ''
 endfunction
 
 function! s:symfony.module_list(...) dict
   let app = get(a:000, 0, 0) != '' ? get(a:000, 0) : '*'
-  return map(split(glob(self.root_path().'/apps/'.app.'/modules/*')), 's:sub(v:val, self.root_path()."/apps/".app."/modules/", "")')
+  let path = s:escpath(self.root_path().'/apps/'.app.'/modules/')
+  return map(split(glob(self.root_path().'/apps/'.app.'/modules/*'), '\n'), 's:sub(v:val, path, "")')
 endfunction
 
 function! s:symfony.type() dict
@@ -182,11 +188,11 @@ function! s:symfony.type() dict
     endif
   elseif t == 'templates'
     return 'view'
-  elseif self.path() =~ '\vlib/model'
+  elseif self.path() =~ '\vlib[/\\]model'
     return 'model'
-  elseif self.path() =~ '\vlib/filter'
+  elseif self.path() =~ '\vlib[/\\]filter'
     return 'filter'
-  elseif self.path() =~ '\vlib/form'
+  elseif self.path() =~ '\vlib[/\\]form'
     return 'form'
   else
     return ''
@@ -209,7 +215,8 @@ function! s:symfony.action() dict
       let module = get(a:000, 1)
     endif
 
-    return map(split(glob(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/actions/*')), 's:sub(v:val, s:symfony.root_path()."/apps/".app."/modules/".module.''/actions/(\S{-})(Action|Component)*\.class\.php'', ''\1'')')
+    let path = s:escpath(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/actions/')
+    return map(split(glob(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/actions/*'), '\n'), 's:sub(v:val, path.''(\S{-})(Action|Component)*\.class\.php'', ''\1'')')
   endfunction
 
   function! t.suffix() dict
@@ -295,7 +302,8 @@ function! s:symfony.view() dict
       let module = get(a:000, 1)
     endif
 
-    return map(filter(split(glob(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/templates/*')), 'v:val !~ ''\^'''), 's:sub(v:val, s:symfony.root_path()."/apps/".app."/modules/".module.''/templates/(\S{-})(Success|Error)\.php'', ''\1'')')
+    let path = s:escpath(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/templates/')
+    return map(filter(split(glob(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/templates/*'), '\n'), 'v:val !~ ''\^'''), 's:sub(v:val, path.''(\S{-})(Success|Error)\.php'', ''\1'')')
   endfunction
 
   function! t.suffix(...) dict
@@ -363,7 +371,7 @@ function! s:symfony.form() dict
   endfunction
 
   function! t.path(...) dict
-    return get(split(glob(self.dir_path().'/**/' . join(a:000, '/') . self.suffix())), 0, 0)
+    return get(split(glob(self.dir_path().'/**/' . join(a:000, '/') . self.suffix()), '\n'), 0, 0)
   endfunction
 
   function! t.suffix() dict
@@ -393,7 +401,7 @@ function! s:symfony.filter() dict
   endfunction
 
   function! t.path(...) dict
-      return get(split(glob(self.dir_path().'/**/' . join(a:000, '/') . self.suffix())), 0, 0)
+      return get(split(glob(self.dir_path().'/**/' . join(a:000, '/') . self.suffix()), '\n'), 0, 0)
   endfunction
 
   function! t.suffix() dict
@@ -438,7 +446,7 @@ function! DoctrineModel()
 
   function! t.path(...) dict
     let f = self.dir_path() .'/**/'. join(a:000, '/') . self.suffix()
-    let file = get(split(glob(f)), 0, 0)
+    let file = get(split(glob(f), '\n'), 0, 0)
     return file
   endfunction
 
@@ -485,7 +493,7 @@ function! PropelModel()
 
   function! t.path(...) dict
     let f = self.dir_path() .'/**/'. join(a:000, '/') . self.suffix()
-    let file = get(split(glob(f)), 0, 0)
+    let file = get(split(glob(f), '\n'), 0, 0)
     return file
   endfunction
 
@@ -830,7 +838,7 @@ function! s:CompleteModelList(a, l, p)
   let args = args[1:]
   let path = join(args, '/')
 
-  let list = map(split(glob(s:symfony.model().dir_path() . '/' . path . '/*')), 's:symfony.model().name(fnamemodify(v:val, '':t''))')
+  let list = map(split(glob(s:symfony.model().dir_path() . '/' . path . '/*'), '\n'), 's:symfony.model().name(fnamemodify(v:val, '':t''))')
 
   return filter(list, 'v:val =~ "^".a:a')
 endfunction
@@ -840,7 +848,7 @@ function! s:CompleteFormList(a, l, p)
   let args = args[1:]
   let path = join(args, '/')
 
-  let list = map(split(glob(s:symfony.form.dir_path() . '/' . path . '/*')), 's:symfony.form.name(fnamemodify(v:val, '':t''))')
+  let list = map(split(glob(s:symfony.form.dir_path() . '/' . path . '/*'), '\n'), 's:symfony.form.name(fnamemodify(v:val, '':t''))')
 
   return filter(list, 'v:val =~ "^".a:a')
 endfunction
@@ -850,7 +858,7 @@ function! s:CompleteFilterList(a, l, p)
   let args = args[1:]
   let path = join(args, '/')
 
-  let list = map(split(glob(s:symfony.filter.dir_path() . '/' . path . '/*')), 's:symfony.filter.name(fnamemodify(v:val, '':t''))')
+  let list = map(split(glob(s:symfony.filter.dir_path() . '/' . path . '/*'), '\n'), 's:symfony.filter.name(fnamemodify(v:val, '':t''))')
 
   return filter(list, 'v:val =~ "^".a:a')
 endfunction

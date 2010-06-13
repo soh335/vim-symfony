@@ -9,7 +9,7 @@ let g:loaded_vim_symfony = 1
 let s:symfony_roots = {}
 
 function! s:CheckIsRoot(path)
-  return executable(a:path .'/symfony')
+  return filereadable(a:path .'/symfony')
 endfunction
 
 function! s:Define(key, value)
