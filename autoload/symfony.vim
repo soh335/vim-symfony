@@ -176,8 +176,8 @@ endfunction
 
 function! s:symfony.module() dict
   let f = self.path()
-  if f =~ '\v\Capps/.{-}/modules/'
-    return s:sub(f, '.*\apps/.{-}/modules/(.{-})/.*', '\1')
+  if f =~ '\v\Capps[/\\\\].{-}[/\\\\]modules[/\\\\]'
+    return s:sub(f, '.*\apps[/\\\\].{-}[/\\\\]modules[/\\\\](.{-})[/\\\\].*', '\1')
   endif
   return ''
 endfunction
