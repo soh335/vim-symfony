@@ -380,7 +380,7 @@ function! s:symfony.form() dict
   endfunction
 
   function! t.path(...) dict
-    return get(split(glob(self.dir_path().'/**/' . join(a:000, '/') . self.suffix())), 0, 0)
+    return get(split(glob(self.dir_path().'/**/' . join(a:000, '/') . self.suffix()), '\n'), 0, 0)
   endfunction
 
   function! t.suffix() dict
@@ -857,7 +857,7 @@ function! s:CompleteFormList(a, l, p)
   let args = args[1:]
   let path = join(args, '/')
 
-  let list = map(split(glob(s:symfony.form.dir_path() . '/' . path . '/*')), 's:symfony.form.name(fnamemodify(v:val, '':t''))')
+  let list = map(split(glob(s:symfony.form.dir_path() . '/' . path . '/*'), '\n'), 's:symfony.form.name(fnamemodify(v:val, '':t''))')
 
   return filter(list, 'v:val =~ "^".a:a')
 endfunction
