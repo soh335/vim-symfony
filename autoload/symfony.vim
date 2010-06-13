@@ -81,6 +81,10 @@ function! symfony#glob(pattern)
   endif
   return call(s:symfony_glob_func, [a:pattern])
 endfunction
+
+function! s:escpath(path)
+  return s:gsub(a:path, '[/\\]', '[/\\\\]')
+endfunction
 "}}}
 
 " autoload functions {{{
@@ -166,7 +170,7 @@ function! s:symfony.app() dict
 endfunction
 
 function! s:symfony.app_list() dict
-  let path = s:gsub(self.root_path().'/apps/', '[/\\]', '[/\\\\]')
+  let path = s:escpath(self.root_path().'/apps/')
   return map(split(glob(self.root_path().'/apps/*'), '\n'), 's:sub(v:val, path, "")')
 endfunction
 
@@ -180,7 +184,7 @@ endfunction
 
 function! s:symfony.module_list(...) dict
   let app = get(a:000, 0, 0) != '' ? get(a:000, 0) : '*'
-	let path = s:gsub(self.root_path().'/apps/'.app.'/modules/', '[/\\]', '[/\\\\]')
+  let path = s:escpath(self.root_path().'/apps/'.app.'/modules/')
   return map(split(glob(self.root_path().'/apps/'.app.'/modules/*'), '\n'), 's:sub(v:val, path, "")')
 endfunction
 
@@ -220,7 +224,7 @@ function! s:symfony.action() dict
       let module = get(a:000, 1)
     endif
 
-    let path = s:gsub(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/actions/', '[/\\]', '[/\\\\]')
+    let path = s:escpath(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/actions/')
     return map(split(glob(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/actions/*')), 's:sub(v:val, path.''(\S{-})(Action|Component)*\.class\.php'', ''\1'')')
   endfunction
 
