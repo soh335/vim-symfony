@@ -303,11 +303,11 @@ function! s:symfony.view() dict
     endif
 
     let path = s:escpath(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/templates/')
-    return map(filter(split(glob(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/templates/*'), '\n'), 'v:val !~ ''\^'''), 's:sub(v:val, path.''(\S{-})(Success|Error)\.php'', ''\1'')')
+    return map(filter(split(glob(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/templates/*'), '\n'), 'v:val !~ ''\^'''), 's:sub(v:val, path.''(\S{-})(Success|Error|)\.php$'', ''\1'')')
   endfunction
 
-  function! t.suffix(...) dict
-    if s:symfony.type() == 'component'
+  function! t.suffix(name, ...) dict
+    if a:name[0:0] == '_' "if component
       return '.php'
     else
       if a:0 == 1 && a:1 =~ '^e'
@@ -622,21 +622,21 @@ function! s:viewEdit(open_cmd, search_direction, ...)
       let name = s:symfony.action.execute_name(a:search_direction)
       let app = s:symfony.app()
       let module = s:symfony.module()
-      let suffix = s:symfony.view.suffix()
+      let suffix = s:symfony.view.suffix(name)
 
     elseif a:0 == 1 || a:0 == 2
 
       let name = get(a:000, 0, 0)
       let app = s:symfony.app()
       let module = s:symfony.module()
-      let suffix = s:symfony.view.suffix(get(a:000, 1))
+      let suffix = s:symfony.view.suffix(name, get(a:000, 1))
 
     else
 
       let app = get(a:000, 0, 0)
       let module = get(a:000, 1, 0)
       let name = get(a:000, 2, 0)
-      let suffix = s:symfony.view.suffix(get(a:000, 3))
+      let suffix = s:symfony.view.suffix(name, get(a:000, 3))
 
     endif
 
