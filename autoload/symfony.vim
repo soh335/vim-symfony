@@ -311,7 +311,8 @@ function! s:symfony.view() dict
       let module = get(a:000, 1)
     endif
 
-    return map(filter(split(glob(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/templates/*')), 'v:val !~ ''\^'''), 's:sub(v:val, s:symfony.root_path()."/apps/".app."/modules/".module.''/templates/(\S{-})(Success|Error)\.php'', ''\1'')')
+    let path = s:escpath(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/templates/')
+    return map(filter(split(glob(s:symfony.root_path().'/apps/'.app.'/modules/'.module.'/templates/*'), '\n'), 'v:val !~ ''\^'''), 's:sub(v:val, path.''(\S{-})(Success|Error)\.php'', ''\1'')')
   endfunction
 
   function! t.suffix(...) dict
