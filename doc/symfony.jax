@@ -1,0 +1,186 @@
+*symfony.txt* Improve your symfony project in vim
+
+Version: 0.10
+Author: soh kitahara
+URL: http://github.com/soh335/vim-symfony/tree/master
+==============================================================================
+INTRODUCTION						*symfony-introduction*
+
+*vim-symfony* はsymfonyでの開発の際に便利な幾つかのコマンドを提供する Vim
+プラグインです。
+
+==============================================================================
+INTERFACE						*symfony-interface*
+
+------------------------------------------------------------------------------
+COMMANDS						*symfony-commands*
+
+							*:Sview*
+:Sview	[{application}] [{module}] [{template}] [{type}]
+	template ファイルを開きます。action ファイルを開いている際に、引数を与
+	えずに実行した場合は現在のカーソル位置から|g:vim_symfony_default_search_action_top_direction|
+	に応じた向きに function execute というメソッドを検索し、見つかった場合
+	対応する template ファイルを開くことが出来ます。
+
+	{type} には success または error を与える事で明示的にエラーファイルを
+	開く事が出来ます。typeを指定しなかった場合はデフォルトでは success が与
+	えられます。
+
+							*:Saction*
+:Saction [{application}] [{module}] [{action}]
+	action ファイルを開きます。template ファイルを開いている際に、引数を与
+	えずに実行した場合は、現在のファイル名に応じた action ファイルを開きま
+	す。
+
+	{action} を与えずに実行した場合は 
+	apps/{application}/modules/{module}/actions/action.class.php
+	を開きます。
+
+							*:Smodel*
+:Smodel [{name}]
+	model ファイルを開きます。引数を与えずに実行した場合はカーソルの下にあ
+	る単語から model ファイルを探し見つけた場合開きます。
+
+	model ファイルの構成が
+
+	lib/model/foo/**
+	lib/model/bar/**
+
+	のような場合は
+
+	|:Smodel|foo {name} のように実行する必要があります。
+
+							*:Sfilter*
+:Sfilter [{name}]
+	filter ファイルを開きます。|:Smodel| と同じ振る舞いをします。
+
+							*:Sform*
+:Sform	[{name}]
+	form ファイルを開きます。|:Smodel| と同じ振る舞いをします。
+
+							*:Spartial*
+:[range]Spartial [{module}] {partial}
+	partial ファイルを開きます。引数を与えないで実行した場合現在のカーソル
+	が存在するラインから
+
+	include_partial という文字列を探し指定されているモジュールに存在する
+	partial ファイルを開きます。
+
+	template ファイルを開いている際に range を指定し実行した場合引数に応じ
+	たファイルに 選択した内容を書き出し、選択されていたものを
+
+	<?php include_partial('{module}/{partial}'); ?>
+
+	に書き換えます。{module} が省略された場合は現在開いている template 
+	ファイルが存在する {module} がデフォルトして与えられます。
+
+							*:Scomponent*
+:[range]Scomponent [{module}] {component}
+	component ファイルを開きます。|:Scomponent| と同じ振る舞いを行ないま
+	す。違う点は
+
+	include_component という文字列を扱う事です。
+
+							*:Salternate*
+:Salternate
+	現在開いているファイルに関連するファイルを開きます。
+
+	model ファイルを開いている場合 doctrine をプロジェクトで利用している場
+	合
+
+	Foo.class.php と FooTable.class.php
+
+	propel を利用している場合は
+
+	Foo.php と FooPeer.php 
+
+	の切り替えを行ないます。
+
+	view, action ファイルを開いている場合はそれぞれへの切り替えを行いま
+	す。
+
+							*:Symfony*
+:Symfony [{option}]
+	{option} に応じたプロジェクトのsymfony タスクの実行を行ないます。
+
+	|:Symfony| cc
+
+	のように利用する事でエディタを終了することなく symofny cc タスクを実行
+	することが出来ます。タスク名は補完されません。
+
+							
+OTHERCOMMANDS						*symfony-other-commands*
+	上記のコマンドのうち、|:Salternate|, |:Symfony| 以外のコマンドには
+	ファイルを開く際に |split|, |vsplit|, |tabnew|を行い開くための alias
+	のようなコマンドが用意されています。
+
+	例えば |:Saction| の場合
+
+	|split| : SSaction
+	|vsplit|: SVaction
+	|tabnew|: STaction
+
+	のようなコマンドが用意されています。
+==============================================================================
+OPTION							*symfony-option*
+
+							*g:vim_symfony_auto_search_root_dirctory*
+g:vim_symfony_auto_search_root_dirctory
+	このオプションが1なら vim-symfony はファイルを開く度に symfony のディレ
+	クトリを探し、なおかつ symfony というファイルを探しあった場合
+	vim-symfony を有効化します。デフォルトは1です。
+	
+							*g:vim_symfony_default_search_action_top_direction*
+'g:vim_symfony_default_search_action_top_direction
+	action ファイルから |:Sview| を実行する際に対応するメソッドを探す向
+	を指定します。1ならカーソルから上方向、0なら下方向になります。
+
+							*g:vim_symfony_autocmd_version*
+g:vim_symfony_autocmd_version
+	このオプションが1なら symfony のディレクトリを見つけ、vim-symfony が有
+	効化された際に symfony のバージョンに応じた User イベントが発生 します
+	。
+
+	例えば
+
+	autocmd User Symfony10 setlocal tags+=$HOME/tags/symfony10.tags
+	autocmd User Symfony14 setlocal tags+=$HOME/tags/symfony14.tags
+
+	のように設定することで symfony 1.0 と 1.4 によって利用するタグファイル
+	の変更等が行う事が出来ます。
+
+	またこのオプションが0の場合は Symfony という User イベントが発生します
+	。
+
+							*g:vim_symfony_{name}_default_open_cmd*
+g:vim_symfony_{name}_default_open_cmd
+	|symfony-commands|で定義された、 |:Saction| のようなデフォルトコマンド
+	の挙動を |split|, |vsplit|, |tabnew| などに変更する事が出来ます。
+
+	{name} には action, view, model, form, filter, partial, component を指
+	定することが出来ます。
+==============================================================================
+CHANGELOG						*symfony-changelog*
+0.10:
+	- 大幅な修正
+	- doctrine への対応
+	- fuzzyfinder, snipMate 用のインターフェースを消去
+	- 日本語のドキュメントを追加
+0.05:
+	- 幾つかのバグの修正
+	- g:g:symfony_filetyp option オプションを追加
+	- fuzzyfinder インターフェースの修正
+0.04:
+	- fuzzyfinder のためのインターフェースを追加
+  	- symfony という filetype を付加するように変更
+  	- snipMate.vim 用のスニペットを追加
+0.03:
+	- 幾つかのバグの修正
+0.02:
+	- vim-symfony を有効化出来ないバグを修正
+	- 幾つかのバグの修正
+0.01:
+	- 初版
+==============================================================================
+
+vim:tw=78:ts=8:ft=help:norl:noet:fen:fdl=0:fdm=marker:
