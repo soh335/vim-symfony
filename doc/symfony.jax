@@ -108,11 +108,16 @@ COMMANDS						*symfony-commands*
 	のように利用する事でエディタを終了することなく symofny cc タスクを実行
 	することが出来ます。タスク名は補完されません。
 
-							
+							*:SymfonyOpenProject*
+:SymfonyOpenProject
+	|g:vim_symfony_auto_search_root_dirctory|が無効になっている場合等に
+	実行することで symfony のディレクトリを探し、|symfony-commands|のコマ
+	ンドを定義します。
+
 OTHERCOMMANDS						*symfony-other-commands*
-	上記のコマンドのうち、|:Salternate|, |:Symfony| 以外のコマンドには
-	ファイルを開く際に |split|, |vsplit|, |tabnew|を行い開くための alias
-	のようなコマンドが用意されています。
+	上記のコマンドのうち、|:Salternate|, |:Symfony|, |SymfonyOpenProject| 
+	以外のコマンドにおいてファイルを開く際に |split|, |vsplit|, |tabnew|
+	を行い開くための alias のようなコマンドが用意されています。
 
 	例えば |:Saction| の場合
 
