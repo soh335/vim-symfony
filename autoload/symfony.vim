@@ -889,7 +889,7 @@ function! s:DefineCommand()
   call s:DefineEditCommand('partial', ['<line1>', '<line2>', '<count>', '<f-args>'])
   call s:DefineEditCommand('component', ['<line1>', '<line2>', '<count>', '<f-args>'])
   command! -buffer -nargs=0 Salternate call symfony#alternate('edit')
-  command! -buffer -nargs=0 Sfind call symfony#find('edit')
+  "command! -buffer -nargs=0 Sfind call symfony#find('edit')
   command! -buffer -nargs=* Symfony call symfony#command(<f-args>)
 endfunction
 
