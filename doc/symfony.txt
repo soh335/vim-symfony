@@ -1,0 +1,165 @@
+*symfony.txt* Improve your symfony project in vim
+
+Version: 0.10
+Author: soh kitahara
+URL: http://github.com/soh335/vim-symfony/tree/master
+==============================================================================
+INTRODUCTION						*symfony-introduction*
+
+*vim-symfony* is vim plugin that provide some convenient commands for
+develping with symfony. 
+
+==============================================================================
+INTERFACE						*symfony-interface*
+
+------------------------------------------------------------------------------
+COMMANDS						*symfony-commands*
+
+							*:Sview*
+:Sview	[{application}] [{module}] [{template}] [{type}]
+	Open template file. If you execute this command with no argument in
+	action file, search method like "function execute" from current
+	cursor position to direction of |g:vim_symfony_default_search_action_top_direction|
+	setting, and open correspnd template file.
+
+	{type} can be passed success or error and open template file 
+	expressly. if {type} isn't given, passed success as default.
+
+							*:Saction*
+:Saction [{application}] [{module}] [{action}]
+	Open action file. If you execute this command with no argument in
+	template file, open correspnd action file by current template file
+	name.
+
+	If {action} isn't passed, will open
+	apps/{application}/modules/{module}/actions/action.class.php
+
+							*:Smodel*
+:Smodel [{name}]
+	Open model file. If you execute this command with no argument, search
+	model file by word that is under current cursor position.
+
+	If model files format like this
+
+	lib/model/foo/**
+	lib/model/bar/**
+
+	you need to execute this command like |:Smodel| foo {name}.
+
+							*:Sfilter*
+:Sfilter [{name}]
+	Open filter file. This is same behavior as |:Smodel|
+
+							*:Sform*
+:Sform	[{name}]
+	Open form file. This is same behavior as |:Smodel|
+
+							*:Spartial*
+:[range]Spartial [{module}] {partial}
+	Open partial file. If you execute this command with no argument,
+	search word "include_partial" in current position line and open.
+
+	If execute with range in template file, write selected content to
+	partial file. And selected is replace to
+
+	<?php include_partial('{module}/{partial}'); ?>
+
+	If {module} isn't passed, pass current module as default.
+
+							*:Scomponent*
+:[range]Scomponent [{module}] {component}
+	Open component file. This is same behavior as |:Spartial|. But
+	different point is to treat "include_component" instead of 
+	"include_partial".
+
+							*:Salternate*
+:Salternate
+	Open alternate current file .
+
+	If you open model file and use doctrine in project can switch 
+	Foo.class.php and FooTable.class.php .  And also use propel, 
+	can switch Foo.php and FooPeer.php
+
+							*:Symfony*
+:Symfony [{option}]
+	Execute symfony task by {option}. For example, execute
+
+	|:Symfony| cc
+
+	. It can execute symfony cc task without exiting vim. symofny task
+	name have not been complmented yet.
+
+							*:SymfonyOpenProject*
+:SymfonyOpenProject
+	Find symfony direcotry and define |symfony-commands| 's commands.
+	It use when |g:vim_symfony_auto_search_root_dirctory| is disabled.
+
+OTHERCOMMANDS						*symfony-other-commands*
+	|symfony-commands|'s command exclude |:Salternate|, |:Symfony|,
+	|SymfonyOpenProject|is prepared like alias command for opening with
+	|split|, |vsplit|, |tabnew|.
+
+	For example |:Saction| is prepared like these commands.
+
+	|split| : SSaction
+	|vsplit|: SVaction
+	|tabnew|: STaction
+
+==============================================================================
+OPTION							*symfony-option*
+
+							*g:vim_symfony_auto_search_root_dirctory*
+g:vim_symfony_auto_search_root_dirctory
+	If this option is setted 1, vim-symfony find symfony direcotry,  search 
+	file name of symfony. If find, vim-symfony is enabled. default is 1.
+	
+							*g:vim_symfony_default_search_action_top_direction*
+'g:vim_symfony_default_search_action_top_direction
+	This option is set direction of executing |:Sview| in action file. 1
+	is to top and 2 is to bottom.
+
+							*g:vim_symfony_autocmd_version*
+g:vim_symfony_autocmd_version
+	If this option is setteed 1, fire User event when vim-symfony is
+	enabled.
+
+	For example, you write like this, separate use tags file in symfony
+	version.
+
+	autocmd User Symfony10 setlocal tags+=$HOME/tags/symfony10.tags
+	autocmd User Symfony14 setlocal tags+=$HOME/tags/symfony14.tags
+
+	And also, it is disabled, fire User event as Symfony.
+
+							*g:vim_symfony_{name}_default_open_cmd*
+g:vim_symfony_{name}_default_open_cmd
+	Change default behavior command like |:Saction| that is defined in
+	|symfony-commands|, to |split|, |vsplit|, |tabnew|.
+
+	You can set to {name} within action, view, model, form, filter,
+	partial and component.
+==============================================================================
+CHANGELOG						*symfony-changelog*
+0.10:
+	- a lot of fix.
+	- support doctrine
+	- remove fuzzyfinder and snipMate interface
+	- add Japanese document
+0.05:
+	- Fix some bugs.
+	- add g:g:symfony_filetyp option
+	- fix fuf action for symofnyAction and symfonyView
+0.04:
+	- add fuzzyfinder interface
+	- add filetype 'symfony'
+	- add snippets of snipMate.vim
+0.03:
+	- Fix some bugs.
+	- don't use sf_default_app
+0.02:
+	- Fix some bugs.
+	- add detect when filetype is netrw and autocmd VimEnter
+0.01:
+	- First release.
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:noet:fen:fdl=0:fdm=marker:
