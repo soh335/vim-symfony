@@ -76,7 +76,7 @@ COMMANDS						*symfony-commands*
 
 							*:Scomponent*
 :[range]Scomponent [{module}] {component}
-	component ファイルを開きます。|:Scomponent| と同じ振る舞いを行ないま
+	component ファイルを開きます。|:Spartial| と同じ振る舞いを行ないま
 	す。違う点は
 
 	include_component という文字列を扱う事です。
