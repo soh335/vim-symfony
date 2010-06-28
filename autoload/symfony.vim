@@ -597,7 +597,7 @@ function! s:actionEdit(open_cmd, ...)
 
       let app = get(a:000, 0, 0)
       let module = get(a:000, 1, 0)
-      let name = get(a:000, 2) != "actions" ? get(a:000, 2) . 'Action' : 'actions'
+      let name = get(a:000, 2) =~ '\v^actions|components$' ? get(a:000, 2) : get(a:000, 2) . 'Action'
       let num = 1
 
     endif
