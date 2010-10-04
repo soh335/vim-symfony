@@ -77,7 +77,7 @@ endfunction
 "}}}
 
 " autoload functions {{{
-function! symfony#symfony()
+function! symfony#core()
   return s:symfony
 endfunction
 
