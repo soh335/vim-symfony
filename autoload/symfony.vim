@@ -1,5 +1,6 @@
-"Name: vim-symfony
-"Author: soh kitahara <sugarbabe335@gmail.com>
+"Version: 0.10
+"Author: soh335
+"License: MIT License
 
 let s:symfony = {}
 let s:is_debug = 0

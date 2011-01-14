@@ -1,5 +1,6 @@
-"Name: vim-symfony
-"Author: soh kitahara <sugarbabe335@gmail.com>
+"Version: 0.10
+"Author: soh335
+"License: MIT License
 
 if exists('g:loaded_vim_symfony')
   finish

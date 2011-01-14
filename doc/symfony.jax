@@ -1,8 +1,9 @@
 *symfony.txt* Improve your symfony project in vim
 
 Version: 0.10
-Author: soh kitahara
+Author: soh335
 URL: http://github.com/soh335/vim-symfony/tree/master
+License: MIT License
 ==============================================================================
 INTRODUCTION						*symfony-introduction*
 
