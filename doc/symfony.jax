@@ -33,7 +33,7 @@ COMMANDS						*symfony-commands*
 	えずに実行した場合は、現在のファイル名に応じた action ファイルを開きま
 	す。
 
-	{action} を与えずに実行した場合は 
+	{action} を与えずに実行した場合は
 	apps/{application}/modules/{module}/actions/action.class.php
 	を開きます。
 
@@ -72,7 +72,7 @@ COMMANDS						*symfony-commands*
 
 	<?php include_partial('{module}/{partial}'); ?>
 
-	に書き換えます。{module} が省略された場合は現在開いている template 
+	に書き換えます。{module} が省略された場合は現在開いている template
 	ファイルが存在する {module} がデフォルトして与えられます。
 
 							*:Scomponent*
@@ -93,7 +93,7 @@ COMMANDS						*symfony-commands*
 
 	propel を利用している場合は
 
-	Foo.php と FooPeer.php 
+	Foo.php と FooPeer.php
 
 	の切り替えを行ないます。
 
@@ -116,7 +116,7 @@ COMMANDS						*symfony-commands*
 	ンドを定義します。
 
 OTHERCOMMANDS						*symfony-other-commands*
-	上記のコマンドのうち、|:Salternate|, |:Symfony|, |SymfonyOpenProject| 
+	上記のコマンドのうち、|:Salternate|, |:Symfony|, |SymfonyOpenProject|
 	以外のコマンドにおいてファイルを開く際に |split|, |vsplit|, |tabnew|
 	を行い開くための alias のようなコマンドが用意されています。
 
@@ -135,7 +135,7 @@ g:vim_symfony_auto_search_root_dirctory
 	このオプションが1なら vim-symfony はファイルを開く度に symfony のディレ
 	クトリを探し、なおかつ symfony というファイルを探しあった場合
 	vim-symfony を有効化します。デフォルトは1です。
-	
+
 							*g:vim_symfony_default_search_action_top_direction*
 'g:vim_symfony_default_search_action_top_direction
 	action ファイルから |:Sview| を実行する際に対応するメソッドを探す向

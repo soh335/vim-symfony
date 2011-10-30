@@ -8,7 +8,7 @@ License: MIT License
 INTRODUCTION						*symfony-introduction*
 
 *vim-symfony* is vim plugin that provide some convenient commands for
-develping with symfony. 
+develping with symfony.
 
 ==============================================================================
 INTERFACE						*symfony-interface*
@@ -23,7 +23,7 @@ COMMANDS						*symfony-commands*
 	cursor position to direction of |g:vim_symfony_default_search_action_top_direction|
 	setting, and open correspnd template file.
 
-	{type} can be passed success or error and open template file 
+	{type} can be passed success or error and open template file
 	expressly. if {type} isn't given, passed success as default.
 
 							*:Saction*
@@ -70,15 +70,15 @@ COMMANDS						*symfony-commands*
 							*:Scomponent*
 :[range]Scomponent [{module}] {component}
 	Open component file. This is same behavior as |:Spartial|. But
-	different point is to treat "include_component" instead of 
+	different point is to treat "include_component" instead of
 	"include_partial".
 
 							*:Salternate*
 :Salternate
 	Open alternate current file .
 
-	If you open model file and use doctrine in project can switch 
-	Foo.class.php and FooTable.class.php .  And also use propel, 
+	If you open model file and use doctrine in project can switch
+	Foo.class.php and FooTable.class.php .  And also use propel,
 	can switch Foo.php and FooPeer.php
 
 							*:Symfony*
@@ -111,9 +111,9 @@ OPTION							*symfony-option*
 
 							*g:vim_symfony_auto_search_root_dirctory*
 g:vim_symfony_auto_search_root_dirctory
-	If this option is setted 1, vim-symfony find symfony direcotry,  search 
+	If this option is setted 1, vim-symfony find symfony direcotry,  search
 	file name of symfony. If find, vim-symfony is enabled. default is 1.
-	
+
 							*g:vim_symfony_default_search_action_top_direction*
 'g:vim_symfony_default_search_action_top_direction
 	This option is set direction of executing |:Sview| in action file. 1
