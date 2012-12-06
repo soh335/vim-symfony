@@ -429,7 +429,7 @@ function! s:symfony.model() dict
 endfunction
 
 "model function {{{
-function! DoctrineModel() 
+function! DoctrineModel()
   let t = {}
 
   function! t.name(...) dict
@@ -475,7 +475,7 @@ function! DoctrineModel()
 endfunction
 
 
-function! PropelModel() 
+function! PropelModel()
 
   let t = {}
 
@@ -617,7 +617,7 @@ endfunction
 
 function! s:viewEdit(open_cmd, search_direction, ...)
 
-  try 
+  try
     if a:0 == 0 "call in action or components file
 
       let name = s:symfony.action.execute_name(a:search_direction)
@@ -659,7 +659,7 @@ function! s:modelEdit(open_cmd, ...)
   endif
 
   let file = call(s:symfony.model().path, name, s:symfony.model())
-  
+
   if file != ''
     call s:open(a:open_cmd, file)
   else
@@ -799,7 +799,7 @@ function! s:componentEdit(open_cmd, line1, line2, count, ...)
   endif
 
 endfunction
-"}}} 
+"}}}
 
 " {{{ completation functions
 function! s:CompleteActionList(a, l, p)

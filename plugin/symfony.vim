@@ -31,11 +31,11 @@ function! s:SymfonyOpenProject(filename)
     if has_key(s:symfony_roots, nfn)
       return symfony#projectInit(nfn)
     endif
-    let ofn = nfn 
+    let ofn = nfn
     let nfn = fnamemodify(nfn,':h')
   endwhile
   while fn != ofn
-    if s:CheckIsRoot(fn) 
+    if s:CheckIsRoot(fn)
       let s:symfony_roots[fn] = 1
       return symfony#projectInit(fn)
     endif
